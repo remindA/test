@@ -1,0 +1,73 @@
+# depslib dependency file v1.0
+1497429596 source:/home/ben/test/arp/MAC.c
+	"MAC.h"
+
+1497603708 /home/ben/test/arp/MAC.h
+	<stdio.h>
+	<stdlib.h>
+	<string.h>
+	<unistd.h>
+	<sys/types.h>
+	<sys/socket.h>
+	<netinet/in.h>
+	<arpa/inet.h>
+	<netdb.h>
+	<net/if.h>
+	<net/if_arp.h>
+	<sys/ioctl.h>
+	<linux/if_packet.h>
+	<linux/if_ether.h>
+
+1497605005 source:/home/ben/test/arp/main.c
+	"MAC.h"
+	<errno.h>
+
+1497515744 source:/home/ben/test/arp/arp/arp.c
+	"arp.h"
+
+1497599269 /home/ben/test/arp/arp/arp.h
+	<stdio.h>
+	<sys/types.h>
+	<sys/socket.h>
+	<netinet/in.h>
+	<arpa/inet.h>
+	<sys/ioctl.h>
+	<net/if_arp.h>
+	<string.h>
+
+1497429596 source:/home/richard/test/arp/MAC.c
+	"MAC.h"
+
+1497603708 /home/richard/test/arp/MAC.h
+	<stdio.h>
+	<stdlib.h>
+	<string.h>
+	<unistd.h>
+	<sys/types.h>
+	<sys/socket.h>
+	<netinet/in.h>
+	<arpa/inet.h>
+	<netdb.h>
+	<net/if.h>
+	<net/if_arp.h>
+	<sys/ioctl.h>
+	<linux/if_packet.h>
+	<linux/if_ether.h>
+
+1504260669 source:/home/richard/test/arp/main.c
+	"MAC.h"
+	<errno.h>
+
+1497515744 source:/home/richard/test/arp/arp/arp.c
+	"arp.h"
+
+1497599269 /home/richard/test/arp/arp/arp.h
+	<stdio.h>
+	<sys/types.h>
+	<sys/socket.h>
+	<netinet/in.h>
+	<arpa/inet.h>
+	<sys/ioctl.h>
+	<net/if_arp.h>
+	<string.h>
+

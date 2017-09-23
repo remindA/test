@@ -1,0 +1,2131 @@
+
+
+
+
+
+
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+  <link rel="dns-prefetch" href="https://assets-cdn.github.com">
+  <link rel="dns-prefetch" href="https://avatars0.githubusercontent.com">
+  <link rel="dns-prefetch" href="https://avatars1.githubusercontent.com">
+  <link rel="dns-prefetch" href="https://avatars2.githubusercontent.com">
+  <link rel="dns-prefetch" href="https://avatars3.githubusercontent.com">
+  <link rel="dns-prefetch" href="https://github-cloud.s3.amazonaws.com">
+  <link rel="dns-prefetch" href="https://user-images.githubusercontent.com/">
+
+
+
+  <link crossorigin="anonymous" href="https://assets-cdn.github.com/assets/frameworks-bedfc518345498ab3204d330c1727cde7e733526a09cd7df6867f6a231565091.css" media="all" rel="stylesheet" />
+  <link crossorigin="anonymous" href="https://assets-cdn.github.com/assets/github-7fe2b92304082e7579ea9aaf717b05ebef9288ada19f3ff3afeca11b72e5f4aa.css" media="all" rel="stylesheet" />
+  
+  
+  <link crossorigin="anonymous" href="https://assets-cdn.github.com/assets/site-877643c520258c4fa15ac8d1664d84efd0e3db56f5e544ccac58da0e50489904.css" media="all" rel="stylesheet" />
+  
+
+  <meta name="viewport" content="width=device-width">
+  
+  <title>GitHub - Valloric/YouCompleteMe: A code-completion engine for Vim</title>
+  <link rel="search" type="application/opensearchdescription+xml" href="/opensearch.xml" title="GitHub">
+  <link rel="fluid-icon" href="https://github.com/fluidicon.png" title="GitHub">
+  <meta property="fb:app_id" content="1401488693436528">
+
+    
+    <meta content="https://avatars1.githubusercontent.com/u/919444?v=4&amp;s=400" property="og:image" /><meta content="GitHub" property="og:site_name" /><meta content="object" property="og:type" /><meta content="Valloric/YouCompleteMe" property="og:title" /><meta content="https://github.com/Valloric/YouCompleteMe" property="og:url" /><meta content="YouCompleteMe - A code-completion engine for Vim" property="og:description" />
+
+  <link rel="assets" href="https://assets-cdn.github.com/">
+  
+  <meta name="pjax-timeout" content="1000">
+  
+  <meta name="request-id" content="CDA6:2BD85:B45E1FD:1117C189:59BB9798" data-pjax-transient>
+  
+
+  <meta name="selected-link" value="repo_source" data-pjax-transient>
+
+  <meta name="google-site-verification" content="KT5gs8h0wvaagLKAVWq8bbeNwnZZK1r1XQysX3xurLU">
+<meta name="google-site-verification" content="ZzhVyEFwb7w3e0-uOTltm8Jsck2F5StVihD0exw2fsA">
+    <meta name="google-analytics" content="UA-3769691-2">
+
+<meta content="collector.githubapp.com" name="octolytics-host" /><meta content="github" name="octolytics-app-id" /><meta content="https://collector.githubapp.com/github-external/browser_event" name="octolytics-event-url" /><meta content="CDA6:2BD85:B45E1FD:1117C189:59BB9798" name="octolytics-dimension-request_id" /><meta content="sea" name="octolytics-dimension-region_edge" /><meta content="iad" name="octolytics-dimension-region_render" />
+<meta content="/&lt;user-name&gt;/&lt;repo-name&gt;" data-pjax-transient="true" name="analytics-location" />
+
+
+
+
+  <meta class="js-ga-set" name="dimension1" content="Logged Out">
+
+
+  
+
+      <meta name="hostname" content="github.com">
+  <meta name="user-login" content="">
+
+      <meta name="expected-hostname" content="github.com">
+    <meta name="js-proxy-site-detection-payload" content="MDdlZjM0NGNlNjNkZGMzZmExN2I4ZjUwNTlkOTdhZThlZmE5OWViMGFmMWY1YjFiM2MxNWM3YzAwOWY0YTYyOXx7InJlbW90ZV9hZGRyZXNzIjoiMTE0LjIyMS4xMzEuMTMxIiwicmVxdWVzdF9pZCI6IkNEQTY6MkJEODU6QjQ1RTFGRDoxMTE3QzE4OTo1OUJCOTc5OCIsInRpbWVzdGFtcCI6MTUwNTQ2NjI2NSwiaG9zdCI6ImdpdGh1Yi5jb20ifQ==">
+
+
+  <meta name="html-safe-nonce" content="67021629d64a5664e8188c975a015acc9577e001">
+
+  <meta http-equiv="x-pjax-version" content="7958aa829432bcdf111a16b59e8fb4ff">
+  
+
+      <link href="https://github.com/Valloric/YouCompleteMe/commits/master.atom" rel="alternate" title="Recent Commits to YouCompleteMe:master" type="application/atom+xml">
+
+  <meta name="description" content="YouCompleteMe - A code-completion engine for Vim">
+  <meta name="go-import" content="github.com/Valloric/YouCompleteMe git https://github.com/Valloric/YouCompleteMe.git">
+
+  <meta content="919444" name="octolytics-dimension-user_id" /><meta content="Valloric" name="octolytics-dimension-user_login" /><meta content="4037197" name="octolytics-dimension-repository_id" /><meta content="Valloric/YouCompleteMe" name="octolytics-dimension-repository_nwo" /><meta content="true" name="octolytics-dimension-repository_public" /><meta content="false" name="octolytics-dimension-repository_is_fork" /><meta content="4037197" name="octolytics-dimension-repository_network_root_id" /><meta content="Valloric/YouCompleteMe" name="octolytics-dimension-repository_network_root_nwo" /><meta content="false" name="octolytics-dimension-repository_explore_github_marketplace_ci_cta_shown" />
+
+
+    <link rel="canonical" href="https://github.com/Valloric/YouCompleteMe" data-pjax-transient>
+
+
+  <meta name="browser-stats-url" content="https://api.github.com/_private/browser/stats">
+
+  <meta name="browser-errors-url" content="https://api.github.com/_private/browser/errors">
+
+  <link rel="mask-icon" href="https://assets-cdn.github.com/pinned-octocat.svg" color="#000000">
+  <link rel="icon" type="image/x-icon" href="https://assets-cdn.github.com/favicon.ico">
+
+<meta name="theme-color" content="#1e2327">
+
+
+
+  </head>
+
+  <body class="logged-out env-production">
+    
+
+  <div class="position-relative js-header-wrapper ">
+    <a href="#start-of-content" tabindex="1" class="px-2 py-4 show-on-focus js-skip-to-content">Skip to content</a>
+    <div id="js-pjax-loader-bar" class="pjax-loader-bar"><div class="progress"></div></div>
+
+    
+    
+    
+
+
+
+        <header class="Header header-logged-out  position-relative f4 py-3" role="banner">
+  <div class="container-lg d-flex px-3">
+    <div class="d-flex flex-justify-between flex-items-center">
+      <a class="header-logo-invertocat my-0" href="https://github.com/" aria-label="Homepage" data-ga-click="(Logged out) Header, go to homepage, icon:logo-wordmark">
+        <svg aria-hidden="true" class="octicon octicon-mark-github" height="32" version="1.1" viewBox="0 0 16 16" width="32"><path fill-rule="evenodd" d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.013 8.013 0 0 0 16 8c0-4.42-3.58-8-8-8z"/></svg>
+      </a>
+
+    </div>
+
+    <div class="HeaderMenu HeaderMenu--bright d-flex flex-justify-between flex-auto">
+        <nav class="mt-0">
+          <ul class="d-flex list-style-none">
+              <li class="ml-2">
+                <a href="/features" class="js-selected-navigation-item HeaderNavlink px-0 py-2 m-0" data-ga-click="Header, click, Nav menu - item:features" data-selected-links="/features /features/project-management /features/code-review /features/project-management /features/integrations /features">
+                  Features
+</a>              </li>
+              <li class="ml-4">
+                <a href="/business" class="js-selected-navigation-item HeaderNavlink px-0 py-2 m-0" data-ga-click="Header, click, Nav menu - item:business" data-selected-links="/business /business/security /business/customers /business">
+                  Business
+</a>              </li>
+
+              <li class="ml-4">
+                <a href="/explore" class="js-selected-navigation-item HeaderNavlink px-0 py-2 m-0" data-ga-click="Header, click, Nav menu - item:explore" data-selected-links="/explore /trending /trending/developers /integrations /integrations/feature/code /integrations/feature/collaborate /integrations/feature/ship showcases showcases_search showcases_landing /explore">
+                  Explore
+</a>              </li>
+
+              <li class="ml-4">
+                    <a href="/marketplace" class="js-selected-navigation-item HeaderNavlink px-0 py-2 m-0" data-ga-click="Header, click, Nav menu - item:marketplace" data-selected-links=" /marketplace">
+                      Marketplace
+</a>              </li>
+              <li class="ml-4">
+                <a href="/pricing" class="js-selected-navigation-item HeaderNavlink px-0 py-2 m-0" data-ga-click="Header, click, Nav menu - item:pricing" data-selected-links="/pricing /pricing/developer /pricing/team /pricing/business-hosted /pricing/business-enterprise /pricing">
+                  Pricing
+</a>              </li>
+          </ul>
+        </nav>
+
+      <div class="d-flex">
+          <div class="d-lg-flex flex-items-center mr-3">
+            <div class="header-search scoped-search site-scoped-search js-site-search" role="search">
+  <!-- '"` --><!-- </textarea></xmp> --></option></form><form accept-charset="UTF-8" action="/Valloric/YouCompleteMe/search" class="js-site-search-form" data-scoped-search-url="/Valloric/YouCompleteMe/search" data-unscoped-search-url="/search" method="get"><div style="margin:0;padding:0;display:inline"><input name="utf8" type="hidden" value="&#x2713;" /></div>
+    <label class="form-control header-search-wrapper js-chromeless-input-container">
+        <a href="/Valloric/YouCompleteMe" class="header-search-scope no-underline">This repository</a>
+      <input type="text"
+        class="form-control header-search-input js-site-search-focus js-site-search-field is-clearable"
+        data-hotkey="s"
+        name="q"
+        value=""
+        placeholder="Search"
+        aria-label="Search this repository"
+        data-unscoped-placeholder="Search GitHub"
+        data-scoped-placeholder="Search"
+        autocapitalize="off">
+        <input type="hidden" class="js-site-search-type-field" name="type" >
+    </label>
+</form></div>
+
+          </div>
+
+        <span class="d-inline-block">
+            <div class="HeaderNavlink px-0 py-2 m-0">
+              <a class="text-bold text-white no-underline" href="/login?return_to=%2FValloric%2FYouCompleteMe" data-ga-click="(Logged out) Header, clicked Sign in, text:sign-in">Sign in</a>
+                <span class="text-gray">or</span>
+                <a class="text-bold text-white no-underline" href="/join?source=header-repo" data-ga-click="(Logged out) Header, clicked Sign up, text:sign-up">Sign up</a>
+            </div>
+        </span>
+      </div>
+    </div>
+  </div>
+</header>
+
+
+  </div>
+
+  <div id="start-of-content" class="show-on-focus"></div>
+
+    <div id="js-flash-container">
+</div>
+
+
+
+  <div role="main">
+        <div itemscope itemtype="http://schema.org/SoftwareSourceCode">
+    <div id="js-repo-pjax-container" data-pjax-container>
+      
+
+
+
+
+    <div class="pagehead repohead instapaper_ignore readability-menu experiment-repo-nav">
+      <div class="container repohead-details-container">
+
+        <ul class="pagehead-actions">
+  <li>
+      <a href="/login?return_to=%2FValloric%2FYouCompleteMe"
+    class="btn btn-sm btn-with-count tooltipped tooltipped-n"
+    aria-label="You must be signed in to watch a repository" rel="nofollow">
+    <svg aria-hidden="true" class="octicon octicon-eye" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M8.06 2C3 2 0 8 0 8s3 6 8.06 6C13 14 16 8 16 8s-3-6-7.94-6zM8 12c-2.2 0-4-1.78-4-4 0-2.2 1.8-4 4-4 2.22 0 4 1.8 4 4 0 2.22-1.78 4-4 4zm2-4c0 1.11-.89 2-2 2-1.11 0-2-.89-2-2 0-1.11.89-2 2-2 1.11 0 2 .89 2 2z"/></svg>
+    Watch
+  </a>
+  <a class="social-count" href="/Valloric/YouCompleteMe/watchers"
+     aria-label="566 users are watching this repository">
+    566
+  </a>
+
+  </li>
+
+  <li>
+      <a href="/login?return_to=%2FValloric%2FYouCompleteMe"
+    class="btn btn-sm btn-with-count tooltipped tooltipped-n"
+    aria-label="You must be signed in to star a repository" rel="nofollow">
+    <svg aria-hidden="true" class="octicon octicon-star" height="16" version="1.1" viewBox="0 0 14 16" width="14"><path fill-rule="evenodd" d="M14 6l-4.9-.64L7 1 4.9 5.36 0 6l3.6 3.26L2.67 14 7 11.67 11.33 14l-.93-4.74z"/></svg>
+    Star
+  </a>
+
+    <a class="social-count js-social-count" href="/Valloric/YouCompleteMe/stargazers"
+      aria-label="14624 users starred this repository">
+      14,624
+    </a>
+
+  </li>
+
+  <li>
+      <a href="/login?return_to=%2FValloric%2FYouCompleteMe"
+        class="btn btn-sm btn-with-count tooltipped tooltipped-n"
+        aria-label="You must be signed in to fork a repository" rel="nofollow">
+        <svg aria-hidden="true" class="octicon octicon-repo-forked" height="16" version="1.1" viewBox="0 0 10 16" width="10"><path fill-rule="evenodd" d="M8 1a1.993 1.993 0 0 0-1 3.72V6L5 8 3 6V4.72A1.993 1.993 0 0 0 2 1a1.993 1.993 0 0 0-1 3.72V6.5l3 3v1.78A1.993 1.993 0 0 0 5 15a1.993 1.993 0 0 0 1-3.72V9.5l3-3V4.72A1.993 1.993 0 0 0 8 1zM2 4.2C1.34 4.2.8 3.65.8 3c0-.65.55-1.2 1.2-1.2.65 0 1.2.55 1.2 1.2 0 .65-.55 1.2-1.2 1.2zm3 10c-.66 0-1.2-.55-1.2-1.2 0-.65.55-1.2 1.2-1.2.65 0 1.2.55 1.2 1.2 0 .65-.55 1.2-1.2 1.2zm3-10c-.66 0-1.2-.55-1.2-1.2 0-.65.55-1.2 1.2-1.2.65 0 1.2.55 1.2 1.2 0 .65-.55 1.2-1.2 1.2z"/></svg>
+        Fork
+      </a>
+
+    <a href="/Valloric/YouCompleteMe/network" class="social-count"
+       aria-label="1687 users forked this repository">
+      1,687
+    </a>
+  </li>
+</ul>
+
+        <h1 class="public ">
+  <svg aria-hidden="true" class="octicon octicon-repo" height="16" version="1.1" viewBox="0 0 12 16" width="12"><path fill-rule="evenodd" d="M4 9H3V8h1v1zm0-3H3v1h1V6zm0-2H3v1h1V4zm0-2H3v1h1V2zm8-1v12c0 .55-.45 1-1 1H6v2l-1.5-1.5L3 16v-2H1c-.55 0-1-.45-1-1V1c0-.55.45-1 1-1h10c.55 0 1 .45 1 1zm-1 10H1v2h2v-1h3v1h5v-2zm0-10H2v9h9V1z"/></svg>
+  <span class="author" itemprop="author"><a href="/Valloric" class="url fn" rel="author">Valloric</a></span><!--
+--><span class="path-divider">/</span><!--
+--><strong itemprop="name"><a href="/Valloric/YouCompleteMe" data-pjax="#js-repo-pjax-container">YouCompleteMe</a></strong>
+
+</h1>
+
+      </div>
+      <div class="container">
+        
+<nav class="reponav js-repo-nav js-sidenav-container-pjax"
+     itemscope
+     itemtype="http://schema.org/BreadcrumbList"
+     role="navigation"
+     data-pjax="#js-repo-pjax-container">
+
+  <span itemscope itemtype="http://schema.org/ListItem" itemprop="itemListElement">
+    <a href="/Valloric/YouCompleteMe" class="js-selected-navigation-item selected reponav-item" data-hotkey="g c" data-selected-links="repo_source repo_downloads repo_commits repo_releases repo_tags repo_branches /Valloric/YouCompleteMe" itemprop="url">
+      <svg aria-hidden="true" class="octicon octicon-code" height="16" version="1.1" viewBox="0 0 14 16" width="14"><path fill-rule="evenodd" d="M9.5 3L8 4.5 11.5 8 8 11.5 9.5 13 14 8 9.5 3zm-5 0L0 8l4.5 5L6 11.5 2.5 8 6 4.5 4.5 3z"/></svg>
+      <span itemprop="name">Code</span>
+      <meta itemprop="position" content="1">
+</a>  </span>
+
+    <span itemscope itemtype="http://schema.org/ListItem" itemprop="itemListElement">
+      <a href="/Valloric/YouCompleteMe/issues" class="js-selected-navigation-item reponav-item" data-hotkey="g i" data-selected-links="repo_issues repo_labels repo_milestones /Valloric/YouCompleteMe/issues" itemprop="url">
+        <svg aria-hidden="true" class="octicon octicon-issue-opened" height="16" version="1.1" viewBox="0 0 14 16" width="14"><path fill-rule="evenodd" d="M7 2.3c3.14 0 5.7 2.56 5.7 5.7s-2.56 5.7-5.7 5.7A5.71 5.71 0 0 1 1.3 8c0-3.14 2.56-5.7 5.7-5.7zM7 1C3.14 1 0 4.14 0 8s3.14 7 7 7 7-3.14 7-7-3.14-7-7-7zm1 3H6v5h2V4zm0 6H6v2h2v-2z"/></svg>
+        <span itemprop="name">Issues</span>
+        <span class="Counter">66</span>
+        <meta itemprop="position" content="2">
+</a>    </span>
+
+  <span itemscope itemtype="http://schema.org/ListItem" itemprop="itemListElement">
+    <a href="/Valloric/YouCompleteMe/pulls" class="js-selected-navigation-item reponav-item" data-hotkey="g p" data-selected-links="repo_pulls /Valloric/YouCompleteMe/pulls" itemprop="url">
+      <svg aria-hidden="true" class="octicon octicon-git-pull-request" height="16" version="1.1" viewBox="0 0 12 16" width="12"><path fill-rule="evenodd" d="M11 11.28V5c-.03-.78-.34-1.47-.94-2.06C9.46 2.35 8.78 2.03 8 2H7V0L4 3l3 3V4h1c.27.02.48.11.69.31.21.2.3.42.31.69v6.28A1.993 1.993 0 0 0 10 15a1.993 1.993 0 0 0 1-3.72zm-1 2.92c-.66 0-1.2-.55-1.2-1.2 0-.65.55-1.2 1.2-1.2.65 0 1.2.55 1.2 1.2 0 .65-.55 1.2-1.2 1.2zM4 3c0-1.11-.89-2-2-2a1.993 1.993 0 0 0-1 3.72v6.56A1.993 1.993 0 0 0 2 15a1.993 1.993 0 0 0 1-3.72V4.72c.59-.34 1-.98 1-1.72zm-.8 10c0 .66-.55 1.2-1.2 1.2-.65 0-1.2-.55-1.2-1.2 0-.65.55-1.2 1.2-1.2.65 0 1.2.55 1.2 1.2zM2 4.2C1.34 4.2.8 3.65.8 3c0-.65.55-1.2 1.2-1.2.65 0 1.2.55 1.2 1.2 0 .65-.55 1.2-1.2 1.2z"/></svg>
+      <span itemprop="name">Pull requests</span>
+      <span class="Counter">4</span>
+      <meta itemprop="position" content="3">
+</a>  </span>
+
+    <a href="/Valloric/YouCompleteMe/projects" class="js-selected-navigation-item reponav-item" data-selected-links="repo_projects new_repo_project repo_project /Valloric/YouCompleteMe/projects">
+      <svg aria-hidden="true" class="octicon octicon-project" height="16" version="1.1" viewBox="0 0 15 16" width="15"><path fill-rule="evenodd" d="M10 12h3V2h-3v10zm-4-2h3V2H6v8zm-4 4h3V2H2v12zm-1 1h13V1H1v14zM14 0H1a1 1 0 0 0-1 1v14a1 1 0 0 0 1 1h13a1 1 0 0 0 1-1V1a1 1 0 0 0-1-1z"/></svg>
+      Projects
+      <span class="Counter" >0</span>
+</a>
+    <a href="/Valloric/YouCompleteMe/wiki" class="js-selected-navigation-item reponav-item" data-hotkey="g w" data-selected-links="repo_wiki /Valloric/YouCompleteMe/wiki">
+      <svg aria-hidden="true" class="octicon octicon-book" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M3 5h4v1H3V5zm0 3h4V7H3v1zm0 2h4V9H3v1zm11-5h-4v1h4V5zm0 2h-4v1h4V7zm0 2h-4v1h4V9zm2-6v9c0 .55-.45 1-1 1H9.5l-1 1-1-1H2c-.55 0-1-.45-1-1V3c0-.55.45-1 1-1h5.5l1 1 1-1H15c.55 0 1 .45 1 1zm-8 .5L7.5 3H2v9h6V3.5zm7-.5H9.5l-.5.5V12h6V3z"/></svg>
+      Wiki
+</a>
+
+    <div class="reponav-dropdown js-menu-container">
+      <button type="button" class="btn-link reponav-item reponav-dropdown js-menu-target " data-no-toggle aria-expanded="false" aria-haspopup="true">
+        Insights
+        <svg aria-hidden="true" class="octicon octicon-triangle-down v-align-middle text-gray" height="11" version="1.1" viewBox="0 0 12 16" width="8"><path fill-rule="evenodd" d="M0 5l6 6 6-6z"/></svg>
+      </button>
+      <div class="dropdown-menu-content js-menu-content">
+        <div class="dropdown-menu dropdown-menu-sw">
+          <a class="dropdown-item" href="/Valloric/YouCompleteMe/pulse" data-skip-pjax>
+            <svg aria-hidden="true" class="octicon octicon-pulse" height="16" version="1.1" viewBox="0 0 14 16" width="14"><path fill-rule="evenodd" d="M11.5 8L8.8 5.4 6.6 8.5 5.5 1.6 2.38 8H0v2h3.6l.9-1.8.9 5.4L9 8.5l1.6 1.5H14V8z"/></svg>
+            Pulse
+          </a>
+          <a class="dropdown-item" href="/Valloric/YouCompleteMe/graphs" data-skip-pjax>
+            <svg aria-hidden="true" class="octicon octicon-graph" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M16 14v1H0V0h1v14h15zM5 13H3V8h2v5zm4 0H7V3h2v10zm4 0h-2V6h2v7z"/></svg>
+            Graphs
+          </a>
+        </div>
+      </div>
+    </div>
+</nav>
+
+      </div>
+    </div>
+
+<div class="container new-discussion-timeline experiment-repo-nav">
+  <div class="repository-content">
+
+    
+      <div class="signup-prompt-bg rounded-1">
+      <div class="signup-prompt p-4 text-center mb-4 rounded-1">
+        <div class="position-relative">
+          <!-- '"` --><!-- </textarea></xmp> --></option></form><form accept-charset="UTF-8" action="/site/dismiss_signup_prompt" method="post"><div style="margin:0;padding:0;display:inline"><input name="utf8" type="hidden" value="&#x2713;" /><input name="authenticity_token" type="hidden" value="5My87BsYJnFcU1vBtUlfc7WoFx1Phg2rx3t7QdRIgM48N3oUZ2JmFH1DAAH60OH8XdSGWS7pPX2qLaq/ZUEIRQ==" /></div>
+            <button type="submit" class="position-absolute top-0 right-0 btn-link link-gray" data-ga-click="(Logged out) Sign up prompt, clicked Dismiss, text:dismiss">
+              Dismiss
+            </button>
+</form>
+          <h3 class="pt-2">Join GitHub today</h3>
+          <p class="col-6 mx-auto">GitHub is home to over 20 million developers working together to host and review code, manage projects, and build software together.</p>
+          <p class="pb-2">
+            <a class="btn btn-blue" href="/join?source=prompt-code" data-ga-click="(Logged out) Sign up prompt, clicked Sign up, text:sign-up">Sign up</a>
+          </p>
+        </div>
+      </div>
+    </div>
+
+
+  <div class="js-repo-meta-container">
+  <div class="repository-meta mb-0  js-repo-meta-edit js-details-container">
+    <div class="repository-meta-content col-11 mb-1">
+          <span class="col-11 text-gray-dark mr-2" itemprop="about">
+            A code-completion engine for Vim
+          </span>
+          <span itemprop="url"><a href="http://valloric.github.io/YouCompleteMe/" rel="nofollow">http://valloric.github.io/YouCompleteMe/</a></span>
+    </div>
+
+  </div>
+
+    <div class="mb-3 repository-topics-container js-repository-topics-container js-details-container">
+      <div id="topics-list-container" data-url="/Valloric/YouCompleteMe/settings/topics">
+          <div class="list-topics-container f6 mt-1">
+      <a href="/search?q=topic%3Avim&amp;type=Repositories" class="topic-tag topic-tag-link" data-ga-click="Topic, repository page" data-octo-click="topic_click" data-octo-dimensions="topic:vim">
+        vim
+      </a>
+      <a href="/search?q=topic%3Acode-completion&amp;type=Repositories" class="topic-tag topic-tag-link" data-ga-click="Topic, repository page" data-octo-click="topic_click" data-octo-dimensions="topic:code-completion">
+        code-completion
+      </a>
+      <a href="/search?q=topic%3Acode-analysis&amp;type=Repositories" class="topic-tag topic-tag-link" data-ga-click="Topic, repository page" data-octo-click="topic_click" data-octo-dimensions="topic:code-analysis">
+        code-analysis
+      </a>
+      <a href="/search?q=topic%3Asemantic-engine&amp;type=Repositories" class="topic-tag topic-tag-link" data-ga-click="Topic, repository page" data-octo-click="topic_click" data-octo-dimensions="topic:semantic-engine">
+        semantic-engine
+      </a>
+  </div>
+
+
+      </div>
+
+    </div>
+</div>
+
+
+
+  <div class="overall-summary overall-summary-bottomless">
+    <div class="stats-switcher-viewport js-stats-switcher-viewport">
+      <div class="stats-switcher-wrapper">
+      <ul class="numbers-summary">
+        <li class="commits">
+          <a data-pjax href="/Valloric/YouCompleteMe/commits/master">
+              <svg aria-hidden="true" class="octicon octicon-history" height="16" version="1.1" viewBox="0 0 14 16" width="14"><path fill-rule="evenodd" d="M8 13H6V6h5v2H8v5zM7 1C4.81 1 2.87 2.02 1.59 3.59L0 2v4h4L2.5 4.5C3.55 3.17 5.17 2.3 7 2.3c3.14 0 5.7 2.56 5.7 5.7s-2.56 5.7-5.7 5.7A5.71 5.71 0 0 1 1.3 8c0-.34.03-.67.09-1H.08C.03 7.33 0 7.66 0 8c0 3.86 3.14 7 7 7s7-3.14 7-7-3.14-7-7-7z"/></svg>
+              <span class="num text-emphasized">
+                2,172
+              </span>
+              commits
+          </a>
+        </li>
+        <li>
+          <a data-pjax href="/Valloric/YouCompleteMe/branches">
+            <svg aria-hidden="true" class="octicon octicon-git-branch" height="16" version="1.1" viewBox="0 0 10 16" width="10"><path fill-rule="evenodd" d="M10 5c0-1.11-.89-2-2-2a1.993 1.993 0 0 0-1 3.72v.3c-.02.52-.23.98-.63 1.38-.4.4-.86.61-1.38.63-.83.02-1.48.16-2 .45V4.72a1.993 1.993 0 0 0-1-3.72C.88 1 0 1.89 0 3a2 2 0 0 0 1 1.72v6.56c-.59.35-1 .99-1 1.72 0 1.11.89 2 2 2 1.11 0 2-.89 2-2 0-.53-.2-1-.53-1.36.09-.06.48-.41.59-.47.25-.11.56-.17.94-.17 1.05-.05 1.95-.45 2.75-1.25S8.95 7.77 9 6.73h-.02C9.59 6.37 10 5.73 10 5zM2 1.8c.66 0 1.2.55 1.2 1.2 0 .65-.55 1.2-1.2 1.2C1.35 4.2.8 3.65.8 3c0-.65.55-1.2 1.2-1.2zm0 12.41c-.66 0-1.2-.55-1.2-1.2 0-.65.55-1.2 1.2-1.2.65 0 1.2.55 1.2 1.2 0 .65-.55 1.2-1.2 1.2zm6-8c-.66 0-1.2-.55-1.2-1.2 0-.65.55-1.2 1.2-1.2.65 0 1.2.55 1.2 1.2 0 .65-.55 1.2-1.2 1.2z"/></svg>
+            <span class="num text-emphasized">
+              4
+            </span>
+            branches
+          </a>
+        </li>
+
+        <li>
+          <a href="/Valloric/YouCompleteMe/releases">
+            <svg aria-hidden="true" class="octicon octicon-tag" height="16" version="1.1" viewBox="0 0 14 16" width="14"><path fill-rule="evenodd" d="M7.73 1.73C7.26 1.26 6.62 1 5.96 1H3.5C2.13 1 1 2.13 1 3.5v2.47c0 .66.27 1.3.73 1.77l6.06 6.06c.39.39 1.02.39 1.41 0l4.59-4.59a.996.996 0 0 0 0-1.41L7.73 1.73zM2.38 7.09c-.31-.3-.47-.7-.47-1.13V3.5c0-.88.72-1.59 1.59-1.59h2.47c.42 0 .83.16 1.13.47l6.14 6.13-4.73 4.73-6.13-6.15zM3.01 3h2v2H3V3h.01z"/></svg>
+            <span class="num text-emphasized">
+              0
+            </span>
+            releases
+          </a>
+        </li>
+
+        <li>
+            <a href="/Valloric/YouCompleteMe/graphs/contributors">
+  <svg aria-hidden="true" class="octicon octicon-organization" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M16 12.999c0 .439-.45 1-1 1H7.995c-.539 0-.994-.447-.995-.999H1c-.54 0-1-.561-1-1 0-2.634 3-4 3-4s.229-.409 0-1c-.841-.621-1.058-.59-1-3 .058-2.419 1.367-3 2.5-3s2.442.58 2.5 3c.058 2.41-.159 2.379-1 3-.229.59 0 1 0 1s1.549.711 2.42 2.088C9.196 9.369 10 8.999 10 8.999s.229-.409 0-1c-.841-.62-1.058-.59-1-3 .058-2.419 1.367-3 2.5-3s2.437.581 2.495 3c.059 2.41-.158 2.38-1 3-.229.59 0 1 0 1s3.005 1.366 3.005 4"/></svg>
+    <span class="num text-emphasized">
+      124
+    </span>
+    contributors
+</a>
+
+        </li>
+          <li>
+            <a href="/Valloric/YouCompleteMe/blob/master/COPYING.txt">
+              <svg aria-hidden="true" class="octicon octicon-law" height="16" version="1.1" viewBox="0 0 14 16" width="14"><path fill-rule="evenodd" d="M7 4c-.83 0-1.5-.67-1.5-1.5S6.17 1 7 1s1.5.67 1.5 1.5S7.83 4 7 4zm7 6c0 1.11-.89 2-2 2h-1c-1.11 0-2-.89-2-2l2-4h-1c-.55 0-1-.45-1-1H8v8c.42 0 1 .45 1 1h1c.42 0 1 .45 1 1H3c0-.55.58-1 1-1h1c0-.55.58-1 1-1h.03L6 5H5c0 .55-.45 1-1 1H3l2 4c0 1.11-.89 2-2 2H2c-1.11 0-2-.89-2-2l2-4H1V5h3c0-.55.45-1 1-1h4c.55 0 1 .45 1 1h3v1h-1l2 4zM2.5 7L1 10h3L2.5 7zM13 10l-1.5-3-1.5 3h3z"/></svg>
+                GPL-3.0
+            </a>
+          </li>
+      </ul>
+
+        <div class="repository-lang-stats">
+          <ol class="repository-lang-stats-numbers">
+            <li>
+                <a href="/Valloric/YouCompleteMe/search?l=python"  data-ga-click="Repository, language stats search click, location:repo overview">
+                  <span class="color-block language-color" style="background-color:#3572A5;"></span>
+                  <span class="lang">Python</span>
+                  <span class="percent">90.9%</span>
+                </a>
+            </li>
+            <li>
+                <a href="/Valloric/YouCompleteMe/search?l=vim-script"  data-ga-click="Repository, language stats search click, location:repo overview">
+                  <span class="color-block language-color" style="background-color:#199f4b;"></span>
+                  <span class="lang">Vim script</span>
+                  <span class="percent">8.1%</span>
+                </a>
+            </li>
+            <li>
+                <span class="other">
+                  <span class="color-block language-color" style="background-color:#ededed;"></span>
+                  <span class="lang">Other</span>
+                  <span class="percent">1.0%</span>
+                </span>
+            </li>
+          </ol>
+        </div>
+      </div>
+    </div>
+  </div>
+
+    <div class="repository-lang-stats-graph js-toggle-lang-stats" title="Click for language details" data-ga-click="Repository, language bar stats toggle, location:repo overview">
+      <span class="language-color" aria-label="Python 90.9%" style="width:90.9%; background-color:#3572A5;" itemprop="keywords">Python</span>
+      <span class="language-color" aria-label="Vim script 8.1%" style="width:8.1%; background-color:#199f4b;" itemprop="keywords">Vim script</span>
+      <span class="language-color" aria-label="Other 1.0%" style="width:1.0%; background-color:#ededed;" itemprop="keywords">Other</span>
+    </div>
+
+
+
+  <div class="file-navigation in-mid-page">
+
+    <div class="select-menu get-repo-select-menu js-menu-container float-right select-menu-modal-right">
+  <button class="btn btn-sm btn-primary select-menu-button js-menu-target"
+    type="button" aria-label="Clone or download this repository" aria-expanded="false" aria-haspopup="true">
+    <span>Clone or download</span>
+  </button>
+
+  <div class="select-menu-modal-holder dropdown-menu-content js-menu-content">
+    <div class="get-repo-modal dropdown-menu dropdown-menu-sw pb-0 js-toggler-container ">
+      <div class="clone-options https-clone-options">
+
+        <h4 class="mb-1">
+          Clone with HTTPS
+          <a class="muted-link" href="https://help.github.com/articles/which-remote-url-should-i-use" target="_blank" title="Which remote URL should I use?">
+            <svg aria-hidden="true" class="octicon octicon-question" height="16" version="1.1" viewBox="0 0 14 16" width="14"><path fill-rule="evenodd" d="M6 10h2v2H6v-2zm4-3.5C10 8.64 8 9 8 9H6c0-.55.45-1 1-1h.5c.28 0 .5-.22.5-.5v-1c0-.28-.22-.5-.5-.5h-1c-.28 0-.5.22-.5.5V7H4c0-1.5 1.5-3 3-3s3 1 3 2.5zM7 2.3c3.14 0 5.7 2.56 5.7 5.7s-2.56 5.7-5.7 5.7A5.71 5.71 0 0 1 1.3 8c0-3.14 2.56-5.7 5.7-5.7zM7 1C3.14 1 0 4.14 0 8s3.14 7 7 7 7-3.14 7-7-3.14-7-7-7z"/></svg>
+          </a>
+        </h4>
+        <p class="mb-2 get-repo-decription-text">
+          Use Git or checkout with SVN using the web URL.
+        </p>
+
+        <div class="input-group js-zeroclipboard-container">
+  <input type="text" class="form-control input-monospace input-sm js-zeroclipboard-target js-url-field" value="https://github.com/Valloric/YouCompleteMe.git" aria-label="Clone this repository at https://github.com/Valloric/YouCompleteMe.git" readonly>
+  <div class="input-group-button">
+    <button aria-label="Copy to clipboard" class="js-zeroclipboard btn btn-sm zeroclipboard-button tooltipped tooltipped-s" data-copied-hint="Copied!" type="button"><svg aria-hidden="true" class="octicon octicon-clippy" height="16" version="1.1" viewBox="0 0 14 16" width="14"><path fill-rule="evenodd" d="M2 13h4v1H2v-1zm5-6H2v1h5V7zm2 3V8l-3 3 3 3v-2h5v-2H9zM4.5 9H2v1h2.5V9zM2 12h2.5v-1H2v1zm9 1h1v2c-.02.28-.11.52-.3.7-.19.18-.42.28-.7.3H1c-.55 0-1-.45-1-1V4c0-.55.45-1 1-1h3c0-1.11.89-2 2-2 1.11 0 2 .89 2 2h3c.55 0 1 .45 1 1v5h-1V6H1v9h10v-2zM2 5h8c0-.55-.45-1-1-1H8c-.55 0-1-.45-1-1s-.45-1-1-1-1 .45-1 1-.45 1-1 1H3c-.55 0-1 .45-1 1z"/></svg></button>
+  </div>
+</div>
+
+      </div>
+
+      <div class="mt-2">
+        
+<a href="/Valloric/YouCompleteMe/archive/master.zip"
+   class="btn btn-outline get-repo-btn
+"
+   rel="nofollow"
+   data-ga-click="Repository, download zip, location:repo overview">
+  Download ZIP
+</a>
+
+      </div>
+    </div>
+  </div>
+</div>
+
+
+  <div class="BtnGroup float-right">
+
+    <a href="/Valloric/YouCompleteMe/find/master"
+      class="btn btn-sm empty-icon float-right BtnGroup-item"
+      data-pjax
+      data-hotkey="t"
+      data-ga-click="Repository, find file, location:repo overview">
+      Find file
+    </a>
+  </div>
+
+  
+<div class="select-menu branch-select-menu js-menu-container js-select-menu float-left">
+  <button class=" btn btn-sm select-menu-button js-menu-target css-truncate" data-hotkey="w"
+    
+    type="button" aria-label="Switch branches or tags" aria-expanded="false" aria-haspopup="true">
+      <i>Branch:</i>
+      <span class="js-select-button css-truncate-target">master</span>
+  </button>
+
+  <div class="select-menu-modal-holder js-menu-content js-navigation-container" data-pjax>
+
+    <div class="select-menu-modal">
+      <div class="select-menu-header">
+        <svg aria-label="Close" class="octicon octicon-x js-menu-close" height="16" role="img" version="1.1" viewBox="0 0 12 16" width="12"><path fill-rule="evenodd" d="M7.48 8l3.75 3.75-1.48 1.48L6 9.48l-3.75 3.75-1.48-1.48L4.52 8 .77 4.25l1.48-1.48L6 6.52l3.75-3.75 1.48 1.48z"/></svg>
+        <span class="select-menu-title">Switch branches/tags</span>
+      </div>
+
+      <div class="select-menu-filters">
+        <div class="select-menu-text-filter">
+          <input type="text" aria-label="Filter branches/tags" id="context-commitish-filter-field" class="form-control js-filterable-field js-navigation-enable" placeholder="Filter branches/tags">
+        </div>
+        <div class="select-menu-tabs">
+          <ul>
+            <li class="select-menu-tab">
+              <a href="#" data-tab-filter="branches" data-filter-placeholder="Filter branches/tags" class="js-select-menu-tab" role="tab">Branches</a>
+            </li>
+            <li class="select-menu-tab">
+              <a href="#" data-tab-filter="tags" data-filter-placeholder="Find a tag…" class="js-select-menu-tab" role="tab">Tags</a>
+            </li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="select-menu-list select-menu-tab-bucket js-select-menu-tab-bucket" data-tab-filter="branches" role="menu">
+
+        <div data-filterable-for="context-commitish-filter-field" data-filterable-type="substring">
+
+
+            <a class="select-menu-item js-navigation-item js-navigation-open "
+               href="/Valloric/YouCompleteMe/tree/auto"
+               data-name="auto"
+               data-skip-pjax="true"
+               rel="nofollow">
+              <svg aria-hidden="true" class="octicon octicon-check select-menu-item-icon" height="16" version="1.1" viewBox="0 0 12 16" width="12"><path fill-rule="evenodd" d="M12 5l-8 8-4-4 1.5-1.5L4 10l6.5-6.5z"/></svg>
+              <span class="select-menu-item-text css-truncate-target js-select-menu-filter-text">
+                auto
+              </span>
+            </a>
+            <a class="select-menu-item js-navigation-item js-navigation-open "
+               href="/Valloric/YouCompleteMe/tree/gh-pages"
+               data-name="gh-pages"
+               data-skip-pjax="true"
+               rel="nofollow">
+              <svg aria-hidden="true" class="octicon octicon-check select-menu-item-icon" height="16" version="1.1" viewBox="0 0 12 16" width="12"><path fill-rule="evenodd" d="M12 5l-8 8-4-4 1.5-1.5L4 10l6.5-6.5z"/></svg>
+              <span class="select-menu-item-text css-truncate-target js-select-menu-filter-text">
+                gh-pages
+              </span>
+            </a>
+            <a class="select-menu-item js-navigation-item js-navigation-open selected"
+               href="/Valloric/YouCompleteMe/tree/master"
+               data-name="master"
+               data-skip-pjax="true"
+               rel="nofollow">
+              <svg aria-hidden="true" class="octicon octicon-check select-menu-item-icon" height="16" version="1.1" viewBox="0 0 12 16" width="12"><path fill-rule="evenodd" d="M12 5l-8 8-4-4 1.5-1.5L4 10l6.5-6.5z"/></svg>
+              <span class="select-menu-item-text css-truncate-target js-select-menu-filter-text">
+                master
+              </span>
+            </a>
+            <a class="select-menu-item js-navigation-item js-navigation-open "
+               href="/Valloric/YouCompleteMe/tree/no-webhook"
+               data-name="no-webhook"
+               data-skip-pjax="true"
+               rel="nofollow">
+              <svg aria-hidden="true" class="octicon octicon-check select-menu-item-icon" height="16" version="1.1" viewBox="0 0 12 16" width="12"><path fill-rule="evenodd" d="M12 5l-8 8-4-4 1.5-1.5L4 10l6.5-6.5z"/></svg>
+              <span class="select-menu-item-text css-truncate-target js-select-menu-filter-text">
+                no-webhook
+              </span>
+            </a>
+        </div>
+
+          <div class="select-menu-no-results">Nothing to show</div>
+      </div>
+
+      <div class="select-menu-list select-menu-tab-bucket js-select-menu-tab-bucket" data-tab-filter="tags">
+        <div data-filterable-for="context-commitish-filter-field" data-filterable-type="substring">
+
+
+        </div>
+
+        <div class="select-menu-no-results">Nothing to show</div>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+
+        <button type="button" class="btn btn-sm disabled tooltipped tooltipped-n new-pull-request-btn" aria-label="You must be signed in to create a pull request">
+          New pull request
+        </button>
+
+  <div class="breadcrumb">
+    
+  </div>
+</div>
+
+
+  
+
+
+  <div class="commit-tease js-details-container Details">
+    <span class="float-right">
+      Latest commit
+      <a class="commit-tease-sha" href="/Valloric/YouCompleteMe/commit/9ca755a7ce141351dcbde2bdd45d7fbd7f76e1b1" data-pjax>
+        9ca755a
+      </a>
+      <span itemprop="dateModified"><relative-time datetime="2017-09-10T15:07:04Z">Sep 10, 2017</relative-time></span>
+    </span>
+
+
+    <span class="commit-author-section">
+      <img alt="@zzbot" class="avatar" height="20" src="https://avatars3.githubusercontent.com/u/28640366?v=4&amp;s=40" width="20" />
+      <a href="/zzbot" class="user-mention" rel="contributor">zzbot</a>
+        committed on <strong>GitHub</strong>
+    </span>
+
+        <a href="/Valloric/YouCompleteMe/commit/9ca755a7ce141351dcbde2bdd45d7fbd7f76e1b1" class="message" data-pjax="true" title='Auto merge of #2768 - micbou:update-ycmd, r=micbou
+
+[READY] Update ycmd
+
+This new version of ycmd includes the following changes:
+
+ - PR Valloric/ycmd#795: add option to make relative paths in flags from extra conf absolute;
+ - PR Valloric/ycmd#802: fix compilation on Haiku;
+ - PR Valloric/ycmd#804: add libclang detection on FreeBSD;
+ - PR Valloric/ycmd#808: write python used during build before installing completers;
+ - PR Valloric/ycmd#810: support unknown languages from tags;
+ - PR Valloric/ycmd#811: update Universal Ctags languages list;
+ - PR Valloric/ycmd#814: resolve symlinks in extra conf glob patterns;
+ - PR Valloric/ycmd#815: update JediHTTP;
+ - PR Valloric/ycmd#816: update Boost to 1.65.0;
+ - PR Valloric/ycmd#819: filter and sort candidates when query is empty;
+ - PR Valloric/ycmd#820: improve LLVM root path search for prebuilt binaries;
+ - PR Valloric/ycmd#822: inline critical utility functions;
+ - PR Valloric/ycmd#824: do not sort header paths in filename completer;
+ - PR Valloric/ycmd#825: implement partial sorting;
+ - PR Valloric/ycmd#830: add max_num_candidates option;
+ - PR Valloric/ycmd#831: fix multiline comments and strings issues;
+ - PR Valloric/ycmd#832: update Clang to 5.0.0.
+
+The `g:ycm_max_num_candidates` and `g:ycm_max_num_identifier_candidates` options are added to the documentation.
+
+The link to ycmd extra conf is updated.
+
+Fixes #2562.
+
+&lt;!-- Reviewable:start --&gt;
+---
+This change is [&lt;img src="https://reviewable.io/review_button.svg" height="34" align="absmiddle" alt="Reviewable"/&gt;](https://reviewable.io/reviews/valloric/youcompleteme/2768)
+&lt;!-- Reviewable:end --&gt;'>Auto merge of</a> <a href="https://github.com/Valloric/YouCompleteMe/pull/2768" class="issue-link js-issue-link" data-url="https://github.com/Valloric/YouCompleteMe/issues/2768" data-id="256498151" data-error-text="Failed to load issue title" data-permission-text="Issue title is private">#2768</a> <a href="/Valloric/YouCompleteMe/commit/9ca755a7ce141351dcbde2bdd45d7fbd7f76e1b1" class="message" data-pjax="true" title='Auto merge of #2768 - micbou:update-ycmd, r=micbou
+
+[READY] Update ycmd
+
+This new version of ycmd includes the following changes:
+
+ - PR Valloric/ycmd#795: add option to make relative paths in flags from extra conf absolute;
+ - PR Valloric/ycmd#802: fix compilation on Haiku;
+ - PR Valloric/ycmd#804: add libclang detection on FreeBSD;
+ - PR Valloric/ycmd#808: write python used during build before installing completers;
+ - PR Valloric/ycmd#810: support unknown languages from tags;
+ - PR Valloric/ycmd#811: update Universal Ctags languages list;
+ - PR Valloric/ycmd#814: resolve symlinks in extra conf glob patterns;
+ - PR Valloric/ycmd#815: update JediHTTP;
+ - PR Valloric/ycmd#816: update Boost to 1.65.0;
+ - PR Valloric/ycmd#819: filter and sort candidates when query is empty;
+ - PR Valloric/ycmd#820: improve LLVM root path search for prebuilt binaries;
+ - PR Valloric/ycmd#822: inline critical utility functions;
+ - PR Valloric/ycmd#824: do not sort header paths in filename completer;
+ - PR Valloric/ycmd#825: implement partial sorting;
+ - PR Valloric/ycmd#830: add max_num_candidates option;
+ - PR Valloric/ycmd#831: fix multiline comments and strings issues;
+ - PR Valloric/ycmd#832: update Clang to 5.0.0.
+
+The `g:ycm_max_num_candidates` and `g:ycm_max_num_identifier_candidates` options are added to the documentation.
+
+The link to ycmd extra conf is updated.
+
+Fixes #2562.
+
+&lt;!-- Reviewable:start --&gt;
+---
+This change is [&lt;img src="https://reviewable.io/review_button.svg" height="34" align="absmiddle" alt="Reviewable"/&gt;](https://reviewable.io/reviews/valloric/youcompleteme/2768)
+&lt;!-- Reviewable:end --&gt;'>- micbou:update-ycmd, r=micbou</a>
+          <span class="hidden-text-expander inline">
+            <button type="button" class="ellipsis-expander js-details-target" aria-expanded="false">&hellip;</button>
+          </span>
+    </span>
+
+      <div class="commit-desc"><pre class="text-small">[READY] Update ycmd
+
+This new version of ycmd includes the following changes:
+
+ - PR <a href="https://github.com/Valloric/ycmd/pull/795" class="issue-link js-issue-link" data-url="https://github.com/Valloric/ycmd/issues/795" data-id="243520409" data-error-text="Failed to load issue title" data-permission-text="Issue title is private">Valloric/ycmd#795</a>: add option to make relative paths in flags from extra conf absolute;
+ - PR <a href="https://github.com/Valloric/ycmd/pull/802" class="issue-link js-issue-link" data-url="https://github.com/Valloric/ycmd/issues/802" data-id="244831900" data-error-text="Failed to load issue title" data-permission-text="Issue title is private">Valloric/ycmd#802</a>: fix compilation on Haiku;
+ - PR <a href="https://github.com/Valloric/ycmd/pull/804" class="issue-link js-issue-link" data-url="https://github.com/Valloric/ycmd/issues/804" data-id="246014833" data-error-text="Failed to load issue title" data-permission-text="Issue title is private">Valloric/ycmd#804</a>: add libclang detection on FreeBSD;
+ - PR <a href="https://github.com/Valloric/ycmd/pull/808" class="issue-link js-issue-link" data-url="https://github.com/Valloric/ycmd/issues/808" data-id="247534302" data-error-text="Failed to load issue title" data-permission-text="Issue title is private">Valloric/ycmd#808</a>: write python used during build before installing completers;
+ - PR <a href="https://github.com/Valloric/ycmd/pull/810" class="issue-link js-issue-link" data-url="https://github.com/Valloric/ycmd/issues/810" data-id="247969878" data-error-text="Failed to load issue title" data-permission-text="Issue title is private">Valloric/ycmd#810</a>: support unknown languages from tags;
+ - PR <a href="https://github.com/Valloric/ycmd/pull/811" class="issue-link js-issue-link" data-url="https://github.com/Valloric/ycmd/issues/811" data-id="247981293" data-error-text="Failed to load issue title" data-permission-text="Issue title is private">Valloric/ycmd#811</a>: update Universal Ctags languages list;
+ - PR <a href="https://github.com/Valloric/ycmd/pull/814" class="issue-link js-issue-link" data-url="https://github.com/Valloric/ycmd/issues/814" data-id="249832159" data-error-text="Failed to load issue title" data-permission-text="Issue title is private">Valloric/ycmd#814</a>: resolve symlinks in extra conf glob patterns;
+ - PR <a href="https://github.com/Valloric/ycmd/pull/815" class="issue-link js-issue-link" data-url="https://github.com/Valloric/ycmd/issues/815" data-id="251521923" data-error-text="Failed to load issue title" data-permission-text="Issue title is private">Valloric/ycmd#815</a>: update JediHTTP;
+ - PR <a href="https://github.com/Valloric/ycmd/pull/816" class="issue-link js-issue-link" data-url="https://github.com/Valloric/ycmd/issues/816" data-id="251923052" data-error-text="Failed to load issue title" data-permission-text="Issue title is private">Valloric/ycmd#816</a>: update Boost to 1.65.0;
+ - PR <a href="https://github.com/Valloric/ycmd/pull/819" class="issue-link js-issue-link" data-url="https://github.com/Valloric/ycmd/issues/819" data-id="253118717" data-error-text="Failed to load issue title" data-permission-text="Issue title is private">Valloric/ycmd#819</a>: filter and sort candidates when query is empty;
+ - PR <a href="https://github.com/Valloric/ycmd/pull/820" class="issue-link js-issue-link" data-url="https://github.com/Valloric/ycmd/issues/820" data-id="253149908" data-error-text="Failed to load issue title" data-permission-text="Issue title is private">Valloric/ycmd#820</a>: improve LLVM root path search for prebuilt binaries;
+ - PR <a href="https://github.com/Valloric/ycmd/pull/822" class="issue-link js-issue-link" data-url="https://github.com/Valloric/ycmd/issues/822" data-id="253437034" data-error-text="Failed to load issue title" data-permission-text="Issue title is private">Valloric/ycmd#822</a>: inline critical utility functions;
+ - PR <a href="https://github.com/Valloric/ycmd/pull/824" class="issue-link js-issue-link" data-url="https://github.com/Valloric/ycmd/issues/824" data-id="253559253" data-error-text="Failed to load issue title" data-permission-text="Issue title is private">Valloric/ycmd#824</a>: do not sort header paths in filename completer;
+ - PR <a href="https://github.com/Valloric/ycmd/pull/825" class="issue-link js-issue-link" data-url="https://github.com/Valloric/ycmd/issues/825" data-id="254448202" data-error-text="Failed to load issue title" data-permission-text="Issue title is private">Valloric/ycmd#825</a>: implement partial sorting;
+ - PR <a href="https://github.com/Valloric/ycmd/pull/830" class="issue-link js-issue-link" data-url="https://github.com/Valloric/ycmd/issues/830" data-id="254881864" data-error-text="Failed to load issue title" data-permission-text="Issue title is private">Valloric/ycmd#830</a>: add max_num_candidates option;
+ - PR <a href="https://github.com/Valloric/ycmd/pull/831" class="issue-link js-issue-link" data-url="https://github.com/Valloric/ycmd/issues/831" data-id="255781633" data-error-text="Failed to load issue title" data-permission-text="Issue title is private">Valloric/ycmd#831</a>: fix multiline comments and strings issues;
+ - PR <a href="https://github.com/Valloric/ycmd/pull/832" class="issue-link js-issue-link" data-url="https://github.com/Valloric/ycmd/issues/832" data-id="256055265" data-error-text="Failed to load issue title" data-permission-text="Issue title is private">Valloric/ycmd#832</a>: update Clang to 5.0.0.
+
+The `g:ycm_max_num_candidates` and `g:ycm_max_num_identifier_candidates` options are added to the documentation.
+
+The link to ycmd extra conf is updated.
+
+<span class="issue-keyword tooltipped tooltipped-se" aria-label="This commit closes issue #2562.">Fixes</span> <a href="https://github.com/Valloric/YouCompleteMe/issues/2562" class="issue-link js-issue-link" data-url="https://github.com/Valloric/YouCompleteMe/issues/2562" data-id="211572298" data-error-text="Failed to load issue title" data-permission-text="Issue title is private">#2562</a>.
+
+&lt;!-- Reviewable:start --&gt;
+---
+This change is [&lt;img src="<a href="https://reviewable.io/review_button.svg">https://reviewable.io/review_button.svg</a>" height="34" align="absmiddle" alt="Reviewable"/&gt;](<a href="https://reviewable.io/reviews/valloric/youcompleteme/2768">https://reviewable.io/reviews/valloric/youcompleteme/2768</a>)
+&lt;!-- Reviewable:end --&gt;</pre></div>
+  </div>
+
+
+
+<div class="file-wrap">
+
+  <a href="/Valloric/YouCompleteMe/tree/9ca755a7ce141351dcbde2bdd45d7fbd7f76e1b1" class="d-none js-permalink-shortcut" data-hotkey="y">Permalink</a>
+
+  <table class="files js-navigation-container js-active-navigation-container" data-pjax>
+
+
+    <tbody>
+      <tr class="warning include-fragment-error">
+        <td class="icon"><svg aria-hidden="true" class="octicon octicon-alert" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M8.865 1.52c-.18-.31-.51-.5-.87-.5s-.69.19-.87.5L.275 13.5c-.18.31-.18.69 0 1 .19.31.52.5.87.5h13.7c.36 0 .69-.19.86-.5.17-.31.18-.69.01-1L8.865 1.52zM8.995 13h-2v-2h2v2zm0-3h-2V6h2v4z"/></svg></td>
+        <td class="content" colspan="3">Failed to load latest commit information.</td>
+      </tr>
+
+        <tr class="js-navigation-item">
+          <td class="icon">
+            <svg aria-hidden="true" class="octicon octicon-file-directory" height="16" version="1.1" viewBox="0 0 14 16" width="14"><path fill-rule="evenodd" d="M13 4H7V3c0-.66-.31-1-1-1H1c-.55 0-1 .45-1 1v10c0 .55.45 1 1 1h12c.55 0 1-.45 1-1V5c0-.55-.45-1-1-1zM6 4H1V3h5v1z"/></svg>
+            <img alt="" class="spinner" height="16" src="https://assets-cdn.github.com/images/spinners/octocat-spinner-32.gif" width="16" />
+          </td>
+          <td class="content">
+            <span class="css-truncate css-truncate-target"><a href="/Valloric/YouCompleteMe/tree/master/.github" class="js-navigation-open" id="01777e4a9846fea5f3fcc8fe40d44680-8714be80fbf0e65414ef0d927cadee0073dc2279" title=".github">.github</a></span>
+          </td>
+          <td class="message">
+            <span class="css-truncate css-truncate-target">
+                  <a href="/Valloric/YouCompleteMe/commit/f219113097899d145d25fba0bf0394c12d45c730" class="message" data-pjax="true" title="Improve issue template - guide the user in completing it">Improve issue template - guide the user in completing it</a>
+            </span>
+          </td>
+          <td class="age">
+            <span class="css-truncate css-truncate-target"><time-ago datetime="2017-01-08T17:19:42Z">Jan 8, 2017</time-ago></span>
+          </td>
+        </tr>
+        <tr class="js-navigation-item">
+          <td class="icon">
+            <svg aria-hidden="true" class="octicon octicon-file-directory" height="16" version="1.1" viewBox="0 0 14 16" width="14"><path fill-rule="evenodd" d="M13 4H7V3c0-.66-.31-1-1-1H1c-.55 0-1 .45-1 1v10c0 .55.45 1 1 1h12c.55 0 1-.45 1-1V5c0-.55-.45-1-1-1zM6 4H1V3h5v1z"/></svg>
+            <img alt="" class="spinner" height="16" src="https://assets-cdn.github.com/images/spinners/octocat-spinner-32.gif" width="16" />
+          </td>
+          <td class="content">
+            <span class="css-truncate css-truncate-target"><a href="/Valloric/YouCompleteMe/tree/master/autoload" class="js-navigation-open" id="bc2b06d0d6aef24c1d8441404a74cef4-8042e75661a4e0edee98d74e19c095de3a29d22f" title="autoload">autoload</a></span>
+          </td>
+          <td class="message">
+            <span class="css-truncate css-truncate-target">
+                  <a href="/Valloric/YouCompleteMe/commit/04f64974624d6498176aaa82473244c579b2a284" class="message" data-pjax="true" title="Insert keys at the start of the typeahead buffer
+
+When sending keys to Vim, they are by default added to the end of the typeahead
+buffer. If there are already keys in the buffer, they will be processed first
+and may change the state that our keys combination was sent for (e.g.
+&lt;C-X&gt;&lt;C-U&gt;&lt;C-P&gt; in normal mode instead of insert mode or &lt;C-e&gt; outside of
+completion mode). We avoid that by inserting the keys at the start of the
+typeahead buffer.">Insert keys at the start of the typeahead buffer</a>
+            </span>
+          </td>
+          <td class="age">
+            <span class="css-truncate css-truncate-target"><time-ago datetime="2017-07-31T08:58:40Z">Jul 31, 2017</time-ago></span>
+          </td>
+        </tr>
+        <tr class="js-navigation-item">
+          <td class="icon">
+            <svg aria-hidden="true" class="octicon octicon-file-directory" height="16" version="1.1" viewBox="0 0 14 16" width="14"><path fill-rule="evenodd" d="M13 4H7V3c0-.66-.31-1-1-1H1c-.55 0-1 .45-1 1v10c0 .55.45 1 1 1h12c.55 0 1-.45 1-1V5c0-.55-.45-1-1-1zM6 4H1V3h5v1z"/></svg>
+            <img alt="" class="spinner" height="16" src="https://assets-cdn.github.com/images/spinners/octocat-spinner-32.gif" width="16" />
+          </td>
+          <td class="content">
+            <span class="css-truncate css-truncate-target"><a href="/Valloric/YouCompleteMe/tree/master/ci" class="js-navigation-open" id="35ea51baf1fe7f0142ad5f950855dde0-dce3bd70d48fd07b3a7efb0ed63581d4a447f272" title="ci">ci</a></span>
+          </td>
+          <td class="message">
+            <span class="css-truncate css-truncate-target">
+                  <a href="/Valloric/YouCompleteMe/commit/743f2e7b962596ff7713a19905911b61309c77a2" class="message" data-pjax="true" title="Fix pyenv setup on Travis
+
+Travis complains that the /home/travis/.pyenv folder already exists. Remove it
+before installing pyenv.">Fix pyenv setup on Travis</a>
+            </span>
+          </td>
+          <td class="age">
+            <span class="css-truncate css-truncate-target"><time-ago datetime="2017-09-05T18:39:22Z">Sep 5, 2017</time-ago></span>
+          </td>
+        </tr>
+        <tr class="js-navigation-item">
+          <td class="icon">
+            <svg aria-hidden="true" class="octicon octicon-file-directory" height="16" version="1.1" viewBox="0 0 14 16" width="14"><path fill-rule="evenodd" d="M13 4H7V3c0-.66-.31-1-1-1H1c-.55 0-1 .45-1 1v10c0 .55.45 1 1 1h12c.55 0 1-.45 1-1V5c0-.55-.45-1-1-1zM6 4H1V3h5v1z"/></svg>
+            <img alt="" class="spinner" height="16" src="https://assets-cdn.github.com/images/spinners/octocat-spinner-32.gif" width="16" />
+          </td>
+          <td class="content">
+            <span class="css-truncate css-truncate-target"><a href="/Valloric/YouCompleteMe/tree/master/doc" class="js-navigation-open" id="9a09b4dfda82e3e665e31092d1c3ec8d-ed7cd4b0bceda500520ac740119ae2c6c2953137" title="doc">doc</a></span>
+          </td>
+          <td class="message">
+            <span class="css-truncate css-truncate-target">
+                  <a href="/Valloric/YouCompleteMe/commit/ed9f0b9449bd913af7f87020dcf5fa7ceab48a61" class="message" data-pjax="true" title="Update extra conf link in documentation">Update extra conf link in documentation</a>
+            </span>
+          </td>
+          <td class="age">
+            <span class="css-truncate css-truncate-target"><time-ago datetime="2017-09-10T14:33:24Z">Sep 10, 2017</time-ago></span>
+          </td>
+        </tr>
+        <tr class="js-navigation-item">
+          <td class="icon">
+            <svg aria-hidden="true" class="octicon octicon-file-directory" height="16" version="1.1" viewBox="0 0 14 16" width="14"><path fill-rule="evenodd" d="M13 4H7V3c0-.66-.31-1-1-1H1c-.55 0-1 .45-1 1v10c0 .55.45 1 1 1h12c.55 0 1-.45 1-1V5c0-.55-.45-1-1-1zM6 4H1V3h5v1z"/></svg>
+            <img alt="" class="spinner" height="16" src="https://assets-cdn.github.com/images/spinners/octocat-spinner-32.gif" width="16" />
+          </td>
+          <td class="content">
+            <span class="css-truncate css-truncate-target"><a href="/Valloric/YouCompleteMe/tree/master/plugin" class="js-navigation-open" id="a24bcf2198b1b13ad985304483f7f324-ebf847400bf1c317b3726fe8861b573045ade469" title="plugin">plugin</a></span>
+          </td>
+          <td class="message">
+            <span class="css-truncate css-truncate-target">
+                  <a href="/Valloric/YouCompleteMe/commit/4f555a2c8d2d78e941622c28fee20e4123aa8285" class="message" data-pjax="true" title="Add a more obvious explanation for users of the default system Vim on macOS">Add a more obvious explanation for users of the default system Vim on…</a>
+            </span>
+          </td>
+          <td class="age">
+            <span class="css-truncate css-truncate-target"><time-ago datetime="2017-07-23T21:17:24Z">Jul 23, 2017</time-ago></span>
+          </td>
+        </tr>
+        <tr class="js-navigation-item">
+          <td class="icon">
+            <svg aria-hidden="true" class="octicon octicon-file-directory" height="16" version="1.1" viewBox="0 0 14 16" width="14"><path fill-rule="evenodd" d="M13 4H7V3c0-.66-.31-1-1-1H1c-.55 0-1 .45-1 1v10c0 .55.45 1 1 1h12c.55 0 1-.45 1-1V5c0-.55-.45-1-1-1zM6 4H1V3h5v1z"/></svg>
+            <img alt="" class="spinner" height="16" src="https://assets-cdn.github.com/images/spinners/octocat-spinner-32.gif" width="16" />
+          </td>
+          <td class="content">
+            <span class="css-truncate css-truncate-target"><a href="/Valloric/YouCompleteMe/tree/master/python" class="js-navigation-open" id="23eeeb4347bdd26bfc6b7ee9a3b755dd-28d626d3c6d5961c307d18858a8555c3d3816233" title="python">python</a></span>
+          </td>
+          <td class="message">
+            <span class="css-truncate css-truncate-target">
+                  <a href="/Valloric/YouCompleteMe/commit/c5bec8f6901a84ccce56ee8833e2ff8715405953" class="message" data-pjax="true" title="Expect GetCompletions_Cache_List_Unicode test to fail
+
+This test is expected to fail since we now filter and sort candidates on empty
+query.">Expect GetCompletions_Cache_List_Unicode test to fail</a>
+            </span>
+          </td>
+          <td class="age">
+            <span class="css-truncate css-truncate-target"><time-ago datetime="2017-09-10T14:33:24Z">Sep 10, 2017</time-ago></span>
+          </td>
+        </tr>
+        <tr class="js-navigation-item">
+          <td class="icon">
+            <svg aria-hidden="true" class="octicon octicon-file-directory" height="16" version="1.1" viewBox="0 0 14 16" width="14"><path fill-rule="evenodd" d="M13 4H7V3c0-.66-.31-1-1-1H1c-.55 0-1 .45-1 1v10c0 .55.45 1 1 1h12c.55 0 1-.45 1-1V5c0-.55-.45-1-1-1zM6 4H1V3h5v1z"/></svg>
+            <img alt="" class="spinner" height="16" src="https://assets-cdn.github.com/images/spinners/octocat-spinner-32.gif" width="16" />
+          </td>
+          <td class="content">
+            <span class="css-truncate css-truncate-target"><a href="/Valloric/YouCompleteMe/tree/master/third_party" class="js-navigation-open" id="15230e5dad94ffaefa7b526c0c1e89e5-64e04ad0a6e83d74ce1892cc3974a73729f550f3" title="third_party">third_party</a></span>
+          </td>
+          <td class="message">
+            <span class="css-truncate css-truncate-target">
+                  <a href="/Valloric/YouCompleteMe/commit/c5284f95e56818404bd1226c4d673a99ef142855" class="message" data-pjax="true" title="Update ycmd
+
+Include following changes:
+ - add option to make relative paths in flags from extra
+   conf absolute;
+ - fix compilation on Haiku;
+ - add libclang detection on FreeBSD;
+ - write python used during build before installing
+   completers;
+ - support unknown languages from tags;
+ - update Universal Ctags languages list;
+ - resolve symlinks in extra conf glob patterns;
+ - update JediHTTP;
+ - update Boost to 1.65.0;
+ - filter and sort candidates when query is empty;
+ - improve LLVM root path search for prebuilt binaries;
+ - inline critical utility functions;
+ - do not sort header paths in filename completer;
+ - implement partial sorting;
+ - add max_num_candidates option;
+ - fix multiline comments and strings issues;
+ - update Clang to 5.0.0.">Update ycmd</a>
+            </span>
+          </td>
+          <td class="age">
+            <span class="css-truncate css-truncate-target"><time-ago datetime="2017-09-10T14:33:24Z">Sep 10, 2017</time-ago></span>
+          </td>
+        </tr>
+        <tr class="js-navigation-item">
+          <td class="icon">
+            <svg aria-hidden="true" class="octicon octicon-file-text" height="16" version="1.1" viewBox="0 0 12 16" width="12"><path d="M6 5H2V4h4v1zM2 8h7V7H2v1zm0 2h7V9H2v1zm0 2h7v-1H2v1zm10-7.5V14c0 .55-.45 1-1 1H1c-.55 0-1-.45-1-1V2c0-.55.45-1 1-1h7.5L12 4.5zM11 5L8 2H1v12h10V5z"/></svg>
+            <img alt="" class="spinner" height="16" src="https://assets-cdn.github.com/images/spinners/octocat-spinner-32.gif" width="16" />
+          </td>
+          <td class="content">
+            <span class="css-truncate css-truncate-target"><a href="/Valloric/YouCompleteMe/blob/master/.coveragerc" class="js-navigation-open" id="6f1f859c6ca5c4cae7310924786cf661-2301243c8400da8046858a8cbfc8a5abfad9b5d7" title=".coveragerc">.coveragerc</a></span>
+          </td>
+          <td class="message">
+            <span class="css-truncate css-truncate-target">
+                  <a href="/Valloric/YouCompleteMe/commit/9d6a17b140dda02e2aed16503ff4d024e1a822b6" class="message" data-pjax="true" title="Add coverage support
+
+Use codecov for coverage reports. Add badge to README.">Add coverage support</a>
+            </span>
+          </td>
+          <td class="age">
+            <span class="css-truncate css-truncate-target"><time-ago datetime="2016-10-12T21:03:37Z">Oct 12, 2016</time-ago></span>
+          </td>
+        </tr>
+        <tr class="js-navigation-item">
+          <td class="icon">
+            <svg aria-hidden="true" class="octicon octicon-file-text" height="16" version="1.1" viewBox="0 0 12 16" width="12"><path d="M6 5H2V4h4v1zM2 8h7V7H2v1zm0 2h7V9H2v1zm0 2h7v-1H2v1zm10-7.5V14c0 .55-.45 1-1 1H1c-.55 0-1-.45-1-1V2c0-.55.45-1 1-1h7.5L12 4.5zM11 5L8 2H1v12h10V5z"/></svg>
+            <img alt="" class="spinner" height="16" src="https://assets-cdn.github.com/images/spinners/octocat-spinner-32.gif" width="16" />
+          </td>
+          <td class="content">
+            <span class="css-truncate css-truncate-target"><a href="/Valloric/YouCompleteMe/blob/master/.gitignore" class="js-navigation-open" id="a084b794bc0759e7a6b77810e01874f2-a21d0fb8de16abc4b6033a37c04b92bc0dc7ca64" title=".gitignore">.gitignore</a></span>
+          </td>
+          <td class="message">
+            <span class="css-truncate css-truncate-target">
+                  <a href="/Valloric/YouCompleteMe/commit/bc8040f10c33fe9cf7d7a999b04e368f5ccf3a2f" class="message" data-pjax="true" title="Ignore cover folder">Ignore cover folder</a>
+            </span>
+          </td>
+          <td class="age">
+            <span class="css-truncate css-truncate-target"><time-ago datetime="2016-10-27T21:05:58Z">Oct 27, 2016</time-ago></span>
+          </td>
+        </tr>
+        <tr class="js-navigation-item">
+          <td class="icon">
+            <svg aria-hidden="true" class="octicon octicon-file-text" height="16" version="1.1" viewBox="0 0 12 16" width="12"><path d="M6 5H2V4h4v1zM2 8h7V7H2v1zm0 2h7V9H2v1zm0 2h7v-1H2v1zm10-7.5V14c0 .55-.45 1-1 1H1c-.55 0-1-.45-1-1V2c0-.55.45-1 1-1h7.5L12 4.5zM11 5L8 2H1v12h10V5z"/></svg>
+            <img alt="" class="spinner" height="16" src="https://assets-cdn.github.com/images/spinners/octocat-spinner-32.gif" width="16" />
+          </td>
+          <td class="content">
+            <span class="css-truncate css-truncate-target"><a href="/Valloric/YouCompleteMe/blob/master/.gitmodules" class="js-navigation-open" id="8903239df476d7401cf9e76af0252622-81b39d10a3c330b9e3da7b6056854665d9f1cb48" title=".gitmodules">.gitmodules</a></span>
+          </td>
+          <td class="message">
+            <span class="css-truncate css-truncate-target">
+                  <a href="/Valloric/YouCompleteMe/commit/31cbb3b6aa1428498caec0bb627dee6754abf38a" class="message" data-pjax="true" title="Remove requests submodule
+
+Since the requests module is already provided by ycmd, we don&#39;t need
+to add it a second time in YCM.">Remove requests submodule</a>
+            </span>
+          </td>
+          <td class="age">
+            <span class="css-truncate css-truncate-target"><time-ago datetime="2015-11-16T23:13:44Z">Nov 16, 2015</time-ago></span>
+          </td>
+        </tr>
+        <tr class="js-navigation-item">
+          <td class="icon">
+            <svg aria-hidden="true" class="octicon octicon-file-text" height="16" version="1.1" viewBox="0 0 12 16" width="12"><path d="M6 5H2V4h4v1zM2 8h7V7H2v1zm0 2h7V9H2v1zm0 2h7v-1H2v1zm10-7.5V14c0 .55-.45 1-1 1H1c-.55 0-1-.45-1-1V2c0-.55.45-1 1-1h7.5L12 4.5zM11 5L8 2H1v12h10V5z"/></svg>
+            <img alt="" class="spinner" height="16" src="https://assets-cdn.github.com/images/spinners/octocat-spinner-32.gif" width="16" />
+          </td>
+          <td class="content">
+            <span class="css-truncate css-truncate-target"><a href="/Valloric/YouCompleteMe/blob/master/.travis.yml" class="js-navigation-open" id="354f30a63fb0907d4ad57269548329e3-680f0a14603f7c01c02378cc436046948298c385" title=".travis.yml">.travis.yml</a></span>
+          </td>
+          <td class="message">
+            <span class="css-truncate css-truncate-target">
+                  <a href="/Valloric/YouCompleteMe/commit/342ba1973066646faa193025757b40d766f8b51d" class="message" data-pjax="true" title="Downgrade GCC requirement on Travis
+
+GCC 4.8 is now enough to build ycmd.">Downgrade GCC requirement on Travis</a>
+            </span>
+          </td>
+          <td class="age">
+            <span class="css-truncate css-truncate-target"><time-ago datetime="2017-07-20T20:22:14Z">Jul 20, 2017</time-ago></span>
+          </td>
+        </tr>
+        <tr class="js-navigation-item">
+          <td class="icon">
+            <svg aria-hidden="true" class="octicon octicon-file-text" height="16" version="1.1" viewBox="0 0 12 16" width="12"><path d="M6 5H2V4h4v1zM2 8h7V7H2v1zm0 2h7V9H2v1zm0 2h7v-1H2v1zm10-7.5V14c0 .55-.45 1-1 1H1c-.55 0-1-.45-1-1V2c0-.55.45-1 1-1h7.5L12 4.5zM11 5L8 2H1v12h10V5z"/></svg>
+            <img alt="" class="spinner" height="16" src="https://assets-cdn.github.com/images/spinners/octocat-spinner-32.gif" width="16" />
+          </td>
+          <td class="content">
+            <span class="css-truncate css-truncate-target"><a href="/Valloric/YouCompleteMe/blob/master/CODE_OF_CONDUCT.md" class="js-navigation-open" id="a1ee87dafebc22cbd96979f1b2b7e837-e39575fbf018fb12e145d5fe84e59e8ac9537f34" title="CODE_OF_CONDUCT.md">CODE_OF_CONDUCT.md</a></span>
+          </td>
+          <td class="message">
+            <span class="css-truncate css-truncate-target">
+                  <a href="/Valloric/YouCompleteMe/commit/0efa66893128dafe48caaa806455704e197efbe0" class="message" data-pjax="true" title="Adding an explicit Contributor Code of Conduct
+
+Everything in the CoC was true since the beginning of the project, it
+was just implicit and not written down. Now we&#39;re making it explicit.">Adding an explicit Contributor Code of Conduct</a>
+            </span>
+          </td>
+          <td class="age">
+            <span class="css-truncate css-truncate-target"><time-ago datetime="2016-01-26T23:49:58Z">Jan 26, 2016</time-ago></span>
+          </td>
+        </tr>
+        <tr class="js-navigation-item">
+          <td class="icon">
+            <svg aria-hidden="true" class="octicon octicon-file-text" height="16" version="1.1" viewBox="0 0 12 16" width="12"><path d="M6 5H2V4h4v1zM2 8h7V7H2v1zm0 2h7V9H2v1zm0 2h7v-1H2v1zm10-7.5V14c0 .55-.45 1-1 1H1c-.55 0-1-.45-1-1V2c0-.55.45-1 1-1h7.5L12 4.5zM11 5L8 2H1v12h10V5z"/></svg>
+            <img alt="" class="spinner" height="16" src="https://assets-cdn.github.com/images/spinners/octocat-spinner-32.gif" width="16" />
+          </td>
+          <td class="content">
+            <span class="css-truncate css-truncate-target"><a href="/Valloric/YouCompleteMe/blob/master/CONTRIBUTING.md" class="js-navigation-open" id="6a3371457528722a734f3c51d9238c13-e88c1e333d9712e43f8f8b6e5b8fcca9a57508dc" title="CONTRIBUTING.md">CONTRIBUTING.md</a></span>
+          </td>
+          <td class="message">
+            <span class="css-truncate css-truncate-target">
+                  <a href="/Valloric/YouCompleteMe/commit/b93c1fd47c23ce57b72ba910b5d0a1ed60a057e0" class="message" data-pjax="true" title="Add client logfile">Add client logfile</a>
+            </span>
+          </td>
+          <td class="age">
+            <span class="css-truncate css-truncate-target"><time-ago datetime="2016-11-19T17:47:43Z">Nov 19, 2016</time-ago></span>
+          </td>
+        </tr>
+        <tr class="js-navigation-item">
+          <td class="icon">
+            <svg aria-hidden="true" class="octicon octicon-file-text" height="16" version="1.1" viewBox="0 0 12 16" width="12"><path d="M6 5H2V4h4v1zM2 8h7V7H2v1zm0 2h7V9H2v1zm0 2h7v-1H2v1zm10-7.5V14c0 .55-.45 1-1 1H1c-.55 0-1-.45-1-1V2c0-.55.45-1 1-1h7.5L12 4.5zM11 5L8 2H1v12h10V5z"/></svg>
+            <img alt="" class="spinner" height="16" src="https://assets-cdn.github.com/images/spinners/octocat-spinner-32.gif" width="16" />
+          </td>
+          <td class="content">
+            <span class="css-truncate css-truncate-target"><a href="/Valloric/YouCompleteMe/blob/master/COPYING.txt" class="js-navigation-open" id="21c55fa400e4d25aed3a755371e32151-94a9ed024d3859793618152ea559a168bbcbb5e2" itemprop="license" title="COPYING.txt">COPYING.txt</a></span>
+          </td>
+          <td class="message">
+            <span class="css-truncate css-truncate-target">
+                  <a href="/Valloric/YouCompleteMe/commit/7992d63fb80f8af6a6c159c216db2272f5dab73c" class="message" data-pjax="true" title="Adding the COPYING file with the license">Adding the COPYING file with the license</a>
+            </span>
+          </td>
+          <td class="age">
+            <span class="css-truncate css-truncate-target"><time-ago datetime="2012-08-17T02:33:36Z">Aug 17, 2012</time-ago></span>
+          </td>
+        </tr>
+        <tr class="js-navigation-item">
+          <td class="icon">
+            <svg aria-hidden="true" class="octicon octicon-file-text" height="16" version="1.1" viewBox="0 0 12 16" width="12"><path d="M6 5H2V4h4v1zM2 8h7V7H2v1zm0 2h7V9H2v1zm0 2h7v-1H2v1zm10-7.5V14c0 .55-.45 1-1 1H1c-.55 0-1-.45-1-1V2c0-.55.45-1 1-1h7.5L12 4.5zM11 5L8 2H1v12h10V5z"/></svg>
+            <img alt="" class="spinner" height="16" src="https://assets-cdn.github.com/images/spinners/octocat-spinner-32.gif" width="16" />
+          </td>
+          <td class="content">
+            <span class="css-truncate css-truncate-target"><a href="/Valloric/YouCompleteMe/blob/master/README.md" class="js-navigation-open" id="04c6e90faac2675aa89e2176d2eec7d8-95d675e768523ab89ee08a7113d437aacf649f5a" title="README.md">README.md</a></span>
+          </td>
+          <td class="message">
+            <span class="css-truncate css-truncate-target">
+                  <a href="/Valloric/YouCompleteMe/commit/ed9f0b9449bd913af7f87020dcf5fa7ceab48a61" class="message" data-pjax="true" title="Update extra conf link in documentation">Update extra conf link in documentation</a>
+            </span>
+          </td>
+          <td class="age">
+            <span class="css-truncate css-truncate-target"><time-ago datetime="2017-09-10T14:33:24Z">Sep 10, 2017</time-ago></span>
+          </td>
+        </tr>
+        <tr class="js-navigation-item">
+          <td class="icon">
+            <svg aria-hidden="true" class="octicon octicon-file-text" height="16" version="1.1" viewBox="0 0 12 16" width="12"><path d="M6 5H2V4h4v1zM2 8h7V7H2v1zm0 2h7V9H2v1zm0 2h7v-1H2v1zm10-7.5V14c0 .55-.45 1-1 1H1c-.55 0-1-.45-1-1V2c0-.55.45-1 1-1h7.5L12 4.5zM11 5L8 2H1v12h10V5z"/></svg>
+            <img alt="" class="spinner" height="16" src="https://assets-cdn.github.com/images/spinners/octocat-spinner-32.gif" width="16" />
+          </td>
+          <td class="content">
+            <span class="css-truncate css-truncate-target"><a href="/Valloric/YouCompleteMe/blob/master/appveyor.yml" class="js-navigation-open" id="180360612c6b8c4ed830919bbb4dd459-f14072c40a2fc1261e13ba6bf8270f361db1db8b" title="appveyor.yml">appveyor.yml</a></span>
+          </td>
+          <td class="message">
+            <span class="css-truncate css-truncate-target">
+                  <a href="/Valloric/YouCompleteMe/commit/edf7e600c84537fe090890232518bb94e8ed299d" class="message" data-pjax="true" title="Update ycmd
+
+Release notes:
+ - update racerd;
+ - update Tern to 0.21.0;
+ - fix finding node on Debian-based distributions;
+ - add Visual Studio 2017 support;
+ - drop Visual Studio 2012 support.">Update ycmd</a>
+            </span>
+          </td>
+          <td class="age">
+            <span class="css-truncate css-truncate-target"><time-ago datetime="2017-03-12T11:03:50Z">Mar 12, 2017</time-ago></span>
+          </td>
+        </tr>
+        <tr class="js-navigation-item">
+          <td class="icon">
+            <svg aria-hidden="true" class="octicon octicon-file-text" height="16" version="1.1" viewBox="0 0 12 16" width="12"><path d="M6 5H2V4h4v1zM2 8h7V7H2v1zm0 2h7V9H2v1zm0 2h7v-1H2v1zm10-7.5V14c0 .55-.45 1-1 1H1c-.55 0-1-.45-1-1V2c0-.55.45-1 1-1h7.5L12 4.5zM11 5L8 2H1v12h10V5z"/></svg>
+            <img alt="" class="spinner" height="16" src="https://assets-cdn.github.com/images/spinners/octocat-spinner-32.gif" width="16" />
+          </td>
+          <td class="content">
+            <span class="css-truncate css-truncate-target"><a href="/Valloric/YouCompleteMe/blob/master/codecov.yml" class="js-navigation-open" id="8bc9db6adba7208e25c96be322351063-bf741df425e25411cc06f7c8a25c02f0c6f6ab4a" title="codecov.yml">codecov.yml</a></span>
+          </td>
+          <td class="message">
+            <span class="css-truncate css-truncate-target">
+                  <a href="/Valloric/YouCompleteMe/commit/9d6a17b140dda02e2aed16503ff4d024e1a822b6" class="message" data-pjax="true" title="Add coverage support
+
+Use codecov for coverage reports. Add badge to README.">Add coverage support</a>
+            </span>
+          </td>
+          <td class="age">
+            <span class="css-truncate css-truncate-target"><time-ago datetime="2016-10-12T21:03:37Z">Oct 12, 2016</time-ago></span>
+          </td>
+        </tr>
+        <tr class="js-navigation-item">
+          <td class="icon">
+            <svg aria-hidden="true" class="octicon octicon-file-text" height="16" version="1.1" viewBox="0 0 12 16" width="12"><path d="M6 5H2V4h4v1zM2 8h7V7H2v1zm0 2h7V9H2v1zm0 2h7v-1H2v1zm10-7.5V14c0 .55-.45 1-1 1H1c-.55 0-1-.45-1-1V2c0-.55.45-1 1-1h7.5L12 4.5zM11 5L8 2H1v12h10V5z"/></svg>
+            <img alt="" class="spinner" height="16" src="https://assets-cdn.github.com/images/spinners/octocat-spinner-32.gif" width="16" />
+          </td>
+          <td class="content">
+            <span class="css-truncate css-truncate-target"><a href="/Valloric/YouCompleteMe/blob/master/install.py" class="js-navigation-open" id="9de40ef13f0271a46b14b8c27bbf004d-5b77aafedd5dba675f625539fd894bc358073c34" title="install.py">install.py</a></span>
+          </td>
+          <td class="message">
+            <span class="css-truncate css-truncate-target">
+                  <a href="/Valloric/YouCompleteMe/commit/7b251dbd5854790e92067b4ce37e60e6b93e6a96" class="message" data-pjax="true" title="Catch CalledProcessError exception in install script
+
+This exception is not relevant to the install failure. Catch it and exit
+with the status code returned by the build script.">Catch CalledProcessError exception in install script</a>
+            </span>
+          </td>
+          <td class="age">
+            <span class="css-truncate css-truncate-target"><time-ago datetime="2016-10-25T14:44:41Z">Oct 25, 2016</time-ago></span>
+          </td>
+        </tr>
+        <tr class="js-navigation-item">
+          <td class="icon">
+            <svg aria-hidden="true" class="octicon octicon-file-text" height="16" version="1.1" viewBox="0 0 12 16" width="12"><path d="M6 5H2V4h4v1zM2 8h7V7H2v1zm0 2h7V9H2v1zm0 2h7v-1H2v1zm10-7.5V14c0 .55-.45 1-1 1H1c-.55 0-1-.45-1-1V2c0-.55.45-1 1-1h7.5L12 4.5zM11 5L8 2H1v12h10V5z"/></svg>
+            <img alt="" class="spinner" height="16" src="https://assets-cdn.github.com/images/spinners/octocat-spinner-32.gif" width="16" />
+          </td>
+          <td class="content">
+            <span class="css-truncate css-truncate-target"><a href="/Valloric/YouCompleteMe/blob/master/install.sh" class="js-navigation-open" id="3fbb47e318cd8802bd325e7da9aaabe8-8c9c2fd1b163afdf5a0c9a50d97ed79221b482a1" title="install.sh">install.sh</a></span>
+          </td>
+          <td class="message">
+            <span class="css-truncate css-truncate-target">
+                  <a href="/Valloric/YouCompleteMe/commit/1b40d683be7fdc38bf04c2e889036314551f0035" class="message" data-pjax="true" title="Convert the install script to python
+
+Translate the install.sh script in python to make it platform independent.
+Keep install.sh as a wrapper of install.py to not break scripts that
+depend on it.">Convert the install script to python</a>
+            </span>
+          </td>
+          <td class="age">
+            <span class="css-truncate css-truncate-target"><time-ago datetime="2015-08-23T18:12:16Z">Aug 23, 2015</time-ago></span>
+          </td>
+        </tr>
+        <tr class="js-navigation-item">
+          <td class="icon">
+            <svg aria-hidden="true" class="octicon octicon-file-text" height="16" version="1.1" viewBox="0 0 12 16" width="12"><path d="M6 5H2V4h4v1zM2 8h7V7H2v1zm0 2h7V9H2v1zm0 2h7v-1H2v1zm10-7.5V14c0 .55-.45 1-1 1H1c-.55 0-1-.45-1-1V2c0-.55.45-1 1-1h7.5L12 4.5zM11 5L8 2H1v12h10V5z"/></svg>
+            <img alt="" class="spinner" height="16" src="https://assets-cdn.github.com/images/spinners/octocat-spinner-32.gif" width="16" />
+          </td>
+          <td class="content">
+            <span class="css-truncate css-truncate-target"><a href="/Valloric/YouCompleteMe/blob/master/print_todos.sh" class="js-navigation-open" id="2ce02b65fca9c3773127fd7a548b973b-c07471cbfb0de94d71b4a66601817352636e8f10" title="print_todos.sh">print_todos.sh</a></span>
+          </td>
+          <td class="message">
+            <span class="css-truncate css-truncate-target">
+                  <a href="/Valloric/YouCompleteMe/commit/15cef034979ede7fccc04fa167903c351e9500ab" class="message" data-pjax="true" title="Shell scripts now use new ycmd location">Shell scripts now use new ycmd location</a>
+            </span>
+          </td>
+          <td class="age">
+            <span class="css-truncate css-truncate-target"><time-ago datetime="2014-05-13T22:03:32Z">May 13, 2014</time-ago></span>
+          </td>
+        </tr>
+        <tr class="js-navigation-item">
+          <td class="icon">
+            <svg aria-hidden="true" class="octicon octicon-file-text" height="16" version="1.1" viewBox="0 0 12 16" width="12"><path d="M6 5H2V4h4v1zM2 8h7V7H2v1zm0 2h7V9H2v1zm0 2h7v-1H2v1zm10-7.5V14c0 .55-.45 1-1 1H1c-.55 0-1-.45-1-1V2c0-.55.45-1 1-1h7.5L12 4.5zM11 5L8 2H1v12h10V5z"/></svg>
+            <img alt="" class="spinner" height="16" src="https://assets-cdn.github.com/images/spinners/octocat-spinner-32.gif" width="16" />
+          </td>
+          <td class="content">
+            <span class="css-truncate css-truncate-target"><a href="/Valloric/YouCompleteMe/blob/master/run_tests.py" class="js-navigation-open" id="0e150adfe1f55c100b4edc3a4b107418-d07f708b43741bff36c5613aa424c919bea540fc" title="run_tests.py">run_tests.py</a></span>
+          </td>
+          <td class="message">
+            <span class="css-truncate css-truncate-target">
+                  <a href="/Valloric/YouCompleteMe/commit/750d3e5eccdbd1c5d4605690adc651cb29ddcf2b" class="message" data-pjax="true" title="Run flake8 and nose as modules
+
+Running flake8 and nose as modules in run_tests.py make sure that we start
+these tools with the same Python as the one executing the script.">Run flake8 and nose as modules</a>
+            </span>
+          </td>
+          <td class="age">
+            <span class="css-truncate css-truncate-target"><time-ago datetime="2017-09-10T09:59:43Z">Sep 10, 2017</time-ago></span>
+          </td>
+        </tr>
+        <tr class="js-navigation-item">
+          <td class="icon">
+            <svg aria-hidden="true" class="octicon octicon-file-text" height="16" version="1.1" viewBox="0 0 12 16" width="12"><path d="M6 5H2V4h4v1zM2 8h7V7H2v1zm0 2h7V9H2v1zm0 2h7v-1H2v1zm10-7.5V14c0 .55-.45 1-1 1H1c-.55 0-1-.45-1-1V2c0-.55.45-1 1-1h7.5L12 4.5zM11 5L8 2H1v12h10V5z"/></svg>
+            <img alt="" class="spinner" height="16" src="https://assets-cdn.github.com/images/spinners/octocat-spinner-32.gif" width="16" />
+          </td>
+          <td class="content">
+            <span class="css-truncate css-truncate-target"><a href="/Valloric/YouCompleteMe/blob/master/tox.ini" class="js-navigation-open" id="b91f3d5bd63fcd17221b267e851608e8-70d6d70a89195a29c28be3970122a73660d0cef3" title="tox.ini">tox.ini</a></span>
+          </td>
+          <td class="message">
+            <span class="css-truncate css-truncate-target">
+                  <a href="/Valloric/YouCompleteMe/commit/edd2bdbe0f4f763c7bb09011bb1810217e1a6e82" class="message" data-pjax="true" title="Update flake8 config">Update flake8 config</a>
+            </span>
+          </td>
+          <td class="age">
+            <span class="css-truncate css-truncate-target"><time-ago datetime="2016-03-06T17:39:55Z">Mar 6, 2016</time-ago></span>
+          </td>
+        </tr>
+    </tbody>
+  </table>
+
+</div>
+
+
+
+  <div id="readme" class="readme boxed-group clearfix announce instapaper_body md">
+    <h3>
+      <svg aria-hidden="true" class="octicon octicon-book" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M3 5h4v1H3V5zm0 3h4V7H3v1zm0 2h4V9H3v1zm11-5h-4v1h4V5zm0 2h-4v1h4V7zm0 2h-4v1h4V9zm2-6v9c0 .55-.45 1-1 1H9.5l-1 1-1-1H2c-.55 0-1-.45-1-1V3c0-.55.45-1 1-1h5.5l1 1 1-1H15c.55 0 1 .45 1 1zm-8 .5L7.5 3H2v9h6V3.5zm7-.5H9.5l-.5.5V12h6V3z"/></svg>
+      README.md
+    </h3>
+
+      <article class="markdown-body entry-content" itemprop="text"><h1><a id="user-content-youcompleteme-a-code-completion-engine-for-vim" class="anchor" href="#youcompleteme-a-code-completion-engine-for-vim" aria-hidden="true"><svg aria-hidden="true" class="octicon octicon-link" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>YouCompleteMe: a code-completion engine for Vim</h1>
+<p><a href="https://gitter.im/Valloric/YouCompleteMe"><img src="https://camo.githubusercontent.com/dd55ef8d0f0ae7a8b2e567633475d8448a125461/68747470733a2f2f696d672e736869656c64732e696f2f6769747465722f726f6f6d2f56616c6c6f7269632f596f75436f6d706c6574654d652e737667" alt="Gitter Room" data-canonical-src="https://img.shields.io/gitter/room/Valloric/YouCompleteMe.svg" style="max-width:100%;"></a>
+<a href="https://travis-ci.org/Valloric/YouCompleteMe"><img src="https://camo.githubusercontent.com/3e3d46fe1d163ebd30263557fab676068afa0bff/68747470733a2f2f7472617669732d63692e6f72672f56616c6c6f7269632f596f75436f6d706c6574654d652e7376673f6272616e63683d6d6173746572" alt="Build Status" data-canonical-src="https://travis-ci.org/Valloric/YouCompleteMe.svg?branch=master" style="max-width:100%;"></a>
+<a href="https://ci.appveyor.com/project/Valloric/YouCompleteMe"><img src="https://camo.githubusercontent.com/6cdae40903535bf0e884a29d07448de56725e8e1/68747470733a2f2f63692e6170707665796f722e636f6d2f6170692f70726f6a656374732f7374617475732f616739757177693873366274776a64382f6272616e63682f6d61737465723f7376673d74727565" alt="Build status" data-canonical-src="https://ci.appveyor.com/api/projects/status/ag9uqwi8s6btwjd8/branch/master?svg=true" style="max-width:100%;"></a>
+<a href="https://codecov.io/gh/Valloric/YouCompleteMe"><img src="https://camo.githubusercontent.com/123a08130b03a4665c5d39181332ef916d8696b3/68747470733a2f2f636f6465636f762e696f2f67682f56616c6c6f7269632f596f75436f6d706c6574654d652f6272616e63682f6d61737465722f67726170682f62616467652e737667" alt="Coverage Status" data-canonical-src="https://codecov.io/gh/Valloric/YouCompleteMe/branch/master/graph/badge.svg" style="max-width:100%;"></a></p>
+<ul>
+<li><a href="#intro">Intro</a></li>
+<li><a href="#installation">Installation</a>
+<ul>
+<li><a href="#mac-os-x">Mac OS X</a></li>
+<li><a href="#ubuntu-linux-x64">Ubuntu Linux x64</a></li>
+<li><a href="#fedora-linux-x64">Fedora Linux x64</a></li>
+<li><a href="#windows">Windows</a></li>
+<li><a href="#freebsdopenbsd">FreeBSD/OpenBSD</a></li>
+<li><a href="#full-installation-guide">Full Installation Guide</a></li>
+</ul>
+</li>
+<li><a href="#quick-feature-summary">Quick Feature Summary</a></li>
+<li><a href="#user-guide">User Guide</a>
+<ul>
+<li><a href="#general-usage">General Usage</a></li>
+<li><a href="#client-server-architecture">Client-Server Architecture</a></li>
+<li><a href="#completion-string-ranking">Completion String Ranking</a></li>
+<li><a href="#general-semantic-completion">General Semantic Completion</a></li>
+<li><a href="#c-family-semantic-completion">C-family Semantic Completion</a></li>
+<li><a href="#javascript-semantic-completion">JavaScript Semantic Completion</a></li>
+<li><a href="#rust-semantic-completion">Rust Semantic Completion</a></li>
+<li><a href="#python-semantic-completion">Python Semantic Completion</a></li>
+<li><a href="#semantic-completion-for-other-languages">Semantic Completion for Other Languages</a></li>
+<li><a href="#writing-new-semantic-completers">Writing New Semantic Completers</a></li>
+<li><a href="#diagnostic-display">Diagnostic Display</a>
+<ul>
+<li><a href="#diagnostic-highlighting-groups">Diagnostic Highlighting Groups</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li><a href="#commands">Commands</a>
+<ul>
+<li><a href="#ycmcompleter-subcommands">YcmCompleter subcommands</a>
+<ul>
+<li><a href="#goto-commands">GoTo Commands</a></li>
+<li><a href="#semantic-information-commands">Semantic Information Commands</a></li>
+<li><a href="#refactoring-and-fixit-commands">Refactoring and FixIt Commands</a></li>
+<li><a href="#miscellaneous-commands">Miscellaneous Commands</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li><a href="#functions">Functions</a></li>
+<li><a href="#autocommands">Autocommands</a></li>
+<li><a href="#options">Options</a></li>
+<li><a href="#faq">FAQ</a></li>
+<li><a href="#contributor-code-of-conduct">Contributor Code of Conduct</a></li>
+<li><a href="#contact">Contact</a></li>
+<li><a href="#license">License</a></li>
+</ul>
+<h2><a id="user-content-intro" class="anchor" href="#intro" aria-hidden="true"><svg aria-hidden="true" class="octicon octicon-link" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Intro</h2>
+<p>YouCompleteMe is a fast, as-you-type, fuzzy-search code completion engine for
+<a href="http://www.vim.org/">Vim</a>. It has several completion engines:</p>
+<ul>
+<li>an identifier-based engine that works with every programming language,</li>
+<li>a <a href="http://clang.llvm.org/">Clang</a>-based engine that provides native semantic code
+completion for C/C++/Objective-C/Objective-C++ (from now on referred to as
+"the C-family languages"),</li>
+<li>a <a href="https://github.com/davidhalter/jedi">Jedi</a>-based completion engine for Python 2 and 3 (using the <a href="https://github.com/vheon/JediHTTP">JediHTTP</a> wrapper),</li>
+<li>an <a href="https://github.com/OmniSharp/omnisharp-server">OmniSharp</a>-based completion engine for C#,</li>
+<li>a combination of <a href="https://github.com/nsf/gocode">Gocode</a> and <a href="https://github.com/Manishearth/godef">Godef</a> semantic engines for Go,</li>
+<li>a <a href="https://github.com/Microsoft/TypeScript/tree/master/src/server">TSServer</a>-based completion engine for TypeScript,</li>
+<li>a <a href="http://ternjs.net">Tern</a>-based completion engine for JavaScript,</li>
+<li>a <a href="https://github.com/phildawes/racer">racer</a>-based completion engine for Rust,</li>
+<li>and an omnifunc-based completer that uses data from Vim's omnicomplete system
+to provide semantic completions for many other languages (Ruby, PHP etc.).</li>
+</ul>
+<p><a href="https://camo.githubusercontent.com/1f3f922431d5363224b20e99467ff28b04e810e2/687474703a2f2f692e696d6775722e636f6d2f304f50346f6f642e676966" target="_blank"><img src="https://camo.githubusercontent.com/1f3f922431d5363224b20e99467ff28b04e810e2/687474703a2f2f692e696d6775722e636f6d2f304f50346f6f642e676966" alt="YouCompleteMe GIF demo" data-canonical-src="http://i.imgur.com/0OP4ood.gif" style="max-width:100%;"></a></p>
+<p>Here's an explanation of what happens in the short GIF demo above.</p>
+<p>First, realize that <strong>no keyboard shortcuts had to be pressed</strong> to get the list
+of completion candidates at any point in the demo. The user just types and the
+suggestions pop up by themselves. If the user doesn't find the completion
+suggestions relevant and/or just wants to type, they can do so; the completion
+engine will not interfere.</p>
+<p>When the user sees a useful completion string being offered, they press the TAB
+key to accept it. This inserts the completion string. Repeated presses of the
+TAB key cycle through the offered completions.</p>
+<p>If the offered completions are not relevant enough, the user can continue typing
+to further filter out unwanted completions.</p>
+<p>A critical thing to notice is that the completion <strong>filtering is NOT based on
+the input being a string prefix of the completion</strong> (but that works too). The
+input needs to be a <em><a href="https://en.wikipedia.org/wiki/Subsequence">subsequence</a> match</em> of a completion. This is a fancy way
+of saying that any input characters need to be present in a completion string in
+the order in which they appear in the input. So <code>abc</code> is a subsequence of
+<code>xaybgc</code>, but not of <code>xbyxaxxc</code>. After the filter, a complicated sorting system
+ranks the completion strings so that the most relevant ones rise to the top of
+the menu (so you usually need to press TAB just once).</p>
+<p><strong>All of the above works with any programming language</strong> because of the
+identifier-based completion engine. It collects all of the identifiers in the
+current file and other files you visit (and your tags files) and searches them
+when you type (identifiers are put into per-filetype groups).</p>
+<p>The demo also shows the semantic engine in use. When the user presses <code>.</code>, <code>-&gt;</code>
+or <code>::</code> while typing in insert mode (for C++; different triggers are used for
+other languages), the semantic engine is triggered (it can also be triggered
+with a keyboard shortcut; see the rest of the docs).</p>
+<p>The last thing that you can see in the demo is YCM's diagnostic display features
+(the little red X that shows up in the left gutter; inspired by <a href="https://github.com/scrooloose/syntastic">Syntastic</a>)
+if you are editing a C-family file. As Clang compiles your file and detects
+warnings or errors, they will be presented in various ways. You don't need to
+save your file or press any keyboard shortcut to trigger this, it "just happens"
+in the background.</p>
+<p>In essence, YCM obsoletes the following Vim plugins because it has all of their
+features plus extra:</p>
+<ul>
+<li>clang_complete</li>
+<li>AutoComplPop</li>
+<li>Supertab</li>
+<li>neocomplcache</li>
+</ul>
+<p><strong>And that's not all...</strong></p>
+<p>YCM also provides <a href="#quick-feature-summary">semantic IDE-like features</a> in a
+number of languages, including:</p>
+<ul>
+<li>finding declarations, definitions, usages, etc. of identifiers,</li>
+<li>displaying type information for classes, variables, functions etc.,</li>
+<li>displaying documentation for methods, members, etc. in the preview window,</li>
+<li>fixing common coding errors, like missing semi-colons, typos, etc.,</li>
+<li>semantic renaming of variables across files (JavaScript only).</li>
+</ul>
+<p>Features vary by file type, so make sure to check out the <a href="#quick-feature-summary">file type feature
+summary</a> and the
+<a href="#ycmcompleter-subcommands">full list of completer subcommands</a> to
+find out what's available for your favourite languages.</p>
+<p>You'll also find that YCM has filepath completers (try typing <code>./</code> in a file)
+and a completer that integrates with <a href="https://github.com/SirVer/ultisnips/blob/master/doc/UltiSnips.txt">UltiSnips</a>.</p>
+<h2><a id="user-content-installation" class="anchor" href="#installation" aria-hidden="true"><svg aria-hidden="true" class="octicon octicon-link" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Installation</h2>
+<h3><a id="user-content-mac-os-x" class="anchor" href="#mac-os-x" aria-hidden="true"><svg aria-hidden="true" class="octicon octicon-link" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Mac OS X</h3>
+<p>These instructions (using <code>install.py</code>) are the quickest way to install
+YouCompleteMe, however they may not work for everyone. If the following
+instructions don't work for you, check out the <a href="#full-installation-guide">full installation
+guide</a>.</p>
+<p>Install the latest version of <a href="https://github.com/macvim-dev/macvim/releases">MacVim</a>. Yes, MacVim. And yes, the <em>latest</em>.</p>
+<p>If you don't use the MacVim GUI, it is recommended to use the Vim binary that is
+inside the MacVim.app package (<code>MacVim.app/Contents/MacOS/Vim</code>). To ensure it
+works correctly copy the <code>mvim</code> script from the <a href="https://github.com/macvim-dev/macvim/releases">MacVim</a> download to your
+local binary folder (for example <code>/usr/local/bin/mvim</code>) and then symlink it:</p>
+<pre><code>ln -s /usr/local/bin/mvim vim
+</code></pre>
+<p>Install YouCompleteMe with <a href="https://github.com/VundleVim/Vundle.vim#about">Vundle</a>.</p>
+<p><strong>Remember:</strong> YCM is a plugin with a compiled component. If you <strong>update</strong> YCM
+using Vundle and the ycm_core library APIs have changed (happens
+rarely), YCM will notify you to recompile it. You should then rerun the install
+process.</p>
+<p><strong>NOTE:</strong> If you want C-family completion, you MUST have the latest Xcode
+installed along with the latest Command Line Tools (they are installed
+automatically when you run <code>clang</code> for the first time, or manually by running
+<code>xcode-select --install</code>)</p>
+<p>Install CMake. Preferably with <a href="http://brew.sh">Homebrew</a>, but here's the <a href="https://cmake.org/download/">stand-alone
+CMake installer</a>.</p>
+<p><em>If</em> you have installed a Homebrew Python and/or Homebrew MacVim, see the <em>FAQ</em>
+for details.</p>
+<p>Compiling YCM <strong>with</strong> semantic support for C-family languages:</p>
+<pre><code>cd ~/.vim/bundle/YouCompleteMe
+./install.py --clang-completer
+</code></pre>
+<p>Compiling YCM <strong>without</strong> semantic support for C-family languages:</p>
+<pre><code>cd ~/.vim/bundle/YouCompleteMe
+./install.py
+</code></pre>
+<p>The following additional language support options are available:</p>
+<ul>
+<li>C# support: install Mono with <a href="http://brew.sh">Homebrew</a> or by downloading the <a href="http://www.mono-project.com/docs/getting-started/install/mac/">Mono Mac
+package</a> and add <code>--omnisharp-completer</code> when calling
+<code>./install.py</code>.</li>
+<li>Go support: install <a href="https://golang.org/doc/install">Go</a> and add <code>--gocode-completer</code> when calling
+<code>./install.py</code>.</li>
+<li>TypeScript support: install <a href="https://docs.npmjs.com/getting-started/installing-node">Node.js and npm</a> then install the
+TypeScript SDK with <code>npm install -g typescript</code>.</li>
+<li>JavaScript support: install <a href="https://docs.npmjs.com/getting-started/installing-node">Node.js and npm</a> and add
+<code>--tern-completer</code> when calling <code>./install.py</code>.</li>
+<li>Rust support: install <a href="https://www.rust-lang.org/">Rust</a> and add
+<code>--racer-completer</code> when calling <code>./install.py</code>.</li>
+</ul>
+<p>To simply compile with everything enabled, there's a <code>--all</code> flag.  So, to
+install with all language features, ensure <code>xbuild</code>, <code>go</code>, <code>tsserver</code>, <code>node</code>,
+<code>npm</code>, <code>rustc</code>, and <code>cargo</code> tools are installed and in your <code>PATH</code>, then
+simply run:</p>
+<pre><code>cd ~/.vim/bundle/YouCompleteMe
+./install.py --all
+</code></pre>
+<p>That's it. You're done. Refer to the <em>User Guide</em> section on how to use YCM.
+Don't forget that if you want the C-family semantic completion engine to work,
+you will need to provide the compilation flags for your project to YCM. It's all
+in the User Guide.</p>
+<p>YCM comes with sane defaults for its options, but you still may want to take a
+look at what's available for configuration. There are a few interesting options
+that are conservatively turned off by default that you may want to turn on.</p>
+<h3><a id="user-content-ubuntu-linux-x64" class="anchor" href="#ubuntu-linux-x64" aria-hidden="true"><svg aria-hidden="true" class="octicon octicon-link" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Ubuntu Linux x64</h3>
+<p>These instructions (using <code>install.py</code>) are the quickest way to install
+YouCompleteMe, however they may not work for everyone. If the following
+instructions don't work for you, check out the <a href="#full-installation-guide">full installation
+guide</a>.</p>
+<p>Make sure you have Vim 7.4.1578 with Python 2 or Python 3 support. Ubuntu 16.04
+and later have a Vim that's recent enough. You can see the version of Vim
+installed by running <code>vim --version</code>. If the version is too old, you may need to
+<a href="https://github.com/Valloric/YouCompleteMe/wiki/Building-Vim-from-source">compile Vim from source</a> (don't worry, it's easy).</p>
+<p>Install YouCompleteMe with <a href="https://github.com/VundleVim/Vundle.vim#about">Vundle</a>.</p>
+<p><strong>Remember:</strong> YCM is a plugin with a compiled component. If you <strong>update</strong> YCM
+using Vundle and the ycm_core library APIs have changed (happens
+rarely), YCM will notify you to recompile it. You should then rerun the install
+process.</p>
+<p>Install development tools and CMake:</p>
+<pre><code>sudo apt-get install build-essential cmake
+</code></pre>
+<p>Make sure you have Python headers installed:</p>
+<pre><code>sudo apt-get install python-dev python3-dev
+</code></pre>
+<p>Compiling YCM <strong>with</strong> semantic support for C-family languages:</p>
+<pre><code>cd ~/.vim/bundle/YouCompleteMe
+./install.py --clang-completer
+</code></pre>
+<p>Compiling YCM <strong>without</strong> semantic support for C-family languages:</p>
+<pre><code>cd ~/.vim/bundle/YouCompleteMe
+./install.py
+</code></pre>
+<p>The following additional language support options are available:</p>
+<ul>
+<li>C# support: install <a href="http://www.mono-project.com/docs/getting-started/install/linux/#debian-ubuntu-and-derivatives">Mono</a> and add <code>--omnisharp-completer</code>
+when calling <code>./install.py</code>.</li>
+<li>Go support: install <a href="https://golang.org/doc/install">Go</a> and add <code>--gocode-completer</code> when calling
+<code>./install.py</code>.</li>
+<li>TypeScript support: install <a href="https://docs.npmjs.com/getting-started/installing-node">Node.js and npm</a> then install the
+TypeScript SDK with <code>npm install -g typescript</code>.</li>
+<li>JavaScript support: install <a href="https://docs.npmjs.com/getting-started/installing-node">Node.js and npm</a> and add
+<code>--tern-completer</code> when calling <code>./install.py</code>.</li>
+<li>Rust support: install <a href="https://www.rust-lang.org/">Rust</a> and add <code>--racer-completer</code> when
+calling <code>./install.py</code>.</li>
+</ul>
+<p>To simply compile with everything enabled, there's a <code>--all</code> flag.  So, to
+install with all language features, ensure <code>xbuild</code>, <code>go</code>, <code>tsserver</code>, <code>node</code>,
+<code>npm</code>, <code>rustc</code>, and <code>cargo</code> tools are installed and in your <code>PATH</code>, then
+simply run:</p>
+<pre><code>cd ~/.vim/bundle/YouCompleteMe
+./install.py --all
+</code></pre>
+<p>That's it. You're done. Refer to the <em>User Guide</em> section on how to use YCM.
+Don't forget that if you want the C-family semantic completion engine to work,
+you will need to provide the compilation flags for your project to YCM. It's all
+in the User Guide.</p>
+<p>YCM comes with sane defaults for its options, but you still may want to take a
+look at what's available for configuration. There are a few interesting options
+that are conservatively turned off by default that you may want to turn on.</p>
+<h3><a id="user-content-fedora-linux-x64" class="anchor" href="#fedora-linux-x64" aria-hidden="true"><svg aria-hidden="true" class="octicon octicon-link" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Fedora Linux x64</h3>
+<p>These instructions (using <code>install.py</code>) are the quickest way to install
+YouCompleteMe, however they may not work for everyone. If the following
+instructions don't work for you, check out the <a href="#full-installation-guide">full installation
+guide</a>.</p>
+<p>Make sure you have Vim 7.4.1578 with Python 2 or Python 3 support. Fedora 21 and
+later have a Vim that's recent enough. You can see the version of Vim installed
+by running <code>vim --version</code>. If the version is too old, you may need to <a href="https://github.com/Valloric/YouCompleteMe/wiki/Building-Vim-from-source">compile
+Vim from source</a> (don't worry, it's easy).</p>
+<p>Install YouCompleteMe with <a href="https://github.com/VundleVim/Vundle.vim#about">Vundle</a>.</p>
+<p><strong>Remember:</strong> YCM is a plugin with a compiled component. If you <strong>update</strong> YCM
+using Vundle and the ycm_core library APIs have changed (happens
+rarely), YCM will notify you to recompile it. You should then rerun the install
+process.</p>
+<p>Install development tools and CMake:</p>
+<pre><code>sudo dnf install automake gcc gcc-c++ kernel-devel cmake
+</code></pre>
+<p>Make sure you have Python headers installed:</p>
+<pre><code>sudo dnf install python-devel python3-devel
+</code></pre>
+<p>Compiling YCM <strong>with</strong> semantic support for C-family languages:</p>
+<pre><code>cd ~/.vim/bundle/YouCompleteMe
+./install.py --clang-completer
+</code></pre>
+<p>Compiling YCM <strong>without</strong> semantic support for C-family languages:</p>
+<pre><code>cd ~/.vim/bundle/YouCompleteMe
+./install.py
+</code></pre>
+<p>The following additional language support options are available:</p>
+<ul>
+<li>C# support: install <a href="http://www.mono-project.com/docs/getting-started/install/linux/#centos-7-fedora-19-and-later-and-derivatives">Mono</a> and add <code>--omnisharp-completer</code>
+when calling <code>./install.py</code>.</li>
+<li>Go support: install <a href="https://golang.org/doc/install">Go</a> and add <code>--gocode-completer</code> when calling
+<code>./install.py</code>.</li>
+<li>TypeScript support: install <a href="https://docs.npmjs.com/getting-started/installing-node">Node.js and npm</a> then install the
+TypeScript SDK with <code>npm install -g typescript</code>.</li>
+<li>JavaScript support: install <a href="https://docs.npmjs.com/getting-started/installing-node">Node.js and npm</a> and add
+<code>--tern-completer</code> when calling <code>./install.py</code>.</li>
+<li>Rust support: install <a href="https://www.rust-lang.org/">Rust</a> and add <code>--racer-completer</code> when
+calling <code>./install.py</code>.</li>
+</ul>
+<p>To simply compile with everything enabled, there's a <code>--all</code> flag.  So, to
+install with all language features, ensure <code>xbuild</code>, <code>go</code>, <code>tsserver</code>, <code>node</code>,
+<code>npm</code>, <code>rustc</code>, and <code>cargo</code> tools are installed and in your <code>PATH</code>, then
+simply run:</p>
+<pre><code>cd ~/.vim/bundle/YouCompleteMe
+./install.py --all
+</code></pre>
+<p>That's it. You're done. Refer to the <em>User Guide</em> section on how to use YCM.
+Don't forget that if you want the C-family semantic completion engine to work,
+you will need to provide the compilation flags for your project to YCM. It's all
+in the User Guide.</p>
+<p>YCM comes with sane defaults for its options, but you still may want to take a
+look at what's available for configuration. There are a few interesting options
+that are conservatively turned off by default that you may want to turn on.</p>
+<h3><a id="user-content-windows" class="anchor" href="#windows" aria-hidden="true"><svg aria-hidden="true" class="octicon octicon-link" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Windows</h3>
+<p>These instructions (using <code>install.py</code>) are the quickest way to install
+YouCompleteMe, however they may not work for everyone. If the following
+instructions don't work for you, check out the <a href="#full-installation-guide">full installation
+guide</a>.</p>
+<p><strong>Important:</strong> we assume that you are using the <code>cmd.exe</code> command prompt and
+that you know how to add an executable to the PATH environment variable.</p>
+<p>Make sure you have at least Vim 7.4.1578 with Python 2 or Python 3 support. You
+can check the version and which Python is supported by typing <code>:version</code> inside
+Vim. Look at the features included: <code>+python/dyn</code> for Python 2 and
+<code>+python3/dyn</code> for Python 3. Take note of the Vim architecture, i.e. 32 or
+64-bit. It will be important when choosing the Python installer. We recommend
+using a 64-bit client. <a href="https://bintray.com/micbou/generic/vim">Daily updated copies of 32-bit and 64-bit Vim with
+Python 2 and Python 3 support</a> are available.</p>
+<p>Add the line:</p>
+<pre><code>set encoding=utf-8
+</code></pre>
+<p>to your <a href="http://vimhelp.appspot.com/starting.txt.html#vimrc">vimrc</a> if not already present. This option is required by YCM. Note
+that it does not prevent you from editing a file in another encoding than UTF-8.
+You can do that by specifying <a href="http://vimdoc.sourceforge.net/htmldoc/editing.html#++enc">the <code>++enc</code> argument</a> to the <code>:e</code> command.</p>
+<p>Install YouCompleteMe with <a href="https://github.com/VundleVim/Vundle.vim#about">Vundle</a>.</p>
+<p><strong>Remember:</strong> YCM is a plugin with a compiled component. If you <strong>update</strong> YCM
+using Vundle and the ycm_core library APIs have changed (happens
+rarely), YCM will notify you to recompile it. You should then rerun the install
+process.</p>
+<p>Download and install the following software:</p>
+<ul>
+<li><a href="https://www.python.org/downloads/windows/">Python 2 or Python 3</a>. Be sure to pick the version
+corresponding to your Vim architecture. It is <em>Windows x86</em> for a 32-bit Vim and
+<em>Windows x86-64</em> for a 64-bit Vim. We recommend installing Python 3.</li>
+<li><a href="https://cmake.org/download/">CMake</a>. Add CMake executable to the PATH environment
+variable.</li>
+<li><a href="https://www.visualstudio.com/downloads/">Visual Studio</a>. Download the community edition.
+During setup, select <em>Desktop development with C++</em> in <em>Workloads</em>.</li>
+<li><a href="http://www.7-zip.org/download.html">7-zip</a>. Required to build YCM with semantic support for
+C-family languages.</li>
+</ul>
+<p>Compiling YCM <strong>with</strong> semantic support for C-family languages:</p>
+<pre><code>cd %USERPROFILE%/vimfiles/bundle/YouCompleteMe
+install.py --clang-completer
+</code></pre>
+<p>Compiling YCM <strong>without</strong> semantic support for C-family languages:</p>
+<pre><code>cd %USERPROFILE%/vimfiles/bundle/YouCompleteMe
+install.py
+</code></pre>
+<p>The following additional language support options are available:</p>
+<ul>
+<li>C# support: add <code>--omnisharp-completer</code> when calling <code>install.py</code>.
+Be sure that <a href="http://stackoverflow.com/questions/6319274/how-do-i-run-msbuild-from-the-command-line-using-windows-sdk-7-1">the build utility <code>msbuild</code> is in your PATH</a>.</li>
+<li>Go support: install <a href="https://golang.org/doc/install">Go</a> and add <code>--gocode-completer</code> when calling
+<code>install.py</code>.</li>
+<li>TypeScript support: install <a href="https://docs.npmjs.com/getting-started/installing-node">Node.js and npm</a> then install the
+TypeScript SDK with <code>npm install -g typescript</code>.</li>
+<li>JavaScript support: install <a href="https://docs.npmjs.com/getting-started/installing-node">Node.js and npm</a> and add
+<code>--tern-completer</code> when calling <code>install.py</code>.</li>
+<li>Rust support: install <a href="https://www.rust-lang.org/">Rust</a> and add <code>--racer-completer</code> when
+calling <code>install.py</code>.</li>
+</ul>
+<p>To simply compile with everything enabled, there's a <code>--all</code> flag.  So, to
+install with all language features, ensure <code>msbuild</code>, <code>go</code>, <code>tsserver</code>, <code>node</code>,
+<code>npm</code>, and <code>cargo</code> tools are installed and in your <code>PATH</code>, then simply run:</p>
+<pre><code>cd %USERPROFILE%/vimfiles/bundle/YouCompleteMe
+python install.py --all
+</code></pre>
+<p>You can specify the Microsoft Visual C++ (MSVC) version using the <code>--msvc</code>
+option. YCM officially supports MSVC 12 (Visual Studio 2013), 14 (2015), and 15
+(2017).</p>
+<p>That's it. You're done. Refer to the <em>User Guide</em> section on how to use YCM.
+Don't forget that if you want the C-family semantic completion engine to work,
+you will need to provide the compilation flags for your project to YCM. It's all
+in the User Guide.</p>
+<p>YCM comes with sane defaults for its options, but you still may want to take a
+look at what's available for configuration. There are a few interesting options
+that are conservatively turned off by default that you may want to turn on.</p>
+<h3><a id="user-content-freebsdopenbsd" class="anchor" href="#freebsdopenbsd" aria-hidden="true"><svg aria-hidden="true" class="octicon octicon-link" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>FreeBSD/OpenBSD</h3>
+<p>These instructions (using <code>install.py</code>) are the quickest way to install
+YouCompleteMe, however they may not work for everyone. If the following
+instructions don't work for you, check out the <a href="#full-installation-guide">full installation
+guide</a>.</p>
+<p><strong>NOTE:</strong> OpenBSD / FreeBSD are not officially supported platforms by YCM.</p>
+<p>Make sure you have Vim 7.4.1578 with Python 2 or Python 3 support.</p>
+<p>OpenBSD 5.5 and later have a Vim that's recent enough. You can see the version of
+Vim installed by running <code>vim --version</code>.</p>
+<p>FreeBSD 10.x comes with clang compiler but not the libraries needed to install.</p>
+<pre><code>pkg install llvm38 boost-all boost-python-libs clang38
+export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:/usr/local/llvm38/lib/
+</code></pre>
+<p>Install YouCompleteMe with <a href="https://github.com/VundleVim/Vundle.vim#about">Vundle</a>.</p>
+<p><strong>Remember:</strong> YCM is a plugin with a compiled component. If you <strong>update</strong> YCM
+using Vundle and the ycm_core library APIs have changed (happens
+rarely), YCM will notify you to recompile it. You should then rerun the install
+process.</p>
+<p>Install dependencies and CMake: <code>sudo pkg_add llvm boost cmake</code></p>
+<p>Compiling YCM <strong>with</strong> semantic support for C-family languages:</p>
+<pre><code>cd ~/.vim/bundle/YouCompleteMe
+./install.py --clang-completer --system-libclang --system-boost
+</code></pre>
+<p>Compiling YCM <strong>without</strong> semantic support for C-family languages:</p>
+<pre><code>cd ~/.vim/bundle/YouCompleteMe
+./install.py --system-boost
+</code></pre>
+<p>The following additional language support options are available:</p>
+<ul>
+<li>C# support: install Mono and add <code>--omnisharp-completer</code> when calling
+<code>./install.py</code>.</li>
+<li>Go support: install <a href="https://golang.org/doc/install">Go</a> and add <code>--gocode-completer</code> when calling
+<code>./install.py</code>.</li>
+<li>TypeScript support: install <a href="https://docs.npmjs.com/getting-started/installing-node">Node.js and npm</a> then install the
+TypeScript SDK with <code>npm install -g typescript</code>.</li>
+<li>JavaScript support: install <a href="https://docs.npmjs.com/getting-started/installing-node">Node.js and npm</a> and add
+<code>--tern-completer</code> when calling <code>./install.py</code>.</li>
+<li>Rust support: install <a href="https://www.rust-lang.org/">Rust</a> and add <code>--racer-completer</code> when
+calling <code>./install.py</code>.</li>
+</ul>
+<p>To simply compile with everything enabled, there's a <code>--all</code> flag.  So, to
+install with all language features, ensure <code>xbuild</code>, <code>go</code>, <code>tsserver</code>, <code>node</code>,
+<code>npm</code>, and <code>cargo</code> tools are installed and in your <code>PATH</code>, then simply run:</p>
+<pre><code>cd ~/.vim/bundle/YouCompleteMe
+./install.py --all
+</code></pre>
+<p>That's it. You're done. Refer to the <em>User Guide</em> section on how to use YCM.
+Don't forget that if you want the C-family semantic completion engine to work,
+you will need to provide the compilation flags for your project to YCM. It's all
+in the User Guide.</p>
+<p>YCM comes with sane defaults for its options, but you still may want to take a
+look at what's available for configuration. There are a few interesting options
+that are conservatively turned off by default that you may want to turn on.</p>
+<h3><a id="user-content-full-installation-guide" class="anchor" href="#full-installation-guide" aria-hidden="true"><svg aria-hidden="true" class="octicon octicon-link" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Full Installation Guide</h3>
+<p>These are the steps necessary to get YCM working on a Unix OS and on Windows.</p>
+<p><strong>Note to Windows users:</strong> we assume that you are running the <code>cmd.exe</code> command
+prompt and that the needed executables are in the PATH environment variable. Do
+not just copy the shell commands. Replace <code>~</code> by <code>%USERPROFILE%</code> in them and use
+the right Vim home directory. It should be <code>vimfiles</code> by default instead of
+<code>.vim</code>.</p>
+<p>See the <em>FAQ</em> if you have any issues.</p>
+<p><strong>Remember:</strong> YCM is a plugin with a compiled component. If you <strong>update</strong> YCM
+using Vundle and the ycm_core library APIs have changed (happens
+rarely), YCM will notify you to recompile it. You should then rerun the install
+process.</p>
+<p><strong>Please follow the instructions carefully. Read EVERY WORD.</strong></p>
+<ol>
+<li>
+<p><strong>Ensure that your version of Vim is <em>at least</em> 7.4.1578 <em>and</em> that it has
+support for Python 2 or Python 3 scripting</strong>.</p>
+<p>Inside Vim, type <code>:version</code>. Look at the first two to three lines of output;
+it should say <code>Vi IMproved X.Y</code>, where X.Y is the major version of vim. If
+your version is greater than 7.4, then you're all set. If your version is
+7.4 then look below that where it says, <code>Included patches: 1-Z</code>, where Z
+will be some number. That number needs to be 1578 or higher.</p>
+<p>If your version of Vim is not recent enough, you may need to <a href="https://github.com/Valloric/YouCompleteMe/wiki/Building-Vim-from-source">compile Vim
+from source</a> (don't worry, it's easy).</p>
+<p>After you have made sure that you have Vim 7.4.1578+, type the following in
+Vim: <code>:echo has('python') || has('python3')</code>. The output should be 1. If
+it's 0, then get a version of Vim with Python support.</p>
+<p>On Windows, check also if your Vim architecture is 32 or 64-bit. This is
+critical because it must match the Python and the YCM libraries
+architectures. We recommend using a 64-bit Vim.</p>
+</li>
+<li>
+<p><strong>Install YCM</strong> with <a href="https://github.com/VundleVim/Vundle.vim#about">Vundle</a> (or <a href="https://github.com/tpope/vim-pathogen#pathogenvim">Pathogen</a>, but Vundle is a better
+idea). With Vundle, this would mean adding a <code>Plugin 'Valloric/YouCompleteMe'</code> line to your <a href="http://vimhelp.appspot.com/starting.txt.html#vimrc">vimrc</a>.</p>
+<p>If you don't install YCM with Vundle, make sure you have run
+<code>git submodule update --init --recursive</code> after checking out the YCM
+repository (Vundle will do this for you) to fetch YCM's dependencies.</p>
+</li>
+<li>
+<p>[Complete this step ONLY if you care about semantic completion support for
+C-family languages. Otherwise it's not necessary.]</p>
+<p><strong>Download the latest version of <code>libclang</code></strong>. Clang is an open-source
+compiler that can compile C/C++/Objective-C/Objective-C++. The <code>libclang</code>
+library it provides is used to power the YCM semantic completion engine for
+those languages. YCM is designed to work with libclang version 3.9 or
+higher.</p>
+<p>You can use the system libclang <em>only if you are sure it is version 3.9 or
+higher</em>, otherwise don't. Even if it is, we recommend using the <a href="http://llvm.org/releases/download.html">official
+binaries from llvm.org</a> if at all possible. Make sure you
+download the correct archive file for your OS.</p>
+<p>We <strong>STRONGLY recommend AGAINST use</strong> of the system libclang instead of
+the upstream compiled binaries. Random things may break. Save yourself the
+hassle and use the upstream pre-built libclang.</p>
+</li>
+<li>
+<p><strong>Compile the <code>ycm_core</code> library</strong> that YCM needs. This library
+is the C++ engine that YCM uses to get fast completions.</p>
+<p>You will need to have <code>cmake</code> installed in order to generate the required
+makefiles. Linux users can install cmake with their package manager (<code>sudo apt-get install cmake</code> for Ubuntu) whereas other users can <a href="https://cmake.org/download/">download and
+install</a> cmake from its project site. Mac users can also get
+it through <a href="http://brew.sh">Homebrew</a> with <code>brew install cmake</code>.</p>
+<p>On a Unix OS, you need to make sure you have Python headers installed. On a
+Debian-like Linux distro, this would be <code>sudo apt-get install python-dev python3-dev</code>. On Mac they should already be present.</p>
+<p>On Windows, you need to download and install <a href="https://www.python.org/downloads/windows/">Python 2 or
+Python 3</a>. Pick the version corresponding to your Vim
+architecture. You will also need Microsoft Visual C++ (MSVC) to build YCM.
+You can obtain it by installing <a href="https://www.visualstudio.com/downloads/">Visual Studio</a>.
+MSVC 12 (Visual Studio 2013), 14 (2015), and 15 (2017) are officially
+supported.</p>
+<p>Here we'll assume you installed YCM with Vundle. That means that the
+top-level YCM directory is in <code>~/.vim/bundle/YouCompleteMe</code>.</p>
+<p>We'll create a new folder where build files will be placed. Run the
+following:</p>
+<pre><code>cd ~
+mkdir ycm_build
+cd ycm_build
+</code></pre>
+<p>Now we need to generate the makefiles. If you DON'T care about semantic
+support for C-family languages, run the following command in the <code>ycm_build</code>
+directory:</p>
+<pre><code>cmake -G "&lt;generator&gt;" . ~/.vim/bundle/YouCompleteMe/third_party/ycmd/cpp
+</code></pre>
+<p>where <code>&lt;generator&gt;</code> is <code>Unix Makefiles</code> on Unix systems and one of the
+following Visual Studio generators on Windows:</p>
+<ul>
+<li><code>Visual Studio 12 Win64</code></li>
+<li><code>Visual Studio 14 Win64</code></li>
+<li><code>Visual Studio 15 Win64</code></li>
+</ul>
+<p>Remove the <code>Win64</code> part in these generators if your Vim architecture is
+32-bit.</p>
+<p>For those who want to use the system version of boost, you would pass
+<code>-DUSE_SYSTEM_BOOST=ON</code> to cmake. This may be necessary on some systems
+where the bundled version of boost doesn't compile out of the box.</p>
+<p><strong>NOTE:</strong> We <strong>STRONGLY recommend AGAINST use</strong> of the system boost instead
+of the bundled version of boost. Random things may break. Save yourself
+the hassle and use the bundled version of boost.</p>
+<p>If you DO care about semantic support for C-family languages, then your
+<code>cmake</code> call will be a bit more complicated.  We'll assume you downloaded a
+binary distribution of LLVM+Clang from llvm.org in step 3 and that you
+extracted the archive file to folder <code>~/ycm_temp/llvm_root_dir</code> (with <code>bin</code>,
+<code>lib</code>, <code>include</code> etc. folders right inside that folder). On Windows, you can
+extract the files from the LLVM+Clang installer using <a href="http://www.7-zip.org/download.html">7-zip</a>.</p>
+<p><strong>NOTE:</strong> This <em>only</em> works with a <em>downloaded</em> LLVM binary package, not a
+custom-built LLVM! See docs below for <code>EXTERNAL_LIBCLANG_PATH</code> when using a
+custom LLVM build.</p>
+<p>With that in mind, run the following command in the <code>ycm_build</code> directory:</p>
+<pre><code>cmake -G "&lt;generator&gt;" -DPATH_TO_LLVM_ROOT=~/ycm_temp/llvm_root_dir . ~/.vim/bundle/YouCompleteMe/third_party/ycmd/cpp
+</code></pre>
+<p>where <code>&lt;generator&gt;</code> is replaced like above.</p>
+<p>Now that configuration files have been generated, compile the libraries
+using this command:</p>
+<pre><code>cmake --build . --target ycm_core --config Release
+</code></pre>
+<p>The <code>--config Release</code> part is specific to Windows and will be ignored on a
+Unix OS.</p>
+<p>For those who want to use the system version of libclang, you would pass
+<code>-DUSE_SYSTEM_LIBCLANG=ON</code> to cmake <em>instead of</em> the
+<code>-DPATH_TO_LLVM_ROOT=...</code> flag.</p>
+<p><strong>NOTE:</strong> We <strong>STRONGLY recommend AGAINST use</strong> of the system libclang instead
+of the upstream compiled binaries. Random things may break. Save yourself
+the hassle and use the upstream pre-built libclang.</p>
+<p>You could also force the use of a custom libclang library with
+<code>-DEXTERNAL_LIBCLANG_PATH=/path/to/libclang.so</code> flag (the library would end
+with <code>.dylib</code> on a Mac). Again, this flag would be used <em>instead of</em> the
+other flags. <strong>If you compiled LLVM from source, this is the flag you should
+be using.</strong></p>
+<p>Running the <code>cmake</code> command will also place the <code>libclang.[so|dylib|dll]</code> in
+the <code>YouCompleteMe/third_party/ycmd</code> folder for you if you compiled with
+clang support (it needs to be there for YCM to work).</p>
+</li>
+<li>
+<p>Set up support for additional languages, as desired:</p>
+<ul>
+<li>
+<p>C# support: install <a href="http://www.mono-project.com/docs/getting-started/install/">Mono on non-Windows platforms</a>.
+Navigate to <code>YouCompleteMe/third_party/ycmd/third_party/OmniSharpServer</code>
+and run</p>
+<pre><code>msbuild /property:Configuration=Release /property:TargetFrameworkVersion=v4.5
+</code></pre>
+<p>Replace <code>msbuild</code> by <code>xbuild</code> if <code>msbuild</code> is not available. On Windows,
+be sure that <a href="http://stackoverflow.com/questions/6319274/how-do-i-run-msbuild-from-the-command-line-using-windows-sdk-7-1">the build utility <code>msbuild</code> is in your
+PATH</a>.</p>
+</li>
+<li>
+<p>Go support: install <a href="https://golang.org/doc/install">Go</a> and add it to your path. Navigate to
+<code>YouCompleteMe/third_party/ycmd/third_party/gocode</code> and run <code>go build</code>.</p>
+</li>
+<li>
+<p>TypeScript support: as with the quick installation, simply <code>npm install -g typescript</code> after successfully installing <a href="https://docs.npmjs.com/getting-started/installing-node">Node.js and npm</a>.</p>
+</li>
+<li>
+<p>JavaScript support: install <a href="https://docs.npmjs.com/getting-started/installing-node">Node.js and npm</a>. Then navigate
+to <code>YouCompleteMe/third_party/ycmd/third_party/tern_runtime</code> and run <code>npm install --production</code></p>
+</li>
+<li>
+<p>Rust support: install <a href="https://www.rust-lang.org/">Rust</a>. Navigate to
+<code>YouCompleteMe/third_party/ycmd/third_party/racerd</code> and run <code>cargo build --release</code>.</p>
+</li>
+</ul>
+</li>
+</ol>
+<p>That's it. You're done. Refer to the <em>User Guide</em> section on how to use YCM.
+Don't forget that if you want the C-family semantic completion engine to work,
+you will need to provide the compilation flags for your project to YCM. It's all
+in the User Guide.</p>
+<p>YCM comes with sane defaults for its options, but you still may want to take a
+look at what's available for configuration. There are a few interesting options
+that are conservatively turned off by default that you may want to turn on.</p>
+<h2><a id="user-content-quick-feature-summary" class="anchor" href="#quick-feature-summary" aria-hidden="true"><svg aria-hidden="true" class="octicon octicon-link" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Quick Feature Summary</h2>
+<h3><a id="user-content-general-all-languages" class="anchor" href="#general-all-languages" aria-hidden="true"><svg aria-hidden="true" class="octicon octicon-link" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>General (all languages)</h3>
+<ul>
+<li>Super-fast identifier completer including tags files and syntax elements</li>
+<li>Intelligent suggestion ranking and filtering</li>
+<li>File and path suggestions</li>
+<li>Suggestions from Vim's OmniFunc</li>
+<li>UltiSnips snippet suggestions</li>
+</ul>
+<h3><a id="user-content-c-family-languages-c-c-objective-c-objective-c" class="anchor" href="#c-family-languages-c-c-objective-c-objective-c" aria-hidden="true"><svg aria-hidden="true" class="octicon octicon-link" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>C-family languages (C, C++, Objective C, Objective C++)</h3>
+<ul>
+<li>Semantic auto-completion</li>
+<li>Real-time diagnostic display</li>
+<li>Go to include/declaration/definition (<code>GoTo</code>, etc.)</li>
+<li>Semantic type information for identifiers (<code>GetType</code>)</li>
+<li>Automatically fix certain errors (<code>FixIt</code>)</li>
+<li>View documentation comments for identifiers (<code>GetDoc</code>)</li>
+</ul>
+<h3><a id="user-content-c" class="anchor" href="#c" aria-hidden="true"><svg aria-hidden="true" class="octicon octicon-link" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>C♯</h3>
+<ul>
+<li>Semantic auto-completion</li>
+<li>Real-time diagnostic display</li>
+<li>Go to declaration/definition (<code>GoTo</code>, etc.)</li>
+<li>Semantic type information for identifiers (<code>GetType</code>)</li>
+<li>Automatically fix certain errors (<code>FixIt</code>)</li>
+<li>Management of OmniSharp server instance</li>
+<li>View documentation comments for identifiers (<code>GetDoc</code>)</li>
+</ul>
+<h3><a id="user-content-python" class="anchor" href="#python" aria-hidden="true"><svg aria-hidden="true" class="octicon octicon-link" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Python</h3>
+<ul>
+<li>Intelligent auto-completion</li>
+<li>Go to declaration/definition, find references (<code>GoTo</code>, <code>GoToReferences</code>)</li>
+<li>View documentation comments for identifiers (<code>GetDoc</code>)</li>
+<li>Restart <a href="https://github.com/vheon/JediHTTP">JediHTTP</a> server using a different Python interpreter</li>
+</ul>
+<h3><a id="user-content-go" class="anchor" href="#go" aria-hidden="true"><svg aria-hidden="true" class="octicon octicon-link" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Go</h3>
+<ul>
+<li>Semantic auto-completion</li>
+<li>Go to definition (<code>GoTo</code>)</li>
+<li>Management of <code>gocode</code> server instance</li>
+</ul>
+<h3><a id="user-content-typescript" class="anchor" href="#typescript" aria-hidden="true"><svg aria-hidden="true" class="octicon octicon-link" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>TypeScript</h3>
+<ul>
+<li>Semantic auto-completion</li>
+<li>Real-time diagnostic display</li>
+<li>Renaming symbols (<code>RefactorRename &lt;new name&gt;</code>)</li>
+<li>Go to definition, find references (<code>GoToDefinition</code>, <code>GoToReferences</code>)</li>
+<li>Semantic type information for identifiers (<code>GetType</code>)</li>
+<li>View documentation comments for identifiers (<code>GetDoc</code>)</li>
+</ul>
+<h3><a id="user-content-javascript" class="anchor" href="#javascript" aria-hidden="true"><svg aria-hidden="true" class="octicon octicon-link" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>JavaScript</h3>
+<ul>
+<li>Intelligent auto-completion</li>
+<li>Renaming variables (<code>RefactorRename &lt;new name&gt;</code>)</li>
+<li>Go to definition, find references (<code>GoToDefinition</code>, <code>GoToReferences</code>)</li>
+<li>Type information for identifiers (<code>GetType</code>)</li>
+<li>View documentation comments for identifiers (<code>GetDoc</code>)</li>
+<li>Management of <code>Tern</code> server instance</li>
+</ul>
+<h3><a id="user-content-rust" class="anchor" href="#rust" aria-hidden="true"><svg aria-hidden="true" class="octicon octicon-link" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Rust</h3>
+<ul>
+<li>Semantic auto-completion</li>
+<li>Go to definition (<code>GoTo</code>, <code>GoToDefinition</code>, and <code>GoToDeclaration</code> are
+identical)</li>
+<li>Management of <code>racer</code> server instance</li>
+<li>View documentation comments for identifiers (<code>GetDoc</code>)</li>
+</ul>
+<h2><a id="user-content-user-guide" class="anchor" href="#user-guide" aria-hidden="true"><svg aria-hidden="true" class="octicon octicon-link" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>User Guide</h2>
+<h3><a id="user-content-general-usage" class="anchor" href="#general-usage" aria-hidden="true"><svg aria-hidden="true" class="octicon octicon-link" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>General Usage</h3>
+<ul>
+<li>If the offered completions are too broad, keep typing characters; YCM will
+continue refining the offered completions based on your input.</li>
+<li>Filtering is "smart-case" sensitive; if you are typing only lowercase letters,
+then it's case-insensitive. If your input contains uppercase letters, then the
+uppercase letters in your query must match uppercase letters in the completion
+strings (the lowercase letters still match both). So, "foo" matches "Foo" and
+"foo", "Foo" matches "Foo" and "FOO" but not "foo".</li>
+<li>Use the TAB key to accept a completion and continue pressing TAB to cycle
+through the completions. Use Shift-TAB to cycle backwards. Note that if you're
+using console Vim (that is, not Gvim or MacVim) then it's likely that the
+Shift-TAB binding will not work because the console will not pass it to Vim.
+You can remap the keys; see the <em><a href="https://github.com/Valloric/YouCompleteMe#options">Options</a></em> section below.</li>
+</ul>
+<p>Knowing a little bit about how YCM works internally will prevent confusion. YCM
+has several completion engines: an identifier-based completer that collects all
+of the identifiers in the current file and other files you visit (and your tags
+files) and searches them when you type (identifiers are put into per-filetype
+groups).</p>
+<p>There are also several semantic engines in YCM. There's a libclang-based
+completer that provides semantic completion for C-family languages.  There's a
+Jedi-based completer for semantic completion for Python. There's also an
+omnifunc-based completer that uses data from Vim's omnicomplete system to
+provide semantic completions when no native completer exists for that language
+in YCM.</p>
+<p>There are also other completion engines, like the UltiSnips completer and the
+filepath completer.</p>
+<p>YCM automatically detects which completion engine would be the best in any
+situation. On occasion, it queries several of them at once, merges the
+outputs and presents the results to you.</p>
+<h3><a id="user-content-client-server-architecture" class="anchor" href="#client-server-architecture" aria-hidden="true"><svg aria-hidden="true" class="octicon octicon-link" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Client-Server Architecture</h3>
+<p>YCM has a client-server architecture; the Vim part of YCM is only a thin client
+that talks to the <a href="https://github.com/Valloric/ycmd">ycmd HTTP+JSON server</a> that has the vast majority of
+YCM logic and functionality. The server is started and stopped automatically as
+you start and stop Vim.</p>
+<h3><a id="user-content-completion-string-ranking" class="anchor" href="#completion-string-ranking" aria-hidden="true"><svg aria-hidden="true" class="octicon octicon-link" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Completion String Ranking</h3>
+<p>The subsequence filter removes any completions that do not match the input, but
+then the sorting system kicks in. It's actually very complicated and uses lots
+of factors, but suffice it to say that "word boundary" (WB) subsequence
+character matches are "worth" more than non-WB matches. In effect, this means
+given an input of "gua", the completion "getUserAccount" would be ranked higher
+in the list than the "Fooguxa" completion (both of which are subsequence
+matches). A word-boundary character are all capital characters, characters
+preceded by an underscore and the first letter character in the completion
+string.</p>
+<h3><a id="user-content-general-semantic-completion" class="anchor" href="#general-semantic-completion" aria-hidden="true"><svg aria-hidden="true" class="octicon octicon-link" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>General Semantic Completion</h3>
+<ul>
+<li>You can use Ctrl+Space to trigger the completion suggestions anywhere, even
+without a string prefix. This is useful to see which top-level functions are
+available for use.</li>
+</ul>
+<h3><a id="user-content-c-family-semantic-completion" class="anchor" href="#c-family-semantic-completion" aria-hidden="true"><svg aria-hidden="true" class="octicon octicon-link" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>C-family Semantic Completion</h3>
+<p>In order to perform semantic analysis such as code completion, <code>GoTo</code> and
+diagnostics, YouCompleteMe uses <code>libclang</code>. This is the library version of the
+clang compiler, sometimes also referred to as llvm. Like any compiler,
+<code>libclang</code> requires a set of compile flags in order to parse your code. Simply
+put: If <code>libclang</code> can't parse your code, YouCompleteMe can't provide semantic
+analysis.</p>
+<p>There are 2 methods which can be used to provide compile flags to <code>libclang</code>:</p>
+<h4><a id="user-content-option-1-use-a-compilation-database" class="anchor" href="#option-1-use-a-compilation-database" aria-hidden="true"><svg aria-hidden="true" class="octicon octicon-link" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Option 1: Use a <a href="http://clang.llvm.org/docs/JSONCompilationDatabase.html">compilation database</a></h4>
+<p>The easiest way to get YCM to compile your code is to use a compilation
+database.  A compilation database is usually generated by your build system
+(e.g. <code>CMake</code>) and contains the compiler invocation for each compilation unit in
+your project.</p>
+<p>For information on how to generate a compilation database, see the <a href="http://clang.llvm.org/docs/JSONCompilationDatabase.html">clang
+documentation</a>. In short:</p>
+<ul>
+<li>If using CMake, add <code>-DCMAKE_EXPORT_COMPILE_COMMANDS=ON</code> when configuring (or
+add <code>set( CMAKE_EXPORT_COMPILE_COMMANDS ON )</code> to <code>CMakeLists.txt</code>) and copy or
+symlink the generated database to the root of your project.</li>
+<li>If using Ninja, check out the <code>compdb</code> tool (<code>-t compdb</code>) in its
+<a href="https://ninja-build.org/manual.html">docs</a>.</li>
+<li>If using GNU make, check out <a href="https://github.com/rizsotto/Bear">Bear</a>.</li>
+<li>For other build systems, check out
+<a href="#option-2-provide-the-flags-manually"><code>.ycm_extra_conf.py</code></a> below.</li>
+</ul>
+<p>If no <a href="#option-2-provide-the-flags-manually"><code>.ycm_extra_conf.py</code></a> is found,
+and no <a href="#the-gycm_global_ycm_extra_conf-option"><code>ycm_global_ycm_extra_conf</code></a> is
+configured, YouCompleteMe automatically tries to load a compilation database if
+one is found.</p>
+<p>YCM looks for a file named <code>compile_commands.json</code> in the directory of the
+opened file or in any directory above it in the hierarchy (recursively); when
+the file is found, it is loaded.  YouCompleteMe performs the following lookups
+when extracting flags for a particular file:</p>
+<ul>
+<li>If the database contains an entry for the file, the flags for that file are
+used.</li>
+<li>If the file is a header file and a source file with the same root exists in
+the database, the flags for the source file are used. For example, if the file
+is <code>/home/Test/project/src/lib/something.h</code> and the database contains an entry
+for <code>/home/Test/project/src/lib/something.cc</code>, then the flags for
+<code>/home/Test/project/src/lib/something.cc</code> are used.</li>
+<li>Otherwise, if any flags have been returned from the directory containing the
+requested file, those flags are used. This heuristic is intended to provide
+potentially working flags for newly created files.</li>
+</ul>
+<p>Finally, YCM converts any relative paths in the extracted flags to absolute
+paths. This ensures that compilation can be performed from any Vim working
+directory.</p>
+<h4><a id="user-content-option-2-provide-the-flags-manually" class="anchor" href="#option-2-provide-the-flags-manually" aria-hidden="true"><svg aria-hidden="true" class="octicon octicon-link" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Option 2: Provide the flags manually</h4>
+<p>If you don't have a compilation database, or aren't able to generate one,
+you have to tell YouCompleteMe how to compile your code some other way.</p>
+<p>Every c-family project is different. It is not possible for YCM to guess what
+compiler flags to supply for your project. Fortunately, YCM provides a mechanism
+for you to generate the flags for a particular file with <em>arbitrary complexity</em>.
+This is achieved by requiring you to provide a Python module which implements a
+trival function which, given the file name as argument, returns a list of
+compiler flags to use to compile that file.</p>
+<p>YCM looks for a <code>.ycm_extra_conf.py</code> file in the directory of the opened file or
+in any directory above it in the hierarchy (recursively); when the file is
+found, it is loaded (only once!) as a Python module. YCM calls a <code>FlagsForFile</code>
+method in that module which should provide it with the information necessary to
+compile the current file. You can also provide a path to a global
+<code>.ycm_extra_conf.py</code> file, which will be used as a fallback. To prevent the
+execution of malicious code from a file you didn't write YCM will ask you once
+per <code>.ycm_extra_conf.py</code> if it is safe to load. This can be disabled and you can
+white-/blacklist files. See the <em>Options</em> section for more details.</p>
+<p>This system was designed this way so that the user can perform any arbitrary
+sequence of operations to produce a list of compilation flags YCM should hand
+to Clang.</p>
+<p><strong>NOTE</strong>: It is highly recommended to include <code>-x &lt;language&gt;</code> flag to libclang.
+This is so that the correct language is detected, particularly for header files.
+Common values are <code>-x c</code> for C, <code>-x c++</code> for C++ and <code>-x objc</code> for Objective-C.</p>
+<p>To give you an impression, if your c++ project is trivial, and your usual
+compilation command is: <code>g++ -Wall -Wextra -Werror -o FILE.o FILE.cc</code>, then the
+following <code>.ycm_extra_conf.py</code> is enough to get semantic analysis from
+YouCompleteMe:</p>
+<div class="highlight highlight-source-python"><pre><span class="pl-k">def</span> <span class="pl-en">FlagsForFile</span>( <span class="pl-smi">filename</span>, <span class="pl-k">**</span><span class="pl-smi">kwargs</span> ):
+  <span class="pl-k">return</span> {
+    <span class="pl-s"><span class="pl-pds">'</span>flags<span class="pl-pds">'</span></span>: [ <span class="pl-s"><span class="pl-pds">'</span>-x<span class="pl-pds">'</span></span>, <span class="pl-s"><span class="pl-pds">'</span>c++<span class="pl-pds">'</span></span>, <span class="pl-s"><span class="pl-pds">'</span>-Wall<span class="pl-pds">'</span></span>, <span class="pl-s"><span class="pl-pds">'</span>-Wextra<span class="pl-pds">'</span></span>, <span class="pl-s"><span class="pl-pds">'</span>-Werror<span class="pl-pds">'</span></span> ],
+  }</pre></div>
+<p>As you can see from the trivial example, YCM calls the <code>FlagsForFile</code> method,
+passing it the file name. The <code>**kwargs</code> is for advanced users and can usually
+be ignored. The <code>FlagsForFile</code> function returns a dictionary with a single
+element <code>'flags'</code>. This element is a <code>list</code> of compiler flags to pass to
+libclang for the file <code>filename</code>. That's it! This is actually enough for most
+projects, but for complex projects it is not uncommon to integrate directly with
+an existing build system using the full power of the Python language.</p>
+<p>For a more elaborate example,
+<a href="https://raw.githubusercontent.com/Valloric/ycmd/3ad0300e94edc13799e8bf7b831de8b57153c5aa/cpp/ycm/.ycm_extra_conf.py">see YCM's own <code>.ycm_extra_conf.py</code></a>. You should be able to use
+it <em>as a starting point</em>. <strong>Don't</strong> just copy/paste that file somewhere and
+expect things to magically work; <strong>your project needs different flags</strong>. Hint:
+just replace the strings in the <code>flags</code> variable with compilation flags
+necessary for your project. That should be enough for 99% of projects.</p>
+<p>You could also consider using <a href="https://github.com/rdnetto/YCM-Generator">YCM-Generator</a> to generate the
+<code>ycm_extra_conf.py</code> file.</p>
+<h4><a id="user-content-errors-during-compilation" class="anchor" href="#errors-during-compilation" aria-hidden="true"><svg aria-hidden="true" class="octicon octicon-link" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Errors during compilation</h4>
+<p>If Clang encounters errors when compiling the header files that your file
+includes, then it's probably going to take a long time to get completions.  When
+the completion menu finally appears, it's going to have a large number of
+unrelated completion strings (type/function names that are not actually
+members). This is because Clang fails to build a precompiled preamble for your
+file if there are any errors in the included headers and that preamble is key to
+getting fast completions.</p>
+<p>Call the <code>:YcmDiags</code> command to see if any errors or warnings were detected in
+your file.</p>
+<h3><a id="user-content-javascript-semantic-completion" class="anchor" href="#javascript-semantic-completion" aria-hidden="true"><svg aria-hidden="true" class="octicon octicon-link" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>JavaScript Semantic Completion</h3>
+<h4><a id="user-content-quick-start" class="anchor" href="#quick-start" aria-hidden="true"><svg aria-hidden="true" class="octicon octicon-link" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Quick start</h4>
+<ol>
+<li>
+<p>Ensure that you have enabled the Tern completer. See the
+<a href="#installation">installation guide</a> for details.</p>
+</li>
+<li>
+<p>Create a <code>.tern-project</code> file in the root directory of your JavaScript
+project, by following the <a href="http://ternjs.net/doc/manual.html#configuration">instructions</a> in the <a href="http://ternjs.net">Tern</a>
+documentation.</p>
+</li>
+<li>
+<p>Make sure that Vim's working directory is a descendent of that directory (or
+that directory itself) when working with JavaScript files.</p>
+</li>
+</ol>
+<h4><a id="user-content-explanation" class="anchor" href="#explanation" aria-hidden="true"><svg aria-hidden="true" class="octicon octicon-link" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Explanation</h4>
+<p>JavaScript completion is based on <a href="http://ternjs.net">Tern</a>. This completion engine requires a
+file named <a href="http://ternjs.net/doc/manual.html#configuration"><code>.tern-project</code></a> to exist in the current working
+directory or a directory which is an ancestor of the current working directory
+when the tern server is started. YCM starts the Tern server the first time a
+JavaScript file is edited, so Vim's working directory at that time needs to be a
+descendent of the directory containing the <code>.tern-project</code> file (or that
+directory itself).</p>
+<p>Alternatively, as described in the <a href="http://ternjs.net/doc/manual.html#server">Tern documentation</a>, a global
+<code>.tern-config</code> file may be used.</p>
+<p>Multiple Tern servers, are not supported. To switch to a different
+JavaScript project, you can do one of the following:</p>
+<ul>
+<li>start a new instance of Vim from the new project's directory</li>
+<li>change Vim's working directory (<code>:cd /path/to/new/project</code>) and restart the
+<a href="https://github.com/Valloric/ycmd">ycmd server</a> (<code>:YcmRestartServer</code>)</li>
+<li>change Vim's working directory (<code>:cd /path/to/new/project</code>), open a JavaScript
+file (or set filetype to JavaScript) and restart the Tern server using YCM
+completer subcommand <code>:YcmCompleter RestartServer</code>.</li>
+</ul>
+<h4><a id="user-content-tips-and-tricks" class="anchor" href="#tips-and-tricks" aria-hidden="true"><svg aria-hidden="true" class="octicon octicon-link" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Tips and tricks</h4>
+<p>This section contains some advice for configuring <code>.tern-project</code> and working
+with JavaScript files. The canonical reference for correctly configuring Tern is
+the <a href="http://ternjs.net/doc/manual.html#server">Tern documentation</a>. Any issues, improvements, advice, etc.
+should be sought from the <a href="http://ternjs.net">Tern</a> project. For example, see the <a href="http://ternjs.net/doc/manual.html#plugins">list of tern
+plugins</a> for the list of plugins
+which can be enabled in the <code>plugins</code> section of the <code>.tern-project</code> file.</p>
+<h5><a id="user-content-configuring-tern-for-node-support" class="anchor" href="#configuring-tern-for-node-support" aria-hidden="true"><svg aria-hidden="true" class="octicon octicon-link" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Configuring Tern for node support</h5>
+<p>The following simple example <code>.tern-project</code> file enables nodejs support:</p>
+<div class="highlight highlight-source-json"><pre>{
+    <span class="pl-s"><span class="pl-pds">"</span>plugins<span class="pl-pds">"</span></span>: {
+        <span class="pl-s"><span class="pl-pds">"</span>node<span class="pl-pds">"</span></span>: {}
+    }
+}
+</pre></div>
+<h5><a id="user-content-configuring-tern-for-requirejs-support" class="anchor" href="#configuring-tern-for-requirejs-support" aria-hidden="true"><svg aria-hidden="true" class="octicon octicon-link" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Configuring Tern for requirejs support</h5>
+<p>The Tern requirejs plugin requires that all included "libraries" are rooted
+under the same base directory. If that's not the case for your projects, then it
+is possible to make it work with appropriate symbolic links. For example, create
+a directory <code>ext_lib</code> within your project and populate it with symlinks to your
+libraries. Then set up the <code>.tern-project</code> something like this:</p>
+<div class="highlight highlight-source-json"><pre>{
+  <span class="pl-s"><span class="pl-pds">"</span>plugins<span class="pl-pds">"</span></span>: {
+    <span class="pl-s"><span class="pl-pds">"</span>requirejs<span class="pl-pds">"</span></span>: {
+      <span class="pl-s"><span class="pl-pds">"</span>baseURL<span class="pl-pds">"</span></span>: <span class="pl-s"><span class="pl-pds">"</span>./ext_lib<span class="pl-pds">"</span></span>,
+    }
+  }
+}</pre></div>
+<p>Then, given the following structure:</p>
+<pre><code>./ext_lib/mylib (symlink)
+./ext_lib/anotherlib (symlink)
+</code></pre>
+<p>Can be used as follows:</p>
+<div class="highlight highlight-source-js"><pre><span class="pl-en">define</span>( [ <span class="pl-s"><span class="pl-pds">'</span>mylib/file1<span class="pl-pds">'</span></span>, <span class="pl-s"><span class="pl-pds">'</span>anotherlib/anotherfile<span class="pl-pds">'</span></span> ], <span class="pl-k">function</span>( <span class="pl-smi">f1</span>, <span class="pl-smi">f2</span> ) {
+    <span class="pl-c"><span class="pl-c">//</span> etc.</span>
+} );</pre></div>
+<h3><a id="user-content-rust-semantic-completion" class="anchor" href="#rust-semantic-completion" aria-hidden="true"><svg aria-hidden="true" class="octicon octicon-link" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Rust Semantic Completion</h3>
+<p>Completions and GoTo commands within the current crate and its dependencies
+should work out of the box with no additional configuration (provided that you
+built YCM with the <code>--racer-completer</code> flag; see the <a href="#installation"><em>Installation</em>
+section</a> for details).  For semantic analysis inclusive of the
+standard library, you must have a local copy of <a href="https://www.rust-lang.org/downloads.html">the rust source
+code</a>. You also need to set the following option so YouCompleteMe can
+locate it.</p>
+<div class="highlight highlight-source-viml"><pre><span class="pl-c"><span class="pl-c">"</span> In this example, the rust source code zip has been extracted to</span>
+<span class="pl-c"><span class="pl-c">"</span> /usr/local/rust/rustc-1.5.0</span>
+<span class="pl-k">let</span> <span class="pl-smi"><span class="pl-k">g:</span>ycm_rust_src_path</span> <span class="pl-k">=</span> <span class="pl-s"><span class="pl-pds">'</span>/usr/local/rust/rustc-1.5.0/src<span class="pl-pds">'</span></span></pre></div>
+<h3><a id="user-content-python-semantic-completion" class="anchor" href="#python-semantic-completion" aria-hidden="true"><svg aria-hidden="true" class="octicon octicon-link" height="16" version="1.1" viewBox="0 0

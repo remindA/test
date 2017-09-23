@@ -1,0 +1,85 @@
+#ifndef _SAA_INCLUDE_H_
+#define _SAA_INCLUDE_H_
+/* 服务器和客户端约定 */
+#define DEBUG                   1
+
+#define LEN_ERR                 (-2)
+#define LEN_IP                  16
+#define LEN_MAC                 18	
+#define LEN_CPU_INFO            128
+#define LEN_DISK_INFO           128
+#define LEN_HOST_NAME           128
+#define LEN_AP                  128
+#define LEN_MCHN_CODE           128
+
+typedef struct _tlv
+{
+	unsigned char type;
+	int           length;
+	char          value[0];
+}tlv_t;
+/* 类型定义（随意扩展） */
+#define SAA_TYPE_HEAD           00                              //头
+#define SAA_TYPE_TAIL           01                              //尾
+
+#define SAA_TYPE_FLAG_REQUEST   10                              //请求
+#define SAA_TYPE_FLAG_REPLY     11                              //回复
+#define SAA_TYPE_FLAG_HEARTBEAT 12                              //心跳
+#define SAA_TYPE_FLAG_ADDRLIST  13                              //允许访问地址列表
+
+#define SAA_TYPE_IP             20                              //IP
+#define SAA_TYPE_MAC            21                              //MAC
+#define SAA_TYPE_CPU_INFO       22                              //CPU信息
+#define SAA_TYPE_DISK_INFO      23                              //硬盘信息
+#define SAA_TYPE_HOSTNAME       24                              //主机名
+#define SAA_TYPE_MACHINECODE    25                              //机器码
+#define SAA_TYPE_AUTH_STATE     26                              //认证状态
+
+
+/* 这个结构体约定了客户端发来的请求信息所有的情况
+ * 服务器在添加条目时，缺省为" "
+ * 可扩充 
+ */
+typedef struct
+{					
+	char ip[LEN_IP];
+	char mac[LEN_MAC];
+	char cpu_info[LEN_CPU_INFO];
+	char disk_info[LEN_DISK_INFO];
+	char host_name[LEN_HOST_NAME];
+	char machine_code[LEN_MCHN_CODE];
+}s_client_info;
+/* end of 服务器和客户端约定 */
+
+
+/* 服务器专区 */
+#define PATH_AUTH					"include/auth_file"         //认证表文件的存放路径
+#define LINE_LEN					(sizeof(saa_element) + 10)  //认证表文件一行的最大长度
+
+
+/* 此结构体中的数据全部填充至认证表行
+ * 可扩充：后期可能会添加允许访问地址列表
+ */
+typedef struct
+{
+        s_client_info client_info;          //客户端发来的请求信息
+        char auth_state[2];                 //认证状态。1：已认证。其他：待认证
+}saa_element;
+
+typedef saa_element s_element;
+
+typedef struct saa_node
+{
+    s_element element;
+    struct saa_node *next;
+}s_list_node;
+
+/* end of 服务器专区 */
+
+
+
+/* 客户端专区 */
+/* end of 客户端专区 */
+
+
+#endif

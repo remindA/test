@@ -1,0 +1,34 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+	<title>saa</title>
+<script type="text/javascript" src="saa.js"></script>
+</head>
+<body onload="init()">
+<form>
+<table id="authTable" width="100%"  border="1" cellpadding="0" cellspacing="1" style="font-size:12px; font-family:Arial, Helvetica, sans-serif">
+  	<tr align="center" id="auth_tr_0">
+  		<th>
+  			<input type="checkbox" id="checkbox_0" value="0">
+  		</th>
+  		<th width="25%">索引</th>
+  		<th  width="25%" id="auth_state_0">认证状态</th>
+		<th  width="25%" id="ip_0">IP</th>
+		<th  width="25%" id="mac_0">MAC</th>
+	</tr>
+</table>
+
+
+<button id="me" onclick="showTable();">showTable</button><br>
+<button type="button" onclick="delUpdateRefresh('authTable')">delUpdateRefresh</button><br>
+<button type="button" onclick="clearAuthTable('authTable')">clearAuthTable</button><br>
+<button type="button" onclick="selectAllAuthTableRows('authTable')">selectAllAuthTableRows</button>
+<input type="hidden" name="h_auth_table" value="1#192.168.1.110#00:0c:29:da:aa:b2#
+0#192.168.1.124#00:50:56:2a:08:19#
+1#192.168.1.106#00:0c:29:0d:4c:aa#
+0#192.168.1.107#00:0c:29:0d:4c:bb#
+1#192.168.1.108#00:0c:29:0d:4c:cc#">
+</form>
+
+</body>
+</html>

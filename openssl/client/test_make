@@ -1,0 +1,11 @@
+CC 	= gcc
+BIN 	= test
+OBJS 	= test.o ap.o client_info.o device_info.o if_info.o
+CFLAGS 	= -Wall -Os -I./include
+LIBS 	= -lssl -lcrypto
+$(BIN):$(OBJS)
+	$(CC) $(OBJS) $(LIBS) -o $(BIN) 
+
+clean:
+	rm -rf $(BIN) $(OBJS) *~
+

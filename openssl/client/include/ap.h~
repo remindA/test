@@ -1,0 +1,9 @@
+#ifndef _AP_H_
+#define _AP_H_
+
+
+#define PATH_AP "ap_only"
+extern char *get_ap_from_file(const char *filepath, char *ap);
+extern int  set_ap_to_file(const char *filepath, char *ap);
+
+#endif

@@ -1,0 +1,6 @@
+POST /www/js/ajax.js HTTP/1.1
+Host: 192.168.1.33:80
+Referer: http://192.168.1.33/time.html?setup.cgi
+Cookie: no-cache
+
+ip=192.168.1.33&port=80&user=niuyaben&address=NanJing

@@ -1,0 +1,14 @@
+# depslib dependency file v1.0
+1500012287 source:/home/ben/test/log_convert/main.c
+	<stdio.h>
+	<stdlib.h>
+	<string.h>
+
+1500013319 source:/home/ben/test/log_convert/link_list.c
+	"link_list.h"
+
+1500013802 /home/ben/test/log_convert/link_list.h
+	<stdio.h>
+	<stdlib.h>
+	<string.h>
+

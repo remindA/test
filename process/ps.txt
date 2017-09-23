@@ -1,0 +1,296 @@
+USER       PID %CPU %MEM    VSZ   RSS TTY      STAT START   TIME COMMAND
+root         1  0.0  0.1   4600  3672 ?        Ss   03:03   0:03 /sbin/init
+root         2  0.0  0.0      0     0 ?        S    03:03   0:00 [kthreadd]
+root         3  0.0  0.0      0     0 ?        S    03:03   0:01 [ksoftirqd/0]
+root         5  0.0  0.0      0     0 ?        S<   03:03   0:00 [kworker/0:0H]
+root         7  0.1  0.0      0     0 ?        R    03:03   1:08 [rcu_sched]
+root         8  0.0  0.0      0     0 ?        S    03:03   0:00 [rcu_bh]
+root         9  0.0  0.0      0     0 ?        S    03:03   0:00 [migration/0]
+root        10  0.0  0.0      0     0 ?        S    03:03   0:00 [watchdog/0]
+root        11  0.0  0.0      0     0 ?        S    03:03   0:00 [watchdog/1]
+root        12  0.0  0.0      0     0 ?        S    03:03   0:00 [migration/1]
+root        13  0.0  0.0      0     0 ?        S    03:03   0:00 [ksoftirqd/1]
+root        15  0.0  0.0      0     0 ?        S<   03:03   0:00 [kworker/1:0H]
+root        16  0.0  0.0      0     0 ?        S    03:03   0:00 [kdevtmpfs]
+root        17  0.0  0.0      0     0 ?        S<   03:03   0:00 [netns]
+root        18  0.0  0.0      0     0 ?        S<   03:03   0:00 [perf]
+root        19  0.0  0.0      0     0 ?        S    03:03   0:00 [khungtaskd]
+root        20  0.0  0.0      0     0 ?        S<   03:03   0:00 [writeback]
+root        21  0.0  0.0      0     0 ?        SN   03:03   0:00 [ksmd]
+root        22  0.0  0.0      0     0 ?        SN   03:03   0:01 [khugepaged]
+root        23  0.0  0.0      0     0 ?        S<   03:03   0:00 [crypto]
+root        24  0.0  0.0      0     0 ?        S<   03:03   0:00 [kintegrityd]
+root        25  0.0  0.0      0     0 ?        S<   03:03   0:00 [bioset]
+root        26  0.0  0.0      0     0 ?        S<   03:03   0:00 [kblockd]
+root        27  0.0  0.0      0     0 ?        S<   03:03   0:00 [ata_sff]
+root        28  0.0  0.0      0     0 ?        S<   03:03   0:00 [md]
+root        29  0.0  0.0      0     0 ?        S<   03:03   0:00 [devfreq_wq]
+root        33  0.0  0.0      0     0 ?        S    03:03   0:01 [kswapd0]
+root        34  0.0  0.0      0     0 ?        S<   03:03   0:00 [vmstat]
+root        35  0.0  0.0      0     0 ?        S    03:03   0:00 [fsnotify_mark]
+root        36  0.0  0.0      0     0 ?        S    03:03   0:00 [ecryptfs-kthrea]
+root        52  0.0  0.0      0     0 ?        S<   03:03   0:00 [kthrotld]
+root        53  0.0  0.0      0     0 ?        S<   03:03   0:00 [acpi_thermal_pm]
+root        54  0.0  0.0      0     0 ?        S<   03:03   0:00 [bioset]
+root        55  0.0  0.0      0     0 ?        S<   03:03   0:00 [bioset]
+root        56  0.0  0.0      0     0 ?        S<   03:03   0:00 [bioset]
+root        57  0.0  0.0      0     0 ?        S<   03:03   0:00 [bioset]
+root        58  0.0  0.0      0     0 ?        S<   03:03   0:00 [bioset]
+root        59  0.0  0.0      0     0 ?        S<   03:03   0:00 [bioset]
+root        60  0.0  0.0      0     0 ?        S<   03:03   0:00 [bioset]
+root        61  0.0  0.0      0     0 ?        S<   03:03   0:00 [bioset]
+root        62  0.0  0.0      0     0 ?        S    03:03   0:00 [scsi_eh_0]
+root        63  0.0  0.0      0     0 ?        S<   03:03   0:00 [scsi_tmf_0]
+root        64  0.0  0.0      0     0 ?        S    03:03   0:00 [scsi_eh_1]
+root        65  0.0  0.0      0     0 ?        S<   03:03   0:00 [scsi_tmf_1]
+root        67  0.0  0.0      0     0 ?        S<   03:03   0:00 [ipv6_addrconf]
+root        83  0.0  0.0      0     0 ?        S<   03:03   0:00 [deferwq]
+root        84  0.0  0.0      0     0 ?        S<   03:03   0:00 [charger_manager]
+root       147  0.0  0.0      0     0 ?        S<   03:03   0:00 [mpt_poll_0]
+root       148  0.0  0.0      0     0 ?        S<   03:03   0:00 [mpt/0]
+root       149  0.0  0.0      0     0 ?        S    03:03   0:00 [scsi_eh_2]
+root       150  0.0  0.0      0     0 ?        S<   03:03   0:00 [scsi_tmf_2]
+root       151  0.0  0.0      0     0 ?        S    03:03   0:00 [scsi_eh_3]
+root       152  0.0  0.0      0     0 ?        S<   03:03   0:00 [scsi_tmf_3]
+root       153  0.0  0.0      0     0 ?        S    03:03   0:00 [scsi_eh_4]
+root       154  0.0  0.0      0     0 ?        S<   03:03   0:00 [scsi_tmf_4]
+root       155  0.0  0.0      0     0 ?        S    03:03   0:00 [scsi_eh_5]
+root       156  0.0  0.0      0     0 ?        S<   03:03   0:00 [scsi_tmf_5]
+root       157  0.0  0.0      0     0 ?        S    03:03   0:00 [scsi_eh_6]
+root       158  0.0  0.0      0     0 ?        S<   03:03   0:00 [scsi_tmf_6]
+root       159  0.0  0.0      0     0 ?        S    03:03   0:00 [scsi_eh_7]
+root       160  0.0  0.0      0     0 ?        S<   03:03   0:00 [scsi_tmf_7]
+root       161  0.0  0.0      0     0 ?        S    03:03   0:00 [scsi_eh_8]
+root       162  0.0  0.0      0     0 ?        S<   03:03   0:00 [scsi_tmf_8]
+root       163  0.0  0.0      0     0 ?        S    03:03   0:00 [scsi_eh_9]
+root       164  0.0  0.0      0     0 ?        S<   03:03   0:00 [scsi_tmf_9]
+root       165  0.0  0.0      0     0 ?        S    03:03   0:00 [scsi_eh_10]
+root       166  0.0  0.0      0     0 ?        S<   03:03   0:00 [scsi_tmf_10]
+root       167  0.0  0.0      0     0 ?        S<   03:03   0:00 [kpsmoused]
+root       168  0.0  0.0      0     0 ?        S    03:03   0:00 [scsi_eh_11]
+root       169  0.0  0.0      0     0 ?        S<   03:03   0:00 [scsi_tmf_11]
+root       170  0.0  0.0      0     0 ?        S    03:03   0:00 [scsi_eh_12]
+root       171  0.0  0.0      0     0 ?        S<   03:03   0:00 [scsi_tmf_12]
+root       172  0.0  0.0      0     0 ?        S    03:03   0:00 [scsi_eh_13]
+root       173  0.0  0.0      0     0 ?        S<   03:03   0:00 [scsi_tmf_13]
+root       174  0.0  0.0      0     0 ?        S    03:03   0:00 [scsi_eh_14]
+root       175  0.0  0.0      0     0 ?        S<   03:03   0:00 [scsi_tmf_14]
+root       176  0.0  0.0      0     0 ?        S    03:03   0:00 [scsi_eh_15]
+root       177  0.0  0.0      0     0 ?        S<   03:03   0:00 [scsi_tmf_15]
+root       178  0.0  0.0      0     0 ?        S    03:03   0:00 [scsi_eh_16]
+root       179  0.0  0.0      0     0 ?        S<   03:03   0:00 [scsi_tmf_16]
+root       180  0.0  0.0      0     0 ?        S    03:03   0:00 [scsi_eh_17]
+root       181  0.0  0.0      0     0 ?        S<   03:03   0:00 [scsi_tmf_17]
+root       182  0.0  0.0      0     0 ?        S    03:03   0:00 [scsi_eh_18]
+root       183  0.0  0.0      0     0 ?        S<   03:03   0:00 [scsi_tmf_18]
+root       184  0.0  0.0      0     0 ?        S    03:03   0:00 [scsi_eh_19]
+root       185  0.0  0.0      0     0 ?        S<   03:03   0:00 [scsi_tmf_19]
+root       186  0.0  0.0      0     0 ?        S    03:03   0:00 [scsi_eh_20]
+root       187  0.0  0.0      0     0 ?        S<   03:03   0:00 [scsi_tmf_20]
+root       188  0.0  0.0      0     0 ?        S    03:03   0:00 [scsi_eh_21]
+root       189  0.0  0.0      0     0 ?        S<   03:03   0:00 [scsi_tmf_21]
+root       190  0.0  0.0      0     0 ?        S    03:03   0:00 [scsi_eh_22]
+root       191  0.0  0.0      0     0 ?        S<   03:03   0:00 [scsi_tmf_22]
+root       192  0.0  0.0      0     0 ?        S    03:03   0:00 [scsi_eh_23]
+root       193  0.0  0.0      0     0 ?        S<   03:03   0:00 [scsi_tmf_23]
+root       194  0.0  0.0      0     0 ?        S    03:03   0:00 [scsi_eh_24]
+root       195  0.0  0.0      0     0 ?        S<   03:03   0:00 [scsi_tmf_24]
+root       196  0.0  0.0      0     0 ?        S    03:03   0:00 [scsi_eh_25]
+root       197  0.0  0.0      0     0 ?        S<   03:03   0:00 [scsi_tmf_25]
+root       198  0.0  0.0      0     0 ?        S    03:03   0:00 [scsi_eh_26]
+root       199  0.0  0.0      0     0 ?        S<   03:03   0:00 [scsi_tmf_26]
+root       200  0.0  0.0      0     0 ?        S    03:03   0:00 [scsi_eh_27]
+root       201  0.0  0.0      0     0 ?        S<   03:03   0:00 [scsi_tmf_27]
+root       202  0.0  0.0      0     0 ?        S    03:03   0:00 [scsi_eh_28]
+root       203  0.0  0.0      0     0 ?        S<   03:03   0:00 [scsi_tmf_28]
+root       204  0.0  0.0      0     0 ?        S    03:03   0:00 [scsi_eh_29]
+root       205  0.0  0.0      0     0 ?        S<   03:03   0:00 [scsi_tmf_29]
+root       206  0.0  0.0      0     0 ?        S    03:03   0:00 [scsi_eh_30]
+root       207  0.0  0.0      0     0 ?        S<   03:03   0:00 [scsi_tmf_30]
+root       208  0.0  0.0      0     0 ?        S    03:03   0:00 [scsi_eh_31]
+root       209  0.0  0.0      0     0 ?        S<   03:03   0:00 [scsi_tmf_31]
+root       237  0.0  0.0      0     0 ?        S    03:03   0:00 [scsi_eh_32]
+root       238  0.0  0.0      0     0 ?        S<   03:03   0:00 [scsi_tmf_32]
+root       239  0.0  0.0      0     0 ?        S<   03:03   0:00 [bioset]
+root       240  0.0  0.0      0     0 ?        S<   03:03   0:00 [bioset]
+root       268  0.0  0.0      0     0 ?        S<   03:03   0:00 [kworker/0:1H]
+root       269  0.0  0.0      0     0 ?        S    03:03   0:01 [jbd2/sda1-8]
+root       270  0.0  0.0      0     0 ?        S<   03:03   0:00 [ext4-rsv-conver]
+root       431  0.0  0.0   3684  2616 ?        S    03:03   0:00 upstart-udev-bridge --daemon
+root       437  0.0  0.0      0     0 ?        S<   03:03   0:00 [kworker/1:1H]
+root       438  0.0  0.0  12992  3372 ?        Ss   03:03   0:00 /lib/systemd/systemd-udevd --daemon
+root       505  0.0  0.0      0     0 ?        S<   03:03   0:00 [rpciod]
+root       526  0.0  0.0      0     0 ?        S<   03:03   0:00 [nfsiod]
+root       587  0.0  0.0   2900   168 ?        Ss   03:03   0:00 rpc.idmapd
+message+   589  0.0  0.0   4960  3248 ?        Ss   03:03   0:01 dbus-daemon --system --fork
+root       609  0.0  0.0   4896  2400 ?        Ss   03:03   0:00 /usr/sbin/bluetoothd
+root       624  0.0  0.0   4228  3172 ?        Ss   03:03   0:00 /lib/systemd/systemd-logind
+syslog     638  0.0  0.0  39736  2896 ?        Ssl  03:03   0:00 rsyslogd
+root       641  0.0  0.0      0     0 ?        S<   03:03   0:00 [krfcommd]
+avahi      646  0.0  0.0   3488  2616 ?        S    03:03   0:02 avahi-daemon: running [BEN.local]
+avahi      649  0.0  0.0   3488   128 ?        S    03:03   0:00 avahi-daemon: chroot helper
+root       687  0.0  0.0      0     0 ?        S<   03:03   0:00 [ttm_swap]
+root       702  0.0  0.0   3560  2224 ?        S    03:03   0:00 upstart-file-bridge --daemon
+root       744  0.0  0.3  33304 13968 ?        Ss   03:03   0:00 smbd -F
+root       799  0.0  0.0   2816  2280 ?        Ss   03:03   0:00 rpcbind
+statd      823  0.0  0.0   2992  2440 ?        Ss   03:03   0:00 rpc.statd -L
+root       833  0.0  0.1  31484  4784 ?        S    03:03   0:00 smbd -F
+root       843  0.0  0.1  33304  6320 ?        S    03:03   0:00 smbd -F
+root       880  0.0  0.2  38520 10744 ?        Ssl  03:03   0:00 /usr/sbin/ModemManager
+root       928  0.0  0.2  54952  9332 ?        Ssl  03:03   0:06 NetworkManager
+root       939  0.0  0.1  36052  6596 ?        Sl   03:03   0:00 /usr/lib/policykit-1/polkitd --no-debug
+root       955  0.0  0.0   3284  1984 ?        S    03:03   0:00 upstart-socket-bridge --daemon
+root      1124  0.0  0.0   4660  2052 tty4     Ss+  03:03   0:00 /sbin/getty -8 38400 tty4
+root      1130  0.0  0.0   4660  1948 tty5     Ss+  03:03   0:00 /sbin/getty -8 38400 tty5
+root      1131  0.0  0.1  19192  6000 ?        Ssl  03:03   0:05 thermald --no-daemon --dbus-enable
+root      1141  0.0  0.0   4660  2048 tty2     Ss+  03:03   0:00 /sbin/getty -8 38400 tty2
+root      1142  0.0  0.0   4660  1960 tty3     Ss+  03:03   0:00 /sbin/getty -8 38400 tty3
+root      1156  0.0  0.0   4660  2036 tty6     Ss+  03:03   0:00 /sbin/getty -8 38400 tty6
+root      1221  0.0  0.1   7828  4588 ?        Ss   03:03   0:00 /usr/sbin/sshd -D
+daemon    1222  0.0  0.0   2656   124 ?        Ss   03:03   0:00 atd
+root      1229  0.0  0.0   3068  2068 ?        Ss   03:03   0:00 cron
+whoopsie  1232  0.0  0.3  53936 12536 ?        Ssl  03:03   0:00 whoopsie
+root      1249  0.0  0.2  43364  7324 ?        Ssl  03:03   0:00 lightdm
+root      1261  0.0  0.1   8880  4680 ?        Ss   03:03   0:00 /usr/sbin/cups-browsed
+root      1276  0.0  0.0   2212  1448 ?        Ss   03:03   0:06 acpid -c /etc/acpi/events -s /var/run/acpid.socket
+root      1295  0.0  0.1  36492  5512 ?        Sl   03:03   0:00 /usr/lib/accountsservice/accounts-daemon
+kernoops  1298  0.0  0.0   6404  2200 ?        Ss   03:03   0:00 /usr/sbin/kerneloops
+root      1356  0.0  0.0      0     0 ?        S<   03:03   0:00 [nfsd4_callbacks]
+root      1359  0.0  0.0      0     0 ?        S    03:03   0:00 [lockd]
+root      1361  0.0  0.0      0     0 ?        S    03:03   0:00 [nfsd]
+root      1363  0.0  0.0      0     0 ?        S    03:03   0:00 [nfsd]
+root      1364  0.0  0.0      0     0 ?        S    03:03   0:00 [nfsd]
+root      1365  0.0  0.0      0     0 ?        S    03:03   0:00 [nfsd]
+root      1366  0.0  0.0      0     0 ?        S    03:03   0:00 [nfsd]
+root      1367  0.0  0.0      0     0 ?        S    03:03   0:00 [nfsd]
+root      1368  0.0  0.0      0     0 ?        S    03:03   0:00 [nfsd]
+root      1370  0.0  0.0      0     0 ?        S    03:03   0:00 [nfsd]
+root      1377  0.0  0.0   3492  2852 ?        Ss   03:03   0:00 /usr/sbin/rpc.mountd --manage-gids
+root      1381  0.7  2.0 295552 74192 tty7     Ss+  03:03   7:27 /usr/lib/xorg/Xorg -core :0 -seat seat0 -auth /var/run/lightdm/root/:0 -nolisten tcp vt7 -novtswitch
+root      1466  0.0  0.1   5524  4016 ?        Ss   03:03   0:02 /usr/sbin/apache2 -k start
+nobody    1540  0.0  0.0   6992  3088 ?        S    03:03   0:00 /usr/sbin/dnsmasq --no-resolv --keep-in-foreground --no-hosts --bind-interfaces --pid-file=/run/sendsigs.omit.d/network-manager.dnsmasq.pid --listen-address=127.0.1.1 --conf-file=/var/run/NetworkManager/dnsmasq.conf --cache-size=0 --proxy-dnssec --enable-dbus=org.freedesktop.NetworkManager.dnsmasq --conf-dir=/etc/NetworkManager/dnsmasq.d
+root      1568  0.0  0.0   4660  1972 tty1     Ss+  03:03   0:00 /sbin/getty -8 38400 tty1
+root      1664  0.0  0.1  18088  6132 ?        Sl   03:03   0:00 lightdm --session-child 12 15
+root      1692  0.0  0.0      0     0 ?        S    03:03   0:00 [kauditd]
+root      1757  0.0  0.2  26228 10412 ?        Ss   03:03   0:01 /usr/sbin/winbindd -F
+root      1767  0.0  0.1  26228  6116 ?        S    03:03   0:00 /usr/sbin/winbindd -F
+root      1768  0.0  0.1  20312  5100 ?        Ss   03:03   0:01 nmbd -D
+richard   1769  0.0  0.1   7904  4040 ?        Ss   03:03   0:00 init --user
+root      1827  0.0  0.0  24748  2496 ?        Ssl  03:03   0:00 /usr/sbin/vmware-vmblock-fuse -o subtype=vmware-vmblock,default_permissions,allow_other /var/run/vmblock-fuse
+root      1855  0.0  0.2  22452  9268 ?        Sl   03:03   0:50 /usr/sbin/vmtoolsd
+root      1906  0.0  0.3  17136 12460 ?        S    03:03   0:00 /usr/lib/vmware-vgauth/VGAuthService -s
+richard   1930  0.0  0.0   5060  3228 ?        Ss   03:03   0:16 dbus-daemon --fork --session --address=unix:abstract=/tmp/dbus-VD6OA1P8KZ
+richard   1939  0.0  0.2  21936  7784 ?        Ssl  03:03   0:00 mediascanner-service-2.0
+richard   1943  0.0  0.0   6396  2204 ?        Ss   03:03   0:00 upstart-event-bridge
+richard   1955  0.0  0.2  40884  7320 ?        Ss   03:03   0:00 /usr/lib/i386-linux-gnu/hud/window-stack-bridge
+richard   1956  0.0  0.1  57056  5944 ?        SLl  03:03   0:00 gnome-keyring-daemon --start --components gpg
+richard   1961  0.0  2.0 129592 74312 ?        Sl   03:03   0:46 /usr/bin/fcitx
+richard   1965  0.0  0.0   6400   156 ?        S    03:03   0:03 upstart-dbus-bridge --daemon --session --user --bus-name session
+richard   1967  0.0  0.0   6400   156 ?        S    03:03   0:00 upstart-dbus-bridge --daemon --system --user --bus-name system
+richard   1977  0.0  0.0   6808  2072 ?        S    03:03   0:00 upstart-file-bridge --daemon --user
+richard   1978  0.0  0.0   4808  3264 ?        Ss   03:03   0:24 //bin/dbus-daemon --fork --print-pid 7 --print-address 9 --config-file /usr/share/fcitx/dbus/daemon.conf
+richard   1989  0.0  0.0   2712   104 ?        SN   03:03   0:00 /usr/bin/fcitx-dbus-watcher unix:abstract=/tmp/dbus-dHXxc3EI9c,guid=d91309ba556d0c53f904912559c1feb9 1978
+richard   1996  0.0  0.5 104048 19424 ?        Sl   03:03   0:05 /usr/lib/i386-linux-gnu/bamf/bamfdaemon
+richard   2000  0.0  0.6 154188 23512 ?        Ssl  03:03   0:02 /usr/lib/unity-settings-daemon/unity-settings-daemon
+richard   2005  0.0  1.0 122560 36616 ?        Ssl  03:03   0:01 /usr/lib/i386-linux-gnu/hud/hud-service
+richard   2007  0.0  0.1  43632  6932 ?        Ssl  03:03   0:00 /usr/lib/at-spi2-core/at-spi-bus-launcher --launch-immediately
+richard   2008  0.0  0.5  90060 18512 ?        Ssl  03:03   0:00 gnome-session --session=ubuntu
+richard   2012  0.0  0.8 130436 31900 ?        Ssl  03:03   0:06 /usr/lib/unity/unity-panel-service
+richard   2015  0.0  0.0   4400  3348 ?        S    03:03   0:00 /bin/dbus-daemon --config-file=/etc/at-spi2/accessibility.conf --nofork --print-address 3
+richard   2024  0.0  0.1  17380  4112 ?        Sl   03:03   0:02 /usr/lib/at-spi2-core/at-spi2-registryd --use-gnome-session
+richard   2035  0.0  0.7  96404 27780 ?        Sl   03:03   0:01 /usr/lib/i386-linux-gnu/notify-osd
+richard   2037  0.0  0.1  29356  7156 ?        Sl   03:03   0:00 /usr/lib/gvfs/gvfsd
+root      2046  0.0  0.2  29564  8156 ?        Sl   03:03   0:00 /usr/lib/upower/upowerd
+richard   2088  0.0  0.2  43372  7876 ?        Sl   03:03   0:00 /usr/lib/gvfs/gvfsd-fuse /run/user/1000/gvfs -f -o big_writes
+richard   2092  0.0  0.2 102160  8720 ?        S<l  03:03   0:01 /usr/bin/pulseaudio --start --log-target=syslog
+rtkit     2095  0.0  0.0  21376  2364 ?        SNl  03:03   0:01 /usr/lib/rtkit/rtkit-daemon
+richard   2118  0.0  0.1  46032  4828 ?        Ssl  03:03   0:00 /usr/lib/i386-linux-gnu/indicator-messages/indicator-messages-service
+richard   2123  0.0  0.7 128540 27380 ?        Sl   03:03   0:00 /usr/lib/i386-linux-gnu/indicator-keyboard-service --use-gtk
+richard   2124  0.0  0.1  37956  4984 ?        Ssl  03:03   0:00 /usr/lib/i386-linux-gnu/indicator-bluetooth/indicator-bluetooth-service
+richard   2126  0.0  0.1  38548  5520 ?        Ssl  03:03   0:00 /usr/lib/i386-linux-gnu/indicator-power/indicator-power-service
+richard   2128  0.0  0.4 102368 16732 ?        Ssl  03:03   0:01 /usr/lib/i386-linux-gnu/indicator-datetime/indicator-datetime-service
+richard   2157  0.0  0.2 126768 10696 ?        Ssl  03:03   0:00 /usr/lib/i386-linux-gnu/indicator-sound/indicator-sound-service
+richard   2160  0.0  0.4  58516 17540 ?        Ssl  03:03   0:00 /usr/lib/i386-linux-gnu/indicator-printers/indicator-printers-service
+richard   2162  0.0  0.2  63884  8256 ?        Ssl  03:03   0:00 /usr/lib/i386-linux-gnu/indicator-session/indicator-session-service
+richard   2167  0.0  0.1  47660  7084 ?        Ssl  03:03   0:01 /usr/lib/i386-linux-gnu/indicator-application/indicator-application-service
+richard   2254  0.0  0.4  90900 14988 ?        Sl   03:03   0:00 /usr/lib/evolution/evolution-source-registry
+richard   2284  0.5  3.1 352300 111724 ?       Sl   03:03   6:00 compiz
+colord    2313  0.0  0.3  37356 11672 ?        Sl   03:03   0:00 /usr/lib/colord/colord
+richard   2324  0.0  0.1  24524  6388 ?        Sl   03:03   0:00 /usr/lib/dconf/dconf-service
+richard   2328  0.0  0.1  11472  5648 ?        S    03:03   0:00 /usr/lib/i386-linux-gnu/gconf/gconfd-2
+richard   2346  0.0  1.6 264912 58344 ?        Sl   03:03   0:12 nautilus -n
+richard   2347  0.0  0.5  45040 18028 ?        Sl   03:03   0:00 /usr/lib/policykit-1-gnome/polkit-gnome-authentication-agent-1
+richard   2351  0.0  0.5  62360 19332 ?        Sl   03:03   0:00 /usr/lib/unity-settings-daemon/unity-fallback-mount-helper
+richard   2361  0.0  0.8 156404 30216 ?        Sl   03:03   0:01 nm-applet
+richard   2368  0.0  0.6  46728 22268 ?        S    03:03   0:52 /usr/lib/vmware-tools/sbin32/vmtoolsd -n vmusr --blockFd 3
+richard   2402  0.0  1.1 130344 40684 ?        Sl   03:03   0:00 /usr/lib/evolution/evolution-calendar-factory
+richard   2409  0.0  0.6 119032 21772 ?        S    03:03   0:00 sogou-qimpanel-watchdog
+richard   2425  0.0  0.1  40464  6636 ?        Sl   03:03   0:00 /usr/lib/gvfs/gvfs-udisks2-volume-monitor
+root      2428  0.0  0.1  52312  6376 ?        Sl   03:03   0:00 /usr/lib/udisks2/udisksd --no-debug
+richard   2442  0.0  0.1  40984  5400 ?        Sl   03:03   0:00 /usr/lib/gvfs/gvfs-afc-volume-monitor
+richard   2450  0.0  0.1  28768  6912 ?        Sl   03:03   0:00 /usr/lib/gvfs/gvfs-mtp-volume-monitor
+richard   2480  0.0  0.1  29880  5248 ?        Sl   03:03   0:00 /usr/lib/gvfs/gvfs-gphoto2-volume-monitor
+richard   2487  0.0  0.1  64208  6048 ?        Sl   03:03   0:00 /usr/lib/gvfs/gvfsd-trash --spawner :1.19 /org/gtk/gvfs/exec_spaw/0
+richard   2521  0.0  1.6 231364 58620 ?        Sl   03:03   0:43 sogou-qimpanel
+richard   2535  0.0  0.2  38580  8132 ?        Sl   03:03   0:00 /usr/lib/gvfs/gvfsd-burn --spawner :1.19 /org/gtk/gvfs/exec_spaw/1
+richard   2564  0.0  0.1  19824  5160 ?        Sl   03:03   0:00 /usr/lib/gvfs/gvfsd-metadata
+richard   2616  0.4  1.0 130996 38632 ?        Sl   03:03   4:03 gnome-terminal
+richard   2621  0.0  0.0   2432  1784 ?        S    03:03   0:00 gnome-pty-helper
+richard   2656  0.0  0.4  85420 17060 ?        Sl   03:03   0:00 telepathy-indicator
+richard   2663  0.0  0.4  43980 15312 ?        Sl   03:03   0:00 /usr/lib/telepathy/mission-control-5
+richard   2729  0.0  0.3  78024 11968 ?        Sl   03:04   0:01 zeitgeist-datahub
+richard   2734  0.0  0.1  44636  6904 ?        Sl   03:04   0:00 /usr/bin/zeitgeist-daemon
+richard   2740  0.0  0.4  59444 15184 ?        Sl   03:04   0:00 /usr/lib/i386-linux-gnu/zeitgeist-fts
+richard   2749  0.0  0.0   5688   596 ?        S    03:04   0:00 /bin/cat
+richard   2806  0.0  0.6  64860 23384 ?        Sl   03:04   0:00 update-notifier
+richard   2827  0.0  0.2  65532 10592 ?        Sl   03:05   0:00 /usr/lib/i386-linux-gnu/deja-dup/deja-dup-monitor
+www-data  3005  0.0  0.0 228148  3472 ?        Sl   03:08   0:22 /usr/sbin/apache2 -k start
+www-data  3006  0.0  0.0 228148  3472 ?        Sl   03:08   0:22 /usr/sbin/apache2 -k start
+root      3159  0.0  0.1   8312  5852 ?        Ss   03:08   0:00 /usr/sbin/cupsd -f
+richard   3393  0.0  0.1   9180  5660 pts/9    Ss   03:38   0:00 bash
+root      3436  0.0  0.1   8560  4252 pts/9    S    03:39   0:00 sudo su
+root      3437  0.0  0.1   8048  3700 pts/9    S    03:39   0:00 su
+root      3438  0.0  0.1   7204  3616 pts/9    S    03:39   0:00 bash
+root      3449  0.0  0.0   6720  2584 pts/9    S+   03:40   0:00 /bin/bash /usr/bin/sourceinsight
+root      3450  2.9  0.9 1656876 34036 pts/9   S+   03:40  29:02 /root/.wine/drive_c/Program Files/Source Insight 3/Insight3.exe                                      
+root      3453  2.6  0.1   8220  5768 ?        Ss   03:40  25:42 /usr/bin/wineserver
+root      3459  0.0  0.2 1598808 8016 ?        Ssl  03:40   0:00 C:\windows\system32\services.exe                                      
+root      3463  0.0  0.3 1607228 11100 ?       Sl   03:40   0:00 C:\windows\system32\winedevice.exe MountMgr                                      
+root      3472  0.0  0.2 1597552 7504 ?        Sl   03:40   0:00 C:\windows\system32\plugplay.exe                                      
+root      3478  0.0  0.4 1614740 16504 ?       Ssl  03:40   0:00 C:\windows\system32\explorer.exe /desktop                                      
+root      3487  0.0  0.1 1595412 4628 pts/9    S+   03:44   0:00 C:\Program Files\Source Insight 3\SIHOOK3.EXE raygr C:\users\root\Temp\TFX7972.tmp C:\users\root\Temp\TFX7973.tmp                                      
+richard   3690  0.0  0.1   9180  5532 pts/17   Ss   04:13   0:00 bash
+root      3992  0.0  0.1   8560  4304 pts/17   S    04:14   0:00 sudo su
+root      3993  0.0  0.1   8048  3744 pts/17   S    04:14   0:00 su
+root      3994  0.0  0.1   7356  3724 pts/17   S+   04:14   0:00 bash
+richard   5456  0.0  0.1   9216  5624 pts/27   Ss   04:21   0:00 bash
+richard   5482  0.0  0.1   9104  5464 pts/28   Ss+  04:23   0:00 bash
+root      6909  0.0  0.1   5528  4560 ?        S    08:56   0:00 /sbin/dhclient -d -sf /usr/lib/NetworkManager/nm-dhcp-client.action -pf /run/sendsigs.omit.d/network-manager.dhclient-eth0.pid -lf /var/lib/NetworkManager/dhclient-e651c0ed-db58-4627-805c-60a705352ea8-eth0.lease -cf /var/lib/NetworkManager/dhclient-eth0.conf eth0
+richard   8252  0.0  0.1   9144  5496 pts/29   Ss   15:13   0:00 bash
+richard   8266  0.0  0.0   6488  2876 pts/29   S+   15:13   0:00 man strcasecmp
+richard   8278  0.0  0.0   5940  2144 pts/29   S+   15:13   0:00 pager -s
+root      9357  0.0  0.1   8560  4356 pts/27   S    16:50   0:00 sudo su
+root      9358  0.0  0.1   8048  3720 pts/27   S    16:50   0:00 su
+root      9359  0.0  0.1   7208  3668 pts/27   S+   16:50   0:00 bash
+richard   9398  0.0  0.1   9128  5584 pts/32   Ss   16:59   0:00 bash
+richard   9414  0.0  0.0   6488  2876 pts/32   S+   16:59   0:00 man strtok_r
+richard   9429  0.0  0.0   5940  2128 pts/32   S+   16:59   0:00 pager -s
+root     11328  0.0  0.0      0     0 ?        S    17:55   0:00 [kworker/1:2]
+root     11400  0.0  0.0      0     0 ?        S    17:58   0:00 [kworker/0:0]
+richard  11444  0.0  0.1   9180  5708 pts/1    Ss   18:08   0:00 bash
+root     11467  0.0  0.0      0     0 ?        S    18:09   0:00 [kworker/0:2]
+root     11471  0.0  0.1   8560  4288 pts/1    S    18:09   0:00 sudo su
+root     11472  0.0  0.1   8048  3764 pts/1    S    18:09   0:00 su
+root     11473  0.0  0.1   7200  3612 pts/1    S+   18:09   0:00 bash
+richard  11545  0.0  0.6 122352 22296 ?        Ssl  18:47   0:00 /usr/lib/unity/unity-panel-service --lockscreen-mode
+root     11568  0.0  0.0      0     0 ?        S    19:14   0:00 [kworker/1:0]
+root     11582  0.0  0.0      0     0 ?        S    19:31   0:00 [kworker/u16:0]
+root     11593  0.0  0.1  11520  6272 ?        Ss   19:44   0:00 sshd: richard [priv]
+richard  11671  0.0  0.1  11520  3864 ?        S    19:44   0:00 sshd: richard@pts/31
+richard  11672  0.0  0.1   9256  5720 pts/31   Ss   19:44   0:00 -bash
+root     11698  0.0  0.0      0     0 ?        S    19:51   0:00 [kworker/u16:1]
+root     11727  0.0  0.1   8560  4264 pts/31   S    19:54   0:00 sudo su
+root     11728  0.0  0.1   8048  3700 pts/31   S    19:54   0:00 su
+root     11729  0.0  0.0   7200  3596 pts/31   S    19:54   0:00 bash
+root     11748  0.0  0.0   2044   552 pts/31   S+   19:59   0:00 ./a.out
+root     11749  0.0  0.0   6660  2372 pts/31   R+   19:59   0:00 ps aux

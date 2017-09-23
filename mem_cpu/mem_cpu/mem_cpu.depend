@@ -1,0 +1,16 @@
+# depslib dependency file v1.0
+1499223080 source:/home/ben/test/mem_cpu/mem_cpu/main.c
+	"mem_cpu.h"
+
+1498485534 /home/ben/test/mem_cpu/mem_cpu/mem_cpu.h
+	<stdio.h>
+	<sys/sysinfo.h>
+	<unistd.h>
+	<sys/types.h>
+	<sys/stat.h>
+	<fcntl.h>
+	<stdlib.h>
+
+1499223054 source:/home/ben/test/mem_cpu/mem_cpu/mem_cpu.c
+	"mem_cpu.h"
+
