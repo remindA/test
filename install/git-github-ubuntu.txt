@@ -12,7 +12,10 @@ git init
 git add *
 git commit -m "balabala"
 git remote add origin https://github.com/remindA/test.git
-push push -u origin master(报错：更新被拒绝，因为远程仓库包含您本地尚不存在的提交)
-push push -u origin +master
+push -u origin master(报错：更新被拒绝，因为远程仓库包含您本地尚不存在的提交)
+    git pull
+    push -u origin master
+    或
+    push push -u origin +master
 
 
