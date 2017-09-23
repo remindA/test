@@ -1,0 +1,18 @@
+git config --global user.name="NYB"
+git config --global user.email="niuyabeng@126.com"
+
+cd ~.ssh
+ssh-key-gen rsa -C "niuyabeng@126.com"
+将id_rsa.pub内容在github网站上新建SSH KEY(NEW SSH key)
+
+
+mkdir test
+cd test
+git init
+git add *
+git commit -m "balabala"
+git remote add origin https://github.com/remindA/test.git
+push push -u origin master(报错：更新被拒绝，因为远程仓库包含您本地尚不存在的提交)
+push push -u origin +master
+
+
