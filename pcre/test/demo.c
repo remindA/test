@@ -117,13 +117,6 @@ int handle_client()
      * remap请求头
      * 创建到服务器的连接s_fd
      * 新建两个子进程
-     * 子进程1:转发remap后的req_header
-     *      　:过滤转发body
-     * 子进程2:接收服务器回应的rsp_header
-     *         remap rsp_header
-     *         优先级识别
-     *         转发remap后的rsp_header
-     *         根据优先级转发body
      */
 
     http_request_t req_header;
@@ -235,14 +228,14 @@ void forward_s2c(int s_fd, int c_fd)
                         PCRE2_SPTR new_body = replace_content_default_m(buf_body);
                         if(NULL == new_body)
                         {
-                            forward_http_header(&rsp_header, RESPONSE);
+                            forward_http_header(c_fd, &rsp_header, RESPONSE);
                             forward_http_body(c_fd, buf_body, strlen(buf_body))
                                 free(buf_body);
                         }
                         else
                         {
                             rewite_content_length(&(rsp_header.head), strlen(new_body));
-                            forward_http_header(&rsp_header, RESPONSE);
+                            forward_http_header(c_fd, &rsp_header, RESPONSE);
                             forward_http_body(c_fd, (char *)new_body, strlen(new_body));
                             free(buf_body);
                             free(new_body);
@@ -250,12 +243,12 @@ void forward_s2c(int s_fd, int c_fd)
                     }
                 }
                 else
-                    forward_http_header(&rsp_head, RESPONSE); 
+                    forward_http_header(c_fd, &rsp_head, RESPONSE); 
                 break;
             }
         case PR_CHUNKED:
             {
-                forward_http_header(&rsp_head, RESPONSE);
+                forward_http_header(c_fd, &rsp_head, RESPONSE);
                 foward_http_chunked(s_fd, c_fd);
                 break;
             }
@@ -263,7 +256,7 @@ void forward_s2c(int s_fd, int c_fd)
         case PR_NONE:
         default:
             {
-                forward_http_header(&rsp_head, RESPONSE);
+                forward_http_header(c_fd, &rsp_head, RESPONSE);
                 char buf_body[LEN_BODY] = {0};
                 int n = 0;
                 while((n = read(s_fd, buf_body, LEN_BODY)) > 0)
@@ -312,7 +305,7 @@ void forward_http_header(int fd, void *http_header, int from)
         if((n = write(fd, buf_field, strlen(buf_field))) < 0)
             return;
     }
-
+    write(fd, "\r\n", 2);
 }
 
 void free_http_header(void *http_header, int from)
@@ -489,12 +482,15 @@ void rewrite_url(http_request_t *req)
         if(p1) 
         {
             /* http://192.168.1.33/setup.cgi?nextfile=remap.html  --> /setup.cgi?nextfile=remap.html */
-            memset(p, ' ', 7);
+            int end = strlen(p1);
+            memmove(req->url, p1, strlen(p1));
+            str[end] = '\0';
         }
         else
         {
             /* http://192.168.1.33 --> / */
-            memset(p, ' ', 6);
+            memset(req->url, 0, LEN_URL);
+            strcpy(req->url, "/");
         }
     }
 }
@@ -549,6 +545,7 @@ int main(int argc, char **argv)
         return 0;
     }
 
+    /* 创建监听套接字 */
     short l_port = (short)aoti(argv[1]);
     int   l_fd = create_proxy_server(l_port);
 
@@ -558,10 +555,11 @@ int main(int argc, char **argv)
     socklen_t s_len = sizeof(client_addr);
     char c_ip[LEN_IP] = {0};
 
+    /* 注册信号处理函数 */
     if(signal(SIGCHLD, wait_child) == SIG_ERR)
         err_quit("signal");
 
-    /* 初始化pattern */
+    /* 获取pattern并编译 */
     char *pattern = get_pattern_m(argv[2]);
     if(NULL == pattern)
         err_quit("get_pattern failed, IGNORE ERROR MSG");
@@ -578,6 +576,7 @@ int main(int argc, char **argv)
 
     while(1)
     {
+        /* 父进程只做监听 */
         c_fd = accept(l_fd, (struct sockaddr *)&client_addr, &s_len);
         printf("client online :%s, %d\n", 
                 inet_ntop(AF_INET, &client_addr.sin_addr.s_addr, c_ip, sizeof(c_ip)), 
