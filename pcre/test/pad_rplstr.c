@@ -52,7 +52,7 @@ void pad_remap_rplstr_m(node_substr_t *node, struct list_head *head_table)
 
 
 //struct list_head *remap_table_head = get_remap_table_malloc();
-struct list_head *get_remap_table_malloc(void)
+struct list_head *get_remap_table_m(void)
 {
     //创建head,并初始化
     struct list_head *head = (struct list_head *)malloc(sizeof(struct list_head));

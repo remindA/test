@@ -58,7 +58,7 @@ int parse_http_response_header(int s_fd, http_response_t *rsp)
     return 0;
 }
 
-//缺陷版
+//缺陷版,可以结合readn使用
 int read_line(int fd, char *buff, int cnt)
 {
     int  tot_read = 0;
@@ -93,6 +93,98 @@ int read_line(int fd, char *buff, int cnt)
     }
     return tot_read;
 }
+
+//此函数不可重入
+//多线程不安全
+//多进程安全
+ssize_t my_read(int fd, char *ptr)
+{
+    /* 第一次调用读取至多100字节存在静态区域
+     * 下次调用直接从静态区域中取出一个字节,如此避免了频繁调用read,降低了开销？
+     * 调用函数的开销大，还是调用系统函数read的开销大？
+     */
+    static int read_cnt = 0;
+    static char *read_ptr;
+    static char read_buf[100];
+    if(read_cnt <= 0)
+    {
+again:
+        if((read_cnt = read(fd, read_buf, sizeof(read_buf)))< 0)
+        {
+            if(errno == EINTR)
+                goto again;
+        }
+        else if(read_cnt == 0)
+            return 0;
+        read_ptr = read_buf;
+    }
+    read_cnt--;
+    *ptr = *read_ptr++;
+    return 1;
+}
+
+//不可以结合readn使用
+ssize_t read_line2(int fd, void *buff, size_t maxlen)
+{
+    ssize_t n, rc;
+    char c, *ptr;
+    ptr = vptr;
+    for(n = 1; n < maxlen; n++)
+    {
+        if((rc = my_read(fd, &c)) == 1)
+        {
+            *ptr++ = c;
+            if(c == '\n')
+                break;
+        }
+        else if(rc == 0)
+        {
+            *ptr = 0;
+            return (n - 1);
+        }
+        else
+            return -1;
+    }
+
+    *ptr = 0;
+    return n;
+}
+
+
+
+/* return
+ *      -1 : err
+ *      0  : 读到结尾
+ *      >0 : 没有读满
+ * 还可能阻塞住
+ */
+ssize_t readn(int fd, void *buff, int n)
+{
+    ssize_t nread;
+    size_t  nleft = n;
+    char *ptr = buff;
+    while(nleft > 0)
+    {
+        if((nread = read(fd, prt, nleft)) < 0)
+        {
+            if(errno == EINTR)
+                nread = 0;
+            else
+            {
+                perror("inreadn read");
+                return -1;
+            }
+        }
+        else if(nread == 0)
+            break;
+        nleft -= nread;
+        ptr += nread;
+    }
+    return (n - nleft);
+}
+
+//PS:如果先调用read_line2再调用readn有极大的可能性会错。
+//错误:一些存放在静态区的数据未被取出.
 
 void parse_http_req_line(const char *line, http_request_t *req_line)
 {
