@@ -499,15 +499,19 @@ PCRE2_SPTR replace_index_malloc(PCRE2_SPTR subject, PCRE2_SPTR pattern, uint32_t
     return new_subject;
 }
 
-void pad_list_rplstr_malloc(struct list_head *head, pad_rplstr_t pad, void *table, size_t len)
+void pad_list_rplstr_malloc(struct list_head *head, pad_rplstr_t pad, struct list_head *table_head)
 {
-    if(NULL == head || NULL == pad || NULL == table || len <=0)
+    if(NULL == head || NULL == pad || (table_head->next == table_head) || (table_head->prev == table_head))
+    {
+        printf("pad_list_rplstr_malloc argv wrong\n");
+        printf("head=%p, pad=%p, table_head->next=%p, table_head->prev=%p\n", head, pad, table_head->next, table_head->prev);
         return;
+    }
     struct list_head *pos;
     list_for_each(pos,head)
     {
         node_substr_t *node = list_entry(pos,node_substr_t,list);
-        pad(node, table, len);
+        pad(node, table_head);
     }
 }
 

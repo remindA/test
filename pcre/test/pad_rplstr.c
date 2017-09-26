@@ -1,9 +1,9 @@
 #include "pad_rplstr.h"
 
-//remap_t remap_tab[LEN_REMAP];         //512条记录对于nvram来说太大了。
 
 
 //typedef void (*pad_rplstr_t)(node_substr_t *node, void *table, size_t len);
+/*
 void pad_remap_rplstr_malloc(node_substr_t *node, void *remap_tab, size_t len)
 {
     remap_t *remap_table = (remap_t *)remap_tab;
@@ -24,16 +24,19 @@ void pad_remap_rplstr_malloc(node_substr_t *node, void *remap_tab, size_t len)
         }
     }
 }
-
+*/
 
 //typedef void (*pad_rplstr_t)(node_substr_t *node, struct list_head *head_table);
 //这个函数将要取代上面的函数
-void pad_remap_rplstr_m(node_substr_t *node, struct list_head *head_table)
+void pad_list_rplstr_remap_table_m(node_substr_t *node, struct list_head *head_table)
 {
     struct list_head *pos;
     list_for_each(pos, head_table)
     {
         remap_entry_t *entry = list_entry(pos, remap_entry_t, list);
+#ifdef DEBUG
+        printf("node->substr=%s, entry->before=%s\n", node->substr, entry->before);
+#endif
         if(strcmp(node->substr, entry->before) == 0)
         {
             int len_rpl = strlen(entry->after);

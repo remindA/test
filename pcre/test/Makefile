@@ -9,7 +9,7 @@ OBJCOPY=$(CROSS_COMPILE)objcopy
 OBJDUMP=$(CROSS_COMPILE)objdump
 TARGET_PREFIX=mips_4KCle-
 #LIBS = -Wl,--rpath-link,/opt/ELDK/mips_4KCle/lib,/opt/ELDK/mips_4KCle/usr/lib
-LIBS=-lpcre2-8
+LIBS=-lpcre2-8 -lm
 CFLAGS= -Os -Wall -g
 #DEBUG和NAMED_GROUP宏用于调试
 CFLAGS+= -D DEBUG

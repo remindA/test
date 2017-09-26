@@ -20,7 +20,7 @@ void usage(const char *process)
 }
 
 remap_t remap_table[] = {
-    {"niuyaben", "*NIUYABEN*"},
+    {"192.168.1.1", "172.17.5.23"},
     {"richard", "*RICHARD*"}
 };
 int main(int argc, char **argv)

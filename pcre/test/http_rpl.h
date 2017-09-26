@@ -8,6 +8,9 @@
 #include "err_quit.h"
 #include <strings.h>
 
+#define REQUEST  0
+#define RESPONSE 1
+
 #define DEFAULT_SERVER_PORT  80
 #define LEN_BODY      8196
 
@@ -34,9 +37,10 @@ typedef struct _http_response
 	struct list_head head;
 }http_response_t;
 
-#define PR_NONE_TXT
-#define PR_CHUNKED
-#define PR_CONTENT_LEN
+#define PR_NONE        0
+#define PR_NONE_TXT    1
+#define PR_CHUNKED     2
+#define PR_CONTENT_LEN 3
 
 
 #define LEN_FIELD_KEY    32
@@ -55,33 +59,20 @@ typedef struct content_type_text
     char type[32];
 }c_type_t;
 
-c_type_t text_table[] = {
-	{"text/h323"},
-	{"text/asa"},
-	{"text/asp"},
-	{"text/xml"},
-	{"text/x-component"},
-	{"text/html"},
-	{"text/javascript"},
-	{"text/x-vcard"},
-	{"text/scriptlet"},
-	{"text/vnd.wap.wml"},
-	{"text/iuls"},
-	{"text/plain"},
-	{"text/vnd.rn-realtext"},
-	{"text/vnd.rn-realtext3d"},
-	{"text/x-ms-doc"},
-	{"text/webviewhtml"},
-	{"text/css"}
-};
-
+extern c_type_t text_table[];
 
 extern int parse_http_request_header(int fd, http_request_t *req);
+extern int parse_http_response_header(int s_fd, http_response_t *rsp);
 extern int read_line(int fd, char *buff, int cnt);
+extern ssize_t my_read(int fd, char *ptr);
+extern ssize_t read_line2(int fd, void *buff, size_t maxlen);
+extern ssize_t readn(int fd, void *buff, int n);
 
 void parse_http_req_line(const char *line, http_request_t *req_line);
 void parse_http_rsp_line(const char *line, http_response_t *rsp_line);
 void parse_http_filed(const char *line, http_field_t *field);
+extern int get_server_host_port(struct list_head *req_head, char *host, short *s_port);
+extern size_t get_response_priority(struct list_head *rsp_head, int *pr);
 #endif
 
 

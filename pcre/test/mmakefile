@@ -1,0 +1,26 @@
+#
+# ARP Inspection 
+#
+include ../../Rule.mk
+CFLAGS += -Os -Wall -s
+
+CFLAGS += -DIMP=\"$(IMP)\" -DPNUM=$(PNUM) -DWAN_INTERFACE=\"$(WAN_INTERFACE)\" -DLAN_INTERFACE=\"$(LAN_INTERFACE)\"
+CFLAGS += -I. -I../bcmutils  -I../nvram 
+LIBS= -L../bcmutils -lbcmutils -L../nvram -lnvram -lpcre2-8 $(LIBNewPATH)
+BIN = mproxy
+OBJS  =  mproxy.o str_replace.o pad_rplstr.o
+
+all: $(BIN)
+
+mproxy:  $(OBJS)
+	$(CC)  $(CFLAGS) $(OBJS) -o $@ $(LIBS)
+	@echo "make $@ finished on `date`"
+
+%.o:	%.c
+	$(CC) $(CFLAGS) $(INCLUDES) -c $< -o $@ $(LIBS) 
+
+install:
+	cp -a $(BIN) ../../target/usr/sbin
+
+clean:
+	rm -f $(BIN) $(OBJS) 

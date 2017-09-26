@@ -1,5 +1,24 @@
 #include "http_rpl.h"
 
+c_type_t text_table[] = {
+	{"text/h323"},
+	{"text/asa"},
+	{"text/asp"},
+	{"text/xml"},
+	{"text/x-component"},
+	{"text/html"},
+	{"text/javascript"},
+	{"text/x-vcard"},
+	{"text/scriptlet"},
+	{"text/vnd.wap.wml"},
+	{"text/iuls"},
+	{"text/plain"},
+	{"text/vnd.rn-realtext"},
+	{"text/vnd.rn-realtext3d"},
+	{"text/x-ms-doc"},
+	{"text/webviewhtml"},
+	{"text/css"}
+};
 int parse_http_request_header(int c_fd, http_request_t *req)
 {
     int n = 0;
@@ -128,7 +147,7 @@ ssize_t read_line2(int fd, void *buff, size_t maxlen)
 {
     ssize_t n, rc;
     char c, *ptr;
-    ptr = vptr;
+    ptr = buff;
     for(n = 1; n < maxlen; n++)
     {
         if((rc = my_read(fd, &c)) == 1)
@@ -165,7 +184,7 @@ ssize_t readn(int fd, void *buff, int n)
     char *ptr = buff;
     while(nleft > 0)
     {
-        if((nread = read(fd, prt, nleft)) < 0)
+        if((nread = read(fd, ptr, nleft)) < 0)
         {
             if(errno == EINTR)
                 nread = 0;
@@ -210,7 +229,7 @@ void parse_http_filed(const char *line, http_field_t *field)
 }
 
 
-int get_server_ip_port(struct list_head *req_head, const char *s_ip, short *s_port)
+int get_server_host_port(struct list_head *req_head, char *host, short *s_port)
 {
     struct list_head *pos = NULL;
     list_for_each(pos, req_head)
@@ -218,19 +237,26 @@ int get_server_ip_port(struct list_head *req_head, const char *s_ip, short *s_po
         http_field_t *field = list_entry(pos, http_field_t, list);
         if(strcasecmp(field->key, "Host") == 0)
         {
-            char p1 = strchr(":");
+            char *p1 = strchr(field->value, ':');
             if(p1)
             {
+                char *format = "%[^:]:%s";
+                char port[12] = {0};
+                if(2 == sscanf(field->value, format, host, port))
+                    *s_port = (short)atoi(port);   //aoti(" 123 ") also works well
+                else 
+                    *s_port = DEFAULT_SERVER_PORT;
+                /*
                 int offset = p1 - field->value;
-                strncpy(s_ip, field->value, offset);
+                strncpy(host, field->value, offset);
                 char port[12] = {0};
                 strncpy(port, p1 + 1, strlen(field->value) - offset);
-                s_port = (short)atoi(port);   //aoti(" 123 ") also works well
+                */
             }
             else
             {
-                strncpy(s_ip, field->value, offset);
-                s_port = DEFAULT_SERVER_PORT;
+                strcpy(host, field->value);
+                *s_port = DEFAULT_SERVER_PORT;
             }
             return 0;
         }
@@ -251,7 +277,7 @@ size_t get_response_priority(struct list_head *rsp_head, int *pr)
             int i = 0;
             for(i = 0; i < sizeof(text_table)/sizeof(c_type_t); i++)
             {
-                if(strncasecmp(field->value, text_table[i]) == 0)
+                if(strcasecmp(field->value, text_table[i].type) == 0)
                 {
                     is_txt = 1;
                     break;
@@ -263,7 +289,7 @@ size_t get_response_priority(struct list_head *rsp_head, int *pr)
         if(strcasecmp("Content-length", field->key) == 0)
         {
             *pr = (*pr == PR_CHUNKED)?*pr:PR_CONTENT_LEN;
-            len = (size_t)aoti(field->value);
+            len = (size_t)atoi(field->value);
         }
         if(strcasecmp("Transfer-encoding", field->key) == 0 && strcasecmp("chunked", field->value))
             *pr = PR_CHUNKED;

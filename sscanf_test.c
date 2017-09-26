@@ -28,5 +28,14 @@ int main(int argc, char **argv)
     char value[32] = {0};
 	int ret = sscanf(string3, format, key, value);
 	printf("ret=%d\n%s\n%s\n", ret, key, value);
+    char *format3 = "%[^:]:%s";
+    char *host = "192.168.1.33:80";
+    char *host2 = "www.baidu.com:80";
+    char hh[128];
+    char port[10];
+    sscanf(host, format3, hh, port);
+    printf("%s %s\n", hh, port);
+    sscanf(host2, format3, hh, port);
+    printf("%s %s\n", hh, port);
 	return 0;
 }

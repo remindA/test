@@ -31,11 +31,8 @@ typedef struct node_substr{
     char   substr[0];
 }node_substr_t;
 
-typedef void (*pad_rplstr_t)(node_substr_t *node, void *table, size_t len);
-extern void pad_list_rplstr_malloc(struct list_head *head, pad_rplstr_t pad, void *table, size_t len);
-
-
-
+typedef void (*pad_rplstr_t)(node_substr_t *node, struct list_head *table_head);
+extern void pad_list_rplstr_malloc(struct list_head *head, pad_rplstr_t pad, struct list_head *table_head);
 
 extern pcre2_code *get_compile_code(PCRE2_SPTR pattern, uint32_t compile_options);
 

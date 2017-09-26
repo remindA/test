@@ -25,11 +25,12 @@ typedef struct _remap_entry
 
 char *nvram_data;
 
-extern void pad_remap_rplstr_malloc(node_substr_t *node, void *remap_tab, size_t len);
+//extern void pad_remap_rplstr_malloc(node_substr_t *node, void *remap_tab, size_t len);
 //extern void pad_remap_rplstr_malloc(node_substr_t *node, struct list_head *head_table);
 
-extern void pad_remap_rplstr_m(node_substr_t *node, struct list_head *head_table);
-extern struct list_head *get_remap_table_malloc(void);
+//extern void pad_remap_rplstr_m(node_substr_t *node, struct list_head *head_table);
+extern void pad_list_rplstr_remap_table_m(node_substr_t *node, struct list_head *head_table);
+extern struct list_head *get_remap_table_m(void);
 extern void free_remap_table(struct list_head **head);
 
 #endif
