@@ -19,10 +19,24 @@ void usage(const char *process)
     exit(1);
 }
 
-remap_t remap_table[] = {
-    {"192.168.1.1", "172.17.5.23"},
-    {"richard", "*RICHARD*"}
-};
+struct list_head *remap_table;
+
+void init_remap_table(void)
+{
+    remap_table = (struct list_head *)malloc(sizeof(struct list_head));
+    if(NULL == remap_table)
+        err_quit("malloc");
+    remap_entry_t *entry = (remap_entry_t *)malloc(sizeof(remap_entry_t));
+    strcpy(entry->before, "192.168.1.1");
+    strcpy(entry->after, "1.1.1.1");
+    list_add_tail(&(entry->list), remap_table);
+
+    remap_entry_t *entry2 = (remap_entry_t *)malloc(sizeof(remap_entry_t));
+    strcpy(entry2->before, "牛亚犇");
+    strcpy(entry2->after, "吴欢");
+    list_add_tail(&(entry2->list), remap_table);
+}
+
 int main(int argc, char **argv)
 {
     //获取pattern和subject字符串
@@ -74,28 +88,42 @@ int main(int argc, char **argv)
 
     PCRE2_SPTR subject = (PCRE2_SPTR)sub;
     PCRE2_SPTR pattern = (PCRE2_SPTR)pat;
-    struct list_head *head = get_list_substring_pattern(subject, pattern, 0);
-    pad_list_rplstr_malloc(head, pad_remap_rplstr_malloc, remap_table, 2);
-    list_print(head, print_list_substr_node);
-    PCRE2_SPTR new_subject = replace_all_default_malloc(subject, head);
-    if(NULL != new_subject)
+    struct list_head *head = get_list_substring_pattern(subject, pattern, PCRE2_UTF);
+    //匹配失败或者只有头结点，就不用做替换
+    if(head != NULL || head->next != head->next)
     {
-        
-        //printf("%s\n", (char *)new_subject);
-        FILE *fp = fopen("replace_file", "w+");
-        if(NULL == fp)
-            perror("fopen replace_file");
+        init_remap_table();
+        pad_list_rplstr_malloc(head, pad_list_rplstr_remap_table_m, remap_table);
+        list_print(head, print_list_substr_node);
+        PCRE2_SPTR new_subject = replace_all_default_malloc(subject, head);
+        if(NULL != new_subject)
+        {
+            //using new_subject
+            FILE *fp = fopen("replace_file", "w+");
+            if(NULL == fp)
+                perror("fopen replace_file");
+            else
+            {
+                fprintf(fp, "%s", (char *)new_subject);
+                fclose(fp);
+            }
+            SAFE_FREE(new_subject);
+        }
         else
         {
-            fprintf(fp, "%s", (char *)new_subject);
-            fclose(fp);
+            //using subject
         }
     }
+    else
+    {
+        //using subject;
+    }
+    pattern =   NULL;
+    pcre2_code *re = get_compile_code(pattern, 0);
     SAFE_FREE(pat);
     SAFE_FREE(sub);
     SAFE_FREE(rpl);
     SAFE_FREE(head);
-    SAFE_FREE(new_subject);
     return 0;
 
 }

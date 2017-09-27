@@ -28,7 +28,31 @@ void pad_remap_rplstr_malloc(node_substr_t *node, void *remap_tab, size_t len)
 
 //typedef void (*pad_rplstr_t)(node_substr_t *node, struct list_head *head_table);
 //这个函数将要取代上面的函数
-void pad_list_rplstr_remap_table_m(node_substr_t *node, struct list_head *head_table)
+void pad_list_rplstr_remap_table_req_m(node_substr_t *node, struct list_head *head_table)
+{
+    struct list_head *pos;
+    list_for_each(pos, head_table)
+    {
+        remap_entry_t *entry = list_entry(pos, remap_entry_t, list);
+        if(strcmp(node->substr, entry->after) == 0)
+        {
+#ifdef DEBUG
+        printf("node->substr=%s, entry->before=%s\n", node->substr, entry->after);
+#endif
+            int len_rpl = strlen(entry->before);
+            node->rplstr = (char *)malloc(len_rpl + 1);
+            if(NULL == node->rplstr)
+                perror("malloc");
+            else
+            {
+                memset(node->rplstr, 0, len_rpl + 1);
+                memcpy(node->rplstr, entry->before, len_rpl);
+            }
+        }
+    }
+}
+
+void pad_list_rplstr_remap_table_rsp_m(node_substr_t *node, struct list_head *head_table)
 {
     struct list_head *pos;
     list_for_each(pos, head_table)
@@ -53,7 +77,6 @@ void pad_list_rplstr_remap_table_m(node_substr_t *node, struct list_head *head_t
 }
 
 
-
 //struct list_head *remap_table_head = get_remap_table_malloc();
 struct list_head *get_remap_table_m(void)
 {
@@ -70,22 +93,32 @@ struct list_head *get_remap_table_m(void)
     int ret = scfgmgr_getall(&nvram_data);
     if(ret < 0 || NULL == nvram_data)
     {
+        printf("get nvram failed, ret=%d\n");
         SAFE_FREE(head);
         return NULL;
     }
     char *remap = value_parser("ipmaps");
-
+#ifdef DEBUG
+    printf("ipmaps=%s\n", remap);
+#endif
+    int i = 0; 
+    int cnt = 0;
+    for(i = 0; i < strlen(remap); i++)
+    {
+        if(remap[i] == ';')
+            cnt++;
+    }
     //分割，取出，添加到链表remap_table
+    printf("cnt=%d\n", cnt);
     char *str, *token;
     char *saveptr;
-    int i = 0; 
     for(i = 1, str = remap; ; i++, str = NULL)
     {
         token = strtok_r(str, ";", &saveptr);
-        if(NULL == token)
+        if(NULL == token && i == cnt+1)
         {
-            SAFE_FREE(head);
-            return NULL;
+            printf("strtok_r ends\n");
+            break;
         }
         remap_entry_t *entry = (remap_entry_t *)malloc(sizeof(remap_entry_t));
         if(NULL == entry)
@@ -94,9 +127,14 @@ struct list_head *get_remap_table_m(void)
             SAFE_FREE(head);
             return NULL;
         }
-        char *format = "%*,%[^,],%[^,]";
-        int n = sscanf(token, format, entry->before, entry->after);
-        printf("n=%d, before=%s, after=%s\n", n, entry->before, entry->after);
+        memset(entry->before, 0, LEN_IP);
+        memset(entry->after,  0, LEN_IP);
+        char *format = "%[^,],%[^,],%[^,]";
+        char direction[16] = {0};
+        printf("token=%s\n", token);
+        int n = sscanf(token, format, direction, entry->before, entry->after);
+        printf("get_remap_table_m. n=%d, direction=%s, before=%s, after=%s\n", n, direction, entry->before, entry->after);
+        entry->direction = atoi(direction);
         list_add_tail(&(entry->list), head);
     }
     free(nvram_data);

@@ -37,5 +37,25 @@ int main(int argc, char **argv)
     printf("%s %s\n", hh, port);
     sscanf(host2, format3, hh, port);
     printf("%s %s\n", hh, port);
+
+    char remap[] = "0,192.168.1.1,5.5.5.5";
+    char *frt = "%[^,],%[^,],%[^,]";
+    char unknow[16] = {0};
+    char before[16] = {0};
+    char after[16] = {0};
+    ret = sscanf(remap, frt, unknow, before, after);
+    printf("ret=%d, before=%s, after=%s\n", ret, before, after);
+    
+    char *format4 = "%s %s %[^'\r''\n']";
+    char *rsp1 = "HTTP/1.1 200 OK\r\n";
+    char *rsp2 = "HTTP/1.1 400 BAD REQUEST\r\n";
+    char ver[64];
+    char stat[64];
+    char info[64];
+    sscanf(rsp1, format4, ver, stat, info);
+    printf("[%s], [%s], [%s]\n", ver, stat, info);
+    sscanf(rsp2, format4, ver, stat, info);
+    printf("[%s], [%s], [%s]\n", ver, stat, info);
+
 	return 0;
 }
