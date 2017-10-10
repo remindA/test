@@ -265,6 +265,7 @@ size_t get_response_priority(struct list_head *rsp_head, int *pr)
     size_t len = 0;
     int is_txt = 0;
     struct list_head *pos = NULL;
+    *pr = PR_NONE;                  /* must initialize *pr as PR_NONE */
     list_for_each(pos, rsp_head)
     {
         http_field_t *field = list_entry(pos, http_field_t, list);
@@ -291,6 +292,7 @@ size_t get_response_priority(struct list_head *rsp_head, int *pr)
             *pr = PR_CHUNKED;
 
     }
+
     list_for_each(pos, rsp_head)
     {
         http_field_t *field = list_entry(pos, http_field_t, list);

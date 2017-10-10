@@ -1,0 +1,8 @@
+1.function list:
+    taglist_45.zip
+    cp taglist_45.zip /etc/vim
+    cd /etc/vim
+    unzip taglist_45.zip
+    cd doc
+    sudo su vim
+    :helptags .
