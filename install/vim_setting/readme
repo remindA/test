@@ -1,4 +1,6 @@
 1.function list:
+sudo apt-get install ctags
+
     taglist_45.zip
     cp taglist_45.zip /etc/vim
     cd /etc/vim
