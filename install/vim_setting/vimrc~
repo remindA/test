@@ -94,18 +94,18 @@ if !exists(":DiffOrig")
   command DiffOrig vert new | set bt=nofile | r ++edit # | 0d_ | diffthis
 		  \ | wincmd p | diffthis
 endif
-set nu					    "显示行号
+set nu					"显示行号
 set showcmd 				"输入的命令显示出来
 set foldenable				"允许折叠
 set autoindent				"自动缩进
-set cindent
+set cindent					"
 set tabstop=4				"TAB键宽度
-set softtabstop=4
-set shiftwidth=4
+set softtabstop=4			"
+set shiftwidth=4			"
 set expandtab				"用空格代替TAB
 set ignorecase				"搜索忽略大小写
 set langmenu=zh_CN.UTF-8	"语言设置为中文
-set helplang=cn				"1
+set helplang=cn				"
 set cmdheight=2				"状态行高度为2
 "为特定的文件做匹配设置
 filetype on					"检测文件类型
@@ -115,7 +115,7 @@ set mouse=a					"开启鼠标
 set showmatch				"高亮显示匹配的括号
 set smartindent				"为c语言提供自动缩进
 set hlsearch				"高亮显示搜索
-filetype plugin on          "插件c.vim
+filetype plugin on
 
 let Tlist_Auto_Open=1
 let Tlist_Use_Right_Window=0
