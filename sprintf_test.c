@@ -14,5 +14,12 @@ int main()
 	sprintf(path,"%s", url);
 	printf("strlen(url)=%d,%s\n", strlen(url), url);
 	printf("strlen(path)=%d,%s\n", strlen(path), path);
+    
+
+    char buff[100] = {0};
+    sprintf(buff, "%s", "GET");
+    sprintf(buff, "%s %s", buff, "/");
+    sprintf(buff, "%s %s\r\n", buff, "HTTP/1.1");
+    printf("[%s]\n", buff);
 	return 0;
 }
