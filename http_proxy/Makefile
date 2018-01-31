@@ -1,5 +1,5 @@
 #the value of PLATFORM is either SR04I or OpenWRT
-PLATFORM = x86
+PLATFORM = SR04I
 
 CA_CRT = ca.crt
 SERVER_KEY = server.key

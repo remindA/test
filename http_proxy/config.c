@@ -18,68 +18,75 @@
 
 #include "config.h"
 
+/* 见http.c */
+#include "http.h"
+extern int proxy;
+
 #ifdef SR04I
 struct list_head *get_remap_table_m(char *key)
 {
-	//创建head,并初始化
-	struct list_head *head = (struct list_head *) malloc(sizeof (struct list_head));
+    //创建head,并初始化
+    struct list_head *head = (struct list_head *) malloc(sizeof (struct list_head));
 
-	if (NULL == head)
-	{
-		perror("malloc");
-		return head;
-	}
-	init_list_head(head);
+    if (NULL == head)
+    {
+        perror("malloc");
+        return head;
+    }
+    init_list_head(head);
 
-	//从nvram中读取信息
-	int ret = scfgmgr_getall(&nvram_data);
-	if (ret < 0 || NULL == nvram_data)
-	{
-		printf("get nvram failed, ret=%d\n", ret);
-		SAFE_FREE(head);
-		return NULL;
-	}
-	char *remap = value_parser(key);
+    //从nvram中读取信息
+    int ret = scfgmgr_getall(&nvram_data);
+    if (ret < 0 || NULL == nvram_data)
+    {
+        printf("get nvram failed, ret=%d\n", ret);
+        SAFE_FREE(head);
+        return NULL;
+    }
+    char *remap = value_parser(key);
 #ifdef PADDEBUG
-	printf("%s=%s\n", key, remap);
+    printf("%s=%s\n", key, remap);
 #endif
-	int i = 0;
-	int cnt = 0;
-	for (i = 0; i < strlen(remap); i++)
-		if (remap[i] == ';')
-			cnt++;
-	//分割，取出，添加到链表remap_table
-	printf("cnt=%d\n", cnt);
-	char *str, *token;
-	char *saveptr;
-	for (i = 1, str = remap;; i++, str = NULL)
-	{
-		token = strtok_r(str, ";", &saveptr);
-		if (NULL == token && i == cnt + 1)
-		{
-			printf("strtok_r ends\n");
-			break;
-		}
-		remap_entry_t *entry = (remap_entry_t *) malloc(sizeof (remap_entry_t));
-		if (NULL == entry)
-		{
-			perror("malloc");
+    int i = 0;
+    int cnt = 0;
+    for (i = 0; i < strlen(remap); i++)
+        if (remap[i] == ';')
+            cnt++;
+    //分割，取出，添加到链表remap_table
+    printf("cnt=%d\n", cnt);
+    char *str, *token;
+    char *saveptr;
+    for (i = 1, str = remap;; i++, str = NULL)
+    {
+        token = strtok_r(str, ";", &saveptr);
+        if (NULL == token && i == cnt + 1)
+        {
+            printf("strtok_r ends\n");
+            break;
+        }
+        remap_entry_t *entry = (remap_entry_t *) malloc(sizeof (remap_entry_t));
+        if (NULL == entry)
+        {
+            perror("malloc");
             free_remap_table(&head);
-			return NULL;
-		}
-		memset(entry->before, 0, LEN_IP);
-		memset(entry->after, 0, LEN_IP);
-		char *format = "%[^,],%[^,],%[^,]";
-		char direction[16] = { 0 };
-		printf("token=%s\n", token);
-		int n = sscanf(token, format, direction, entry->before, entry->after);
-		printf("get_remap_table_m. n=%d, direction=%s, before=%s, after=%s\n", n, direction, entry->before, entry->after);
-		entry->direction = atoi(direction);
-        entry->session = NULL;
-		list_add_tail(&(entry->list), head);
-	}
-	free(nvram_data);
-	return head;
+            return NULL;
+        }
+        memset(entry->before, 0, LEN_IP);
+        memset(entry->after, 0, LEN_IP);
+        char *format = "%[^,],%[^,],%[^,]";
+        char direction[16] = { 0 };
+        printf("token=%s\n", token);
+        int n = sscanf(token, format, direction, entry->before, entry->after);
+        printf("get_remap_table_m. n=%d, direction=%s, before=%s, after=%s\n", n, direction, entry->before, entry->after);
+        entry->direction = atoi(direction);
+        if(proxy == HTTPS) {
+            entry->session = NULL;
+            pthread_mutex_init(&(entry->lock), NULL); 
+        }
+        list_add_tail(&(entry->list), head);
+    }
+    free(nvram_data);
+    return head;
 }
 
 struct list_head *get_regex_table_m(char *key)
@@ -91,18 +98,18 @@ struct list_head *get_regex_table_m(char *key)
         return head;
     }
     init_list_head(head);
-	//从nvram中读取信息
-	int ret = scfgmgr_getall(&nvram_data);
-	if (ret < 0 || NULL == nvram_data)
-	{
-		printf("get nvram failed, ret=%d\n", ret);
-		SAFE_FREE(head);
-		return NULL;
-	}
-	char *http_devices = value_parser(key);
-//#ifdef PADDEBUG
-	printf("%s=%s\n", key, http_devices);
-//#endif
+    //从nvram中读取信息
+    int ret = scfgmgr_getall(&nvram_data);
+    if (ret < 0 || NULL == nvram_data)
+    {
+        printf("get nvram failed, ret=%d\n", ret);
+        SAFE_FREE(head);
+        return NULL;
+    }
+    char *http_devices = value_parser(key);
+    //#ifdef PADDEBUG
+    printf("%s=%s\n", key, http_devices);
+    //#endif
     /* 假设条目的分割字符是,;
      * 192.168.1.9,80,(?:...);192.168.1.9,6300,(?:...);
      * ****  要求：正则表达式中不含,和;  ****
@@ -146,17 +153,17 @@ struct list_head *get_regex_table_m(char *key)
 
 pcre2_code *get_general_regex(char *key)
 {
-	//从nvram中读取信息
-	int ret = scfgmgr_getall(&nvram_data);
-	if (ret < 0 || NULL == nvram_data)
-	{
-		printf("get nvram failed, ret=%d\n", ret);
-		return NULL;
-	}
-	char *ge_regex = value_parser(key);
-//#ifdef PADDEBUG
-	printf("%s=%s\n", key, ge_regex);
-//#endif
+    //从nvram中读取信息
+    int ret = scfgmgr_getall(&nvram_data);
+    if (ret < 0 || NULL == nvram_data)
+    {
+        printf("get nvram failed, ret=%d\n", ret);
+        return NULL;
+    }
+    char *ge_regex = value_parser(key);
+    //#ifdef PADDEBUG
+    printf("%s=%s\n", key, ge_regex);
+    //#endif
     pcre2_code *re = get_compile_code((PCRE2_SPTR)ge_regex, 0);
     SAFE_FREE(ge_regex);
     SAFE_FREE(nvram_data);
@@ -278,10 +285,13 @@ struct list_head *get_remap_table_m(char *file)
                 goto cleanup;
             }
 
-            entry->direction = drct;
-            entry->session = NULL;
             strcpy(entry->before, fromip);
             strcpy(entry->after, toip);
+            entry->direction = drct;
+            if(proxy == HTTPS) {
+                entry->session = NULL;
+                pthread_mutex_init(&(entry->lock), NULL); 
+            }
             list_add_tail(&(entry->list), head);
         }
     }
@@ -397,16 +407,16 @@ void free_remap_table(struct list_head **head)
         printf("do not double free_remap_table\n");
         return;
     }
-	struct list_head *pos = (*head)->next;
-	struct list_head *tmp = NULL;
-	while (pos != *head)
-	{
-		tmp = pos->next;
-		remap_entry_t *entry = list_entry(pos, remap_entry_t, list);
-		SAFE_FREE(entry);
-		pos = tmp;
-	}
-	SAFE_FREE(*head);
+    struct list_head *pos = (*head)->next;
+    struct list_head *tmp = NULL;
+    while (pos != *head)
+    {
+        tmp = pos->next;
+        remap_entry_t *entry = list_entry(pos, remap_entry_t, list);
+        SAFE_FREE(entry);
+        pos = tmp;
+    }
+    SAFE_FREE(*head);
 }
 
 
@@ -417,18 +427,18 @@ void free_regex_table(struct list_head **head)
         printf("do not double free_regex_table\n");
         return;
     }
-	struct list_head *pos = (*head)->next;
-	struct list_head *tmp = NULL;
+    struct list_head *pos = (*head)->next;
+    struct list_head *tmp = NULL;
 
-	while (pos != *head)
-	{
-		tmp = pos->next;
-		regex_entry_t *entry = list_entry(pos, regex_entry_t, list);
+    while (pos != *head)
+    {
+        tmp = pos->next;
+        regex_entry_t *entry = list_entry(pos, regex_entry_t, list);
         SAFE_FREE(entry->re);
-		SAFE_FREE(entry);
-		pos = tmp;
-	}
-	SAFE_FREE(*head);
+        SAFE_FREE(entry);
+        pos = tmp;
+    }
+    SAFE_FREE(*head);
 }
 
 
@@ -486,7 +496,14 @@ SSL_SESSION *get_ssl_session(struct list_head *head, const char *ip)
 #ifdef DEBUG
             printf("get_ssl_session for %s\n", ip);
 #endif
-            return entry->session;
+            if(entry->session == NULL) {
+                return NULL;
+            }
+            SSL_SESSION *session;
+            pthread_mutex_lock(&(entry->lock));
+            session = ssl_session_dup(entry->session, 1);
+            pthread_mutex_unlock(&(entry->lock));
+            return session;
         }
     }
     return NULL;
@@ -502,6 +519,7 @@ int set_ssl_session(struct list_head *head, const char *ip, SSL_SESSION *session
     list_for_each(pos, head) {
         remap_entry_t *entry = list_entry(pos, remap_entry_t, list);
         if(strcmp(ip, entry->before) == 0) {
+            pthread_mutex_lock(&(entry->lock));
             if(entry->session) {
 #ifdef DEBUG
                 printf("entry->session is not NULL = %p\n", entry->session);
@@ -513,6 +531,8 @@ int set_ssl_session(struct list_head *head, const char *ip, SSL_SESSION *session
 #endif
             }
             entry->session = ssl_session_dup(session, 1);
+            pthread_mutex_unlock(&(entry->lock));
+
             if(entry->session) {
 #ifdef DEBUG
                 printf("new entry->session = %p, session = %p\n", entry->session, session);

@@ -24,6 +24,7 @@
 #include <openssl/ssl.h>
 #include <openssl/err.h>
 #include <openssl/x509.h>
+#include <pthread.h>    /* for https session ticket */
 
 #ifdef SR04I
 #include "socket_tools.h"
@@ -45,7 +46,8 @@ typedef struct _remap_entry
     int    direction;       /* 替换方向RESPONSE/REQUEST */
     char   before[LEN_IP];  /* 真实ip */
     char   after[LEN_IP];   /* 映射ip */
-    SSL_SESSION *session;   /* for https. speed up ssl handshake */
+    SSL_SESSION *session;   /* for https session ticket  */
+    pthread_mutex_t lock;  /* for session */
     struct list_head list;
 }remap_entry_t;
 

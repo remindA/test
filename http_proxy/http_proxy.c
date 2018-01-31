@@ -291,7 +291,7 @@ int proxy_listen(void)
             perror("cannot accept correctly, accept()");
             continue;
         }
-        printf("%d client on\n", ++cnt);
+        //printf("%d client on\n", ++cnt);
         int *fd = (int *)malloc(sizeof(int));
         if(NULL == fd) {
             perror("malloc()");
@@ -347,7 +347,7 @@ void worker_thread(void *ARG)
             goto worker_exit;
         }
         gettimeofday(&ed, NULL);
-        printf("ssl_accept total use  %ldms\n", (ed.tv_sec-st.tv_sec)*1000 + (ed.tv_usec-st.tv_usec)/1000);
+        //printf("ssl_accept total use  %ldms\n", (ed.tv_sec-st.tv_sec)*1000 + (ed.tv_usec-st.tv_usec)/1000);
         //printf("handle_client(%d): SSL_accept ok\n", tid);
 
     }
@@ -461,9 +461,7 @@ int read_process_forward(int fd_from,  SSL *ssl_from, int *fd_to, SSL **ssl_to, 
         /* https ssl connection */
         if(proxy == HTTPS) {
             SSL_SESSION *session;
-            pthread_mutex_lock(&session_lock);
             session = get_ssl_session(remap_table, before_ip);
-            pthread_mutex_unlock(&session_lock);
 
             *ssl_to = SSL_new(ctx_c);
             if(NULL == *ssl_to) {
@@ -478,13 +476,20 @@ int read_process_forward(int fd_from,  SSL *ssl_from, int *fd_to, SSL **ssl_to, 
                 long tout  = SSL_SESSION_get_timeout(session);
                 printf("tnow = %ld, ctime = %ld, diff = %ld, timeout = %ld\n", tnow, ctime, tnow - ctime, tout);
                 /* 留3秒 */
+                /* 根据超时时间判断似乎并不标准, tout==7200,但是在300秒后就会更新, suoyi  */
                 if(time(NULL) - ctime > tout - 3) {
-                    printf("[[[sesson ticket is timeout]]]\n");
+                    SSL_SESSION_free(session);
                     session = NULL;
                 }
                 else {
-                    SSL_set_session(*ssl_to, session);
-                    printf("SSL_set_session %p ok\n", session);
+                    if(SSL_set_session(*ssl_to, session) == 1) {
+                        //printf("SSL_set_session %p ok\n", session);
+                        SSL_SESSION_free(session);
+                        session = NULL;
+                    }
+                    else {
+                        //printf("cannot SSL_set_session\n");
+                    }
                 }
             }
             ret = SSL_set_fd(*ssl_to, *fd_to);
@@ -504,12 +509,14 @@ int read_process_forward(int fd_from,  SSL *ssl_from, int *fd_to, SSL **ssl_to, 
             }
             //printf("SSL_connect ssl_c ok\n");
             gettimeofday(&end, NULL);
+            session = SSL_get_session(*ssl_to);
+            set_ssl_session(remap_table, before_ip, session);
+            /*
             if(session == NULL) {
                 session = SSL_get_session(*ssl_to);
-                pthread_mutex_lock(&session_lock);
                 set_ssl_session(remap_table, before_ip, session);
-                pthread_mutex_unlock(&session_lock);
             }
+            */
             printf("tcp_ssl_connect total use %ldms\n",
                     (end.tv_sec-strt.tv_sec)*1000 + (end.tv_usec-strt.tv_usec)/1000);
         }
