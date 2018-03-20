@@ -57,5 +57,11 @@ int main(int argc, char **argv)
     sscanf(rsp2, format4, ver, stat, info);
     printf("[%s], [%s], [%s]\n", ver, stat, info);
 
+
+    char *n1 = "test.gz";
+    char n2[256] = {0};
+    sscanf(n1, "%[^.].%*s", n2);
+    printf("n2=%s\n", n2);
+
 	return 0;
 }
