@@ -1,0 +1,12 @@
+config policy
+    option name
+    option type
+    option zone_src
+    option zone_dest
+    option s
+    option sport
+    option d
+    option dport
+    option time
+    option target
+    option extra
