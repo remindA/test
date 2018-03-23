@@ -1,0 +1,63 @@
+步骤
+    解析配置文件
+    ipt_flush
+        清空所有的表和链中的规则。
+    ipt_default
+        设置iptables链的默认策略
+        新建链分配器，并引用
+    ipt_zone_default
+        新建zone链，并引用到链分配器
+    ipt_policy
+        -A ploicy_local
+        -A ploicy_foward
+    ipt_nat
+        -A nat_dnat
+        -A nat_snat
+   
+
+zone
+    zone_prerouting
+    zone_postrouting
+    zone_input
+    zone_output
+    zone_forward
+
+    1.  配置文件表
+        表zone
+        表policy_local
+        表policy_forward
+        //表dnat
+        //表snat
+    2. 命令生成器
+        ipt_default
+        ipt_zone
+        ipt_policy_local
+        ipt_policy_forward
+        //ipt_dnat 
+        //ipt_snat 
+        生成的命令在内存中何种存储结构？
+        链式:   以iptables五条链为标志？
+                以作用为标志?4条链(local,forward,dnat,snat)?
+                链以源zone为标志?
+            以iptables五条链为标志。
+            prerouting
+            postrouting
+            input
+            output
+            forward
+        一个uci配置选项可能会生成多个iptables命令，在于proto, src, dst组合
+        proto肯定存在, src和dst则不一定
+        1) no src either dst
+            proto_num * 1 * 1
+        2) only src
+            proto_num * src_num * 1
+        3) only dst 
+            proto_num * 1 * dst_num
+        4) both src and dst
+            proto_num * src_num * dst_num
+
+
+二、配置分析
+三、生成命令及存储
+四、命令执行
+

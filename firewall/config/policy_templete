@@ -1,0 +1,18 @@
+config policy
+    option name
+    option type
+    option zone_src
+    option zone_dest
+    option s
+    option sport
+    option d
+    option dport
+    option date_start
+    option date_stop
+    option time_start
+    option time_stop
+    option monthdays
+    option weekdays
+    option timezone
+    option target
+    option extra
