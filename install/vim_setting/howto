@@ -1,0 +1,26 @@
+1.function list:
+sudo apt-get install ctags
+
+    taglist_45.zip
+    cp taglist_45.zip /etc/vim
+    cd /etc/vim
+    unzip taglist_45.zip
+    cd doc
+    sudo su vim
+    :helptags .
+
+2. NERDTree
+    解压所有的东西都放在.vim文件夹下
+
+3. cvim
+    解压所有的东西都放在.vim文件夹下
+
+4. 函数高亮
+	在/usr/share/vim/vimxx/syntax/c.vim下加入
+	"highlight Functions
+	syn match cFunctions "\<[a-zA-Z_][a-zA-Z_0-9]*\>[^()]*)("me=e-2
+	syn match cFunctions "\<[a-zA-Z_][a-zA-Z_0-9]*\>\s*("me=e-1
+	hi cFunctions gui=NONE cterm=bold  ctermfg=green
+
+	syn keyword	cType_cond		if else for while do switch case return
+	hi cType_cond ctermfg=yellow

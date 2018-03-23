@@ -13,13 +13,24 @@ ajax_key_t ajax_keys_tab[] = {
     {"richard sugarman"}
 };
 
+
+typedef struct{
+    char *pname;
+}ipt_proto_t;
+
+
 int main(int argc, char **argv)
 {
-
-    int i = 0;
-    int lenght = sizeof(ajax_keys_tab)/sizeof(ajax_key_t);
-    for(i = 0; i < lenght; i++)
-        printf("%s\n", ajax_keys_tab[i].keys);
-        
+    ipt_proto_t proto[] = {
+        {"tcp"},
+        {"udp"},
+        {"icmp"},
+        {NULL}
+    };
+    
+    ipt_proto_t *p;
+    for(p = proto; p->pname; p++) {
+        printf("p->pname=%s\n", p->pname);
+    }
     return 0;
 }
