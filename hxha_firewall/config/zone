@@ -1,0 +1,12 @@
+config zone
+    option  name    trust
+    option  network lan2
+
+config zone
+    option  name    untrust
+    option  network wan
+
+config zone
+    option  name    dmz
+    option  network lan
+
