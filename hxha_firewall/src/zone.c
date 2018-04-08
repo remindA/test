@@ -64,9 +64,10 @@ struct list_head *parse_zone_list(const char *file)
             }
             strcpy(zone->name, name);
             strcpy(zone->network, network);
-            get_iface_by_network(zone->network, zone->iface);
+            get_iface_by_network(zone->network, zone->iface, zone->proto, zone->ipaddr);
 #ifdef DEBUG
-            printf("zone->name = %s, zone->network = %s, zone->iface = %s\n", zone->name, zone->network, zone->iface);
+            printf("zone->name = %s, zone->network = %s, zone->iface = %s, zone->proto = %s, zone->ipaddr = %s\n",
+                    zone->name, zone->network, zone->iface, zone->proto, zone->ipaddr);
 #endif
             list_add_tail(&(zone->list), head);
         }
@@ -90,7 +91,7 @@ void free_zone_list(struct list_head **head)
 {
     /* 保证重复释放的安全-写代码时最好注意不要重复释放，不会访问非法内存 */
     if(*head == NULL) {
-        printf("do not double free_remap_table\n");
+        printf("do not double zone list\n");
         return;
     }
     struct list_head *pos = (*head)->next;
@@ -108,7 +109,7 @@ void free_zone_list(struct list_head **head)
 //char *get_iface_by_ip(const char *ip){}
 
 
-int get_iface_by_network(const char *network, char *iface)
+int get_iface_by_network(const char *network, char *iface, char *p, char *ip)
 {
 #ifdef FUNC
     printf("==========start get_iface_by_network==========\n");
@@ -116,7 +117,6 @@ int get_iface_by_network(const char *network, char *iface)
     //创建head,并初始化
     struct uci_context *ctx;
     struct uci_package *pkg;
-    struct uci_element *e = NULL;
     int find = -1;
     char *file = "network";
 
@@ -129,6 +129,8 @@ int get_iface_by_network(const char *network, char *iface)
     struct uci_section *s = uci_lookup_section(ctx, pkg, network);
     if(s) {
         const char *ifname  = uci_lookup_option_string(ctx, s, "ifname");
+        const char *proto   = uci_lookup_option_string(ctx, s, "proto");
+        const char *ipaddr   = uci_lookup_option_string(ctx, s, "ipaddr");
 #ifdef DEBUG
         printf("ifname = %s\n", ifname);
 #endif
@@ -138,6 +140,12 @@ int get_iface_by_network(const char *network, char *iface)
 #ifdef DEBUG
         printf("iface = %s, find = %d\n", iface, find);
 #endif
+        }
+        if(proto) {
+            strcpy(p, proto);
+        }
+        if(ipaddr) {
+            strcpy(ip, ipaddr);
         }
     }
 cleanup:

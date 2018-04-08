@@ -17,7 +17,6 @@
  */
 #ifndef _FW_POLICY_H
 #define _FW_POLICY_H
-#include <uci.h>
 #include "include.h"
 
 policy_t *create_init_policy();
@@ -27,6 +26,8 @@ int parse_ipt_ipaddr_list(const char *str, struct list_head *head);
 ipt_time_t *parse_ipt_time(const char *datestart, const char *datestop, const char *timestart,
         const char *timestop, const char *monthdays, const char *weekdays, const char *timezone);
 
+void print_ipt_proto_list(struct list_head *head);
+void print_ipt_ipaddr_list(struct list_head *head);
 void free_policy_list(struct list_head **head);
 void free_ipt_proto_list(struct list_head *head);
 void free_ipt_ipaddr_list(struct list_head *head);

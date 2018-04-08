@@ -10,6 +10,7 @@
 #include <sys/types.h>
 #include <sys/stat.h>
 #include <signal.h>
+#include <uci.h>
 
 
 #define LEN_NET_NAME    64
@@ -44,13 +45,21 @@ typedef struct {
     char name[LEN_ZONE_NAME];
     char network[LEN_NET_NAME];
     char iface[LEN_NET_NAME];
+    char proto[LEN_NET_NAME];
+    char ipaddr[LEN_IP];
     struct list_head list;
 }zone_t;
 
 
-
-
-
+/******************************
+ *     为地址池定义的结构体
+ *****************************/
+typedef struct {
+    char name[LEN_ZONE_NAME];
+    char start[LEN_IP];
+    char end[LEN_IP];
+    struct list_head list;
+}pool_t;
 
 
 /******************************
@@ -173,6 +182,7 @@ typedef struct{
 
 typedef struct{
     struct list_head list;
+    int      enable;
     enum     policy_type type;  //
     char     name[LEN_ZONE_NAME]; //policy
     char     zone_src[LEN_ZONE_NAME];          // nat需要用到zone的接口ip

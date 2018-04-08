@@ -5,7 +5,7 @@ CFLAGS = -Wall -Os -s
 CFLAGS += -D $(PLATFORM)
 CFLAGS += -D VERSION=\"0.1-only_packet_filter\"
 INCLUDES = -I. -I./include
-OBJS =  main.o zone.o policy.o iptables.o
+OBJS =  main.o zone.o pool.o policy.o iptables.o
 BIN = hxha_firewall
 
 ##########################调试宏#############################

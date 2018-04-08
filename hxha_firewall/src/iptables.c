@@ -16,6 +16,8 @@
  * =====================================================================================
  */
 #include "iptables.h"
+
+
 void ipt_init_print(void)
 {
     printf("========== ipt_init_print ==========\n");
@@ -313,6 +315,14 @@ int write_iptables_zone(int fd, struct list_head *head)
         memset(buff, 0, sizeof(buff));
         sprintf(buff, "iptables -t filter -A dispatch_forward -i %s -j %s_forward\n", zone->iface, zone->name);
         my_write(fd, buff, strlen(buff));
+        /* output回应包全部转发 */
+        memset(buff, 0, sizeof(buff));
+        sprintf(buff, "iptables -t filter -A %s_output -m state --state ESTABLISHED,RELATED -j ACCEPT\n", zone->name);
+        ret = my_write(fd, buff, strlen(buff));
+        /* forward回应包全部转发 */
+        memset(buff, 0, sizeof(buff));
+        sprintf(buff, "iptables -t filter -A %s_forward -m state --state ESTABLISHED,RELATED -j ACCEPT\n", zone->name);
+        ret = my_write(fd, buff, strlen(buff));
     }
     
 }
@@ -325,6 +335,7 @@ int write_iptables_policy(int fd, struct list_head *head)
     struct list_head *pos;
     list_for_each(pos, head) {
         policy_t *policy = list_entry(pos, policy_t, list);
+        printf("write_policy %d\n", policy->type);
         if(POLICY_LOCAL == policy->type) {
             ret = write_iptables_local(fd, policy);
         }
@@ -343,6 +354,9 @@ int write_iptables_policy(int fd, struct list_head *head)
 
 int write_iptables_local(int fd, policy_t *policy)
 {
+    if(!policy->enable) {
+        return 0;
+    }
     ipt_policy_t ipt_policy = new_ipt_policy(policy);
     int ret;
     psd_t *psd;
@@ -358,16 +372,15 @@ int write_iptables_local(int fd, policy_t *policy)
                 ipt_policy.target?:"DROP");
         ret = my_write(fd, buff, strlen(buff));
     }
-    /* 回应包全部转发 */
-    memset(buff, 0, sizeof(buff));
-    sprintf(buff, "iptables -t filter -A %s_output -m state --state ESTABLISHED,RELATED -j ACCEPT\n", policy->zone_src);
-    ret = my_write(fd, buff, strlen(buff));
     free_ipt_policy_member(&ipt_policy);
     return ret;
 }
 
 int write_iptables_forward(int fd, policy_t *policy)
 {
+    if(!policy->enable) {
+        return 0;
+    }
     int ret;
     psd_t *psd;
     char buff[LEN_CMD] = {0};
@@ -383,29 +396,56 @@ int write_iptables_forward(int fd, policy_t *policy)
                 ipt_policy.target?:"DROP");
         ret = my_write(fd, buff, strlen(buff));
     }
-    /* 回应包全部转发 */
-    memset(buff, 0, sizeof(buff));
-    sprintf(buff, "iptables -t filter -A %s_forward -m state --state ESTABLISHED,RELATED -j ACCEPT\n", policy->zone_dst);
-    ret = my_write(fd, buff, strlen(buff));
     free_ipt_policy_member(&ipt_policy);
     return ret;
 }
 
 int write_iptables_dnat(int fd, policy_t *policy)
 {
-    int ret = -1;
+    if(!policy->enable) {
+        return 0;
+    }
+    int ret;
     psd_t *psd;
     char buff[LEN_CMD] = {0};
-    //ipt_policy_t ipt_policy = new_ipt_policy(policy);
-    
+    ipt_policy_t ipt_policy = new_ipt_policy(policy);
+    for(psd = ipt_policy.psd_tabs; psd->psdstr != NULL; psd++){
+        memset(buff, 0, sizeof(buff));
+        sprintf(buff, "iptables -t nat -A %s_prerouting %s%s%s%s -j %s\n", 
+                policy->zone_src, 
+                psd->psdstr,
+                psd->withport&&ipt_policy.sports?ipt_policy.sports:"",
+                psd->withport&&ipt_policy.dports?ipt_policy.dports:"",
+                ipt_policy.extra?:"",
+                ipt_policy.target?:"ACCEPT");
+        ret = my_write(fd, buff, strlen(buff));
+    }
+    free_ipt_policy_member(&ipt_policy);
     return ret;
 }
 
 
 int write_iptables_snat(int fd, policy_t *policy)
 {
-    int ret = -1;
+    if(!policy->enable) {
+        return 0;
+    }
+    int ret;
+    psd_t *psd;
     char buff[LEN_CMD] = {0};
+    ipt_policy_t ipt_policy = new_ipt_policy(policy);
+    for(psd = ipt_policy.psd_tabs; psd->psdstr != NULL; psd++){
+        memset(buff, 0, sizeof(buff));
+        sprintf(buff, "iptables -t nat -A %s_postrouting %s%s%s%s -j %s\n", 
+                policy->zone_src, 
+                psd->psdstr,
+                psd->withport&&ipt_policy.sports?ipt_policy.sports:"",
+                psd->withport&&ipt_policy.dports?ipt_policy.dports:"",
+                ipt_policy.extra?:"",
+                ipt_policy.target?:"ACCEPT");
+        ret = my_write(fd, buff, strlen(buff));
+    }
+    free_ipt_policy_member(&ipt_policy);
     return ret;
 }
 

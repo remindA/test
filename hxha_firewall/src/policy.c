@@ -16,7 +16,11 @@
  * =====================================================================================
  */
 
+#include "zone.h"
+#include "pool.h"
 #include "policy.h"
+extern struct list_head *zone;
+extern struct list_head *pool;
 
 policy_t *create_init_policy()
 {
@@ -28,6 +32,7 @@ policy_t *create_init_policy()
         return NULL;
     }
     strcpy(policy->name, "-");
+    policy->enable = 0;
     policy->type = POLICY_LOCAL;
     init_list_head(&(policy->proto));
     init_list_head(&(policy->src));
@@ -77,6 +82,7 @@ struct list_head *parse_policy_list(const char *file)
     {
         struct uci_section *s = uci_to_section(e);
         const char *type      = uci_lookup_option_string(ctx, s, "type");
+        const char *enable    = uci_lookup_option_string(ctx, s, "enable");
         const char *name      = uci_lookup_option_string(ctx, s, "name");
         const char *zone_src  = uci_lookup_option_string(ctx, s, "zone_src");
         const char *zone_dst  = uci_lookup_option_string(ctx, s, "zone_dst");
@@ -103,6 +109,7 @@ struct list_head *parse_policy_list(const char *file)
         if(!type || !zone_src) {
             continue;
         }
+        printf("parse %s policy\n", type);
         if(strcmp(type, "forward") == 0 && !zone_dst) {
             printf("Must have zone_dst for 'forward' policy\n");
             continue;
@@ -116,6 +123,14 @@ struct list_head *parse_policy_list(const char *file)
 
         if(name) {
             strcpy(policy->name, name);
+        }
+        if(enable) {
+            if(strstr(enable, "1")) {
+                policy->enable = 1;
+            }
+            else {
+                policy->enable = 0;
+            }
         }
         if(type) {
             if(strcmp(type, "local") == 0) {
@@ -610,15 +625,26 @@ char *build_ipt_timestr_m(ipt_time_t *time)
         if(NULL == t) {
             return NULL;
         }
-        char *fmt = " -m time %s%s %s%s %s%s %s%s %s%s %s%s %s%s";
+        char *re = NULL;
+        int re_mon = 0;
+        int re_week = 0;
+        if(time->monthdays && (re = strstr(time->monthdays, "!"))) {
+            *re = BLANK_SPACE;
+            re_mon = 1;
+        }
+        if(time->weekdays && (re = strstr(time->weekdays, "!"))) {
+            *re = BLANK_SPACE;
+            re_week = 1;
+        }
+        char *fmt = " -m time %s%s %s%s %s%s %s%s %s%s%s %s%s%s %s%s";
         sprintf(t, fmt,
-                time->datestart?"--datestart ":"", time->datestart?:"",
-                time->datestop?"--datestop ":""  , time->datestop?:"",
-                time->timestart?"--timestart ":"", time->timestart?:"",
-                time->timestart?"--timestop ":"" , time->timestop?:"",
-                time->monthdays?"--monthdays ":"", time->monthdays?:"",
-                time->weekdays?"--weekdays ":""  , time->weekdays?:"",
-                time->timezone?"--":""           , time->timezone?:"");
+                time->datestart?" --datestart ":"", time->datestart?:"",
+                time->datestop?" --datestop ":""  , time->datestop?:"",
+                time->timestart?" --timestart ":"", time->timestart?:"",
+                time->timestart?" --timestop ":"" , time->timestop?:"",
+                re_mon?" !":"", time->monthdays?" --monthdays ":"", time->monthdays?:"",
+                re_week?" !":"", time->weekdays?" --weekdays ":""  , time->weekdays?:"",
+                time->timezone?" --":""           , time->timezone?:"");
         return t;
     }
 }
@@ -717,11 +743,44 @@ char *build_ipt_targetstr_m(policy_t *policy)
                 break;
             }
         case POLICY_DNAT:
+            {
+                sprintf(tar_str, "DNAT --to-destination %s%s%s",
+                        policy->nat_ip, policy->nat_port?":":"", policy->nat_port?:"");
+                break;
+            }
         case POLICY_SNAT:
             {
-                char *nataddr = build_ipt_nataddrstr_m(policy->type, policy->nat_ip, policy->nat_port);
-                sprintf(tar_str, "%s%s", target_name_tabs[policy->target], nataddr);
-                SAFE_FREE(nataddr);
+                /* 出口地址 */
+                if(*(policy->nat_ip) == '0') {
+                    zone_t *z = get_zone_by_name(policy->zone_dst, zone);
+                    if(NULL == z ) {
+                        SAFE_FREE(tar_str);
+                        break;
+                    }
+                    /* 静态地址 */ 
+                    if(strcmp(z->proto, "static") == 0) {
+                        sprintf(tar_str, "SNAT --to-source %s%s%s", 
+                            z->ipaddr, 
+                            policy->nat_port?":":"", 
+                            policy->nat_port?:"");
+                    }
+                    /* 拨号等 */
+                    else {
+                        sprintf(tar_str, "MASQUERADE");
+                    }
+                }
+                /* 地址池 */
+                else {
+                    pool_t *p = get_pool_by_name(pool, policy->nat_ip);
+                    if(NULL == p) {
+                        SAFE_FREE(tar_str);
+                        break;
+                    }
+                    sprintf(tar_str, "SNAT --to-source %s-%s%s%s", 
+                            p->start, p->end,
+                            policy->nat_port?":":"", 
+                            policy->nat_port?:"");
+                }
                 break;
             }
         default:
@@ -733,19 +792,6 @@ char *build_ipt_targetstr_m(policy_t *policy)
     printf("========== finish build_ipt_targetstr_m ==========\n");
 #endif
     return tar_str;
-}
-
-
-char *build_ipt_nataddrstr_m(int type, const char *ip, const char *port)
-{
-    char *str = (char *)calloc(1, LEN_NATADDR);
-    if(NULL == str) {
-        perror("cannot allocate memory in build_ipt_nataddrstr_m calloc");
-        return NULL;
-    }
-    const char *fmt = " --to-%s %s%s%s";
-    sprintf(str, fmt, type==POLICY_DNAT?"destination":"source", ip, port?":":"", port?:"");
-    return str;
 }
 
 void free_ipt_psdstr_tabs(psd_t **tabs)
@@ -766,7 +812,5 @@ void free_ipt_policy_member(ipt_policy_t *ipt_policy)
     SAFE_FREE(ipt_policy->extra);
     SAFE_FREE(ipt_policy->target);
 }
-
-
 
 
