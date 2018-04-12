@@ -17,17 +17,26 @@
  * using the generic single-entry routines.
  */
 
+/*
+ * *** 链表头没有数据域，只是用于索引整个链表
+ */
 #define LIST_HEAD_INIT(name) { &(name), &(name) }
 
 #define LIST_HEAD(name) \
 	struct list_head name = LIST_HEAD_INIT(name)
 
+/* 初始化头结点 */
 static inline void INIT_LIST_HEAD(struct list_head *list)
 {
+    /* WRITE_ONCE干啥用 */
 	WRITE_ONCE(list->next, list);
 	list->prev = list;
 }
 
+/* __list_add_valid
+ * __list_del_entry_valid
+ * 作用: 检查传入的参数有效性?
+ */
 #ifdef CONFIG_DEBUG_LIST
 extern bool __list_add_valid(struct list_head *new,
 			      struct list_head *prev,
@@ -52,13 +61,21 @@ static inline bool __list_del_entry_valid(struct list_head *entry)
  * This is only for internal list manipulation where we know
  * the prev/next entries already!
  */
+/*
+ * __list_add(new, pre, next) 在pre和next之间插入new
+ */
 static inline void __list_add(struct list_head *new,
 			      struct list_head *prev,
 			      struct list_head *next)
 {
 	if (!__list_add_valid(new, prev, next))
 		return;
-
+    /*
+     * pre->next = new;
+     * new->next = next;
+     * next->pre = new;
+     * nre->pre  = pre;
+     */
 	next->prev = new;
 	new->next = next;
 	new->prev = prev;
@@ -72,6 +89,9 @@ static inline void __list_add(struct list_head *new,
  *
  * Insert a new entry after the specified head.
  * This is good for implementing stacks.
+ */
+/*
+ * list_add(new, head) 头插
  */
 static inline void list_add(struct list_head *new, struct list_head *head)
 {
@@ -87,6 +107,9 @@ static inline void list_add(struct list_head *new, struct list_head *head)
  * Insert a new entry before the specified head.
  * This is useful for implementing queues.
  */
+/*
+ * list_add_tail(new, head) 尾插 
+ */
 static inline void list_add_tail(struct list_head *new, struct list_head *head)
 {
 	__list_add(new, head->prev, head);
@@ -98,6 +121,10 @@ static inline void list_add_tail(struct list_head *new, struct list_head *head)
  *
  * This is only for internal list manipulation where we know
  * the prev/next entries already!
+ */
+/*
+ * pre<-->node<-->next
+ * __list_del(pre, next) 删除pre和next之间的节点node
  */
 static inline void __list_del(struct list_head * prev, struct list_head * next)
 {
@@ -111,6 +138,9 @@ static inline void __list_del(struct list_head * prev, struct list_head * next)
  * Note: list_empty() on entry does not return true after this, the entry is
  * in an undefined state.
  */
+/*
+ * __list_del_entry(entry) 删除entry节点
+ */
 static inline void __list_del_entry(struct list_head *entry)
 {
 	if (!__list_del_entry_valid(entry))
@@ -119,6 +149,12 @@ static inline void __list_del_entry(struct list_head *entry)
 	__list_del(entry->prev, entry->next);
 }
 
+/*
+ * list_del(entry) 安全的删除entry节点，并使被删除的节点指针不会成为野指针
+ */
+/*
+ * 如果节点是从堆上分配的内存，那么删除后如果要彻底释放空间，还是要使用list_entry获取结构体的指针
+ */
 static inline void list_del(struct list_head *entry)
 {
 	__list_del_entry(entry);
@@ -133,15 +169,28 @@ static inline void list_del(struct list_head *entry)
  *
  * If @old was empty, it will be overwritten.
  */
+/*
+ * list_replace(old, new) 节点new替换节点old
+ */
 static inline void list_replace(struct list_head *old,
 				struct list_head *new)
 {
+    /* pre<-->old<-->next
+     * 替换需要处理4个关系(箭头)
+     * new->next = old->next;
+     * new->pre = old->pre;
+     * old->pre->next = new;
+     * old->next->pre = new;
+     */
 	new->next = old->next;
 	new->next->prev = new;
 	new->prev = old->prev;
 	new->prev->next = new;
 }
 
+/*
+ * list_replace_init(old, new) new节点替换掉old节点，并把old节点初始化 
+ */
 static inline void list_replace_init(struct list_head *old,
 					struct list_head *new)
 {
@@ -153,16 +202,29 @@ static inline void list_replace_init(struct list_head *old,
  * list_del_init - deletes entry from list and reinitialize it.
  * @entry: the element to delete from the list.
  */
+/*
+ * list_del_init(entry) 从链表中删除entry节点并将删除的节点初始化
+ */
 static inline void list_del_init(struct list_head *entry)
 {
 	__list_del_entry(entry);
 	INIT_LIST_HEAD(entry);
 }
 
+/*
+ * list_move()
+ *      可用来设置黑白名单
+ *      用来把节点归类(根据节点的元素属性)
+ */
 /**
  * list_move - delete from one list and add as another's head
  * @list: the entry to move
  * @head: the head that will precede our entry
+ */
+/*
+ * list_move(list, head) 删除list节点，再用头插法把此节点插入到head节点前
+ * 从一条链表中删除，插入到另一条链表
+ * 从一条链表中删除，插入到此条链表
  */
 static inline void list_move(struct list_head *list, struct list_head *head)
 {
@@ -174,6 +236,11 @@ static inline void list_move(struct list_head *list, struct list_head *head)
  * list_move_tail - delete from one list and add as another's tail
  * @list: the entry to move
  * @head: the head that will follow our entry
+ */
+/*
+ * list_move_tail(list, head) 删除list节点，再用尾插法把此节点插入到head节点后
+ * 从一条链表中删除，插入到另一条链表
+ * 从一条链表中删除，插入到此条链表
  */
 static inline void list_move_tail(struct list_head *list,
 				  struct list_head *head)
@@ -187,6 +254,9 @@ static inline void list_move_tail(struct list_head *list,
  * @list: the entry to test
  * @head: the head of the list
  */
+/*
+ * list_is_last(list, head) head:表头，测试list节点是否是最后一个节点
+ */
 static inline int list_is_last(const struct list_head *list,
 				const struct list_head *head)
 {
@@ -196,6 +266,9 @@ static inline int list_is_last(const struct list_head *list,
 /**
  * list_empty - tests whether a list is empty
  * @head: the list to test.
+ */
+/*
+ * list_empty(head) 判断链表是否为空
  */
 static inline int list_empty(const struct list_head *head)
 {
@@ -225,10 +298,15 @@ static inline int list_empty_careful(const struct list_head *head)
  * list_rotate_left - rotate the list to the left
  * @head: the head of the list
  */
+/*
+ * list_rotate_left(head) 链表向左旋转一次
+ */
 static inline void list_rotate_left(struct list_head *head)
 {
 	struct list_head *first;
-
+    
+    /* 左旋:把链表的第一个节点变成尾节点 */
+    /* 右旋:把链表的尾节点变为第一个节点 */
 	if (!list_empty(head)) {
 		first = head->next;
 		list_move_tail(first, head);
@@ -239,14 +317,42 @@ static inline void list_rotate_left(struct list_head *head)
  * list_is_singular - tests whether a list has just one entry.
  * @head: the list to test.
  */
+/*
+ * list_is_singular(head) 链表head只有一个节点(不包含头结点)
+ */
 static inline int list_is_singular(const struct list_head *head)
 {
 	return !list_empty(head) && (head->next == head->prev);
 }
 
+/*
+ * __list_cut_postion(list, head, entry) 把链表链表head从entry截成两段，剩余的部分形成新的链表list
+ */
 static inline void __list_cut_position(struct list_head *list,
 		struct list_head *head, struct list_head *entry)
 {
+    /*
+     * ->head<-->node<-->entry<-|->new_first<-->tail-<|
+     *  <-list->
+     *  6个关系需要变化
+     *  head->pre
+     *  entry->next
+     *  tail->next
+     *  list->pre
+     *  list->next
+     *  new_first->pre
+     *  struct list_head *tail  = head->pre;
+     *  struct list_head *new_first = entry->next;
+     *  新链表
+     *  list->next = new_first; //list后继-->new_first
+     *  list->pre = tail;       //list前驱-->尾节点
+     *  new_first->pre = list;  //首节点前驱-->list
+     *  tail->next = list;      //尾节点后继-->list
+     *  原链表
+     *  head->pre = entry;      //entry变为原链表的尾节点，entry后继-->head
+     *  entry->next = head;     //entry变为原链表的尾节点，head前驱-->entry
+     *
+     */
 	struct list_head *new_first = entry->next;
 	list->next = head->next;
 	list->next->prev = list;
@@ -273,21 +379,38 @@ static inline void __list_cut_position(struct list_head *list,
 static inline void list_cut_position(struct list_head *list,
 		struct list_head *head, struct list_head *entry)
 {
+    /* 链表为空 */
 	if (list_empty(head))
 		return;
+    /* ????? */
+    /* 链表只有一个节点 && entry既不是头结点也不是第一个节点 */
 	if (list_is_singular(head) &&
 		(head->next != entry && head != entry))
 		return;
+    /* 分割的位置是头结点 */
 	if (entry == head)
 		INIT_LIST_HEAD(list);
 	else
 		__list_cut_position(list, head, entry);
 }
 
+
+/*
+ * __list_spilce(list, prev, next) 在prev和next之间插入链表list
+ */
 static inline void __list_splice(const struct list_head *list,
 				 struct list_head *prev,
 				 struct list_head *next)
 {
+    /* pre<-->list_first<-->node<-->list_tail<-->next */
+    /*
+     * struct list_head *list_first = list->next;
+     * struct list_head *list_last  = list->prev;
+     * pre->next = list_first;
+     * list_first->pre = pre;
+     * list_tail->next = next;
+     * next->pre = list_tail;
+     */
 	struct list_head *first = list->next;
 	struct list_head *last = list->prev;
 
@@ -303,6 +426,11 @@ static inline void __list_splice(const struct list_head *list,
  * @list: the new list to add.
  * @head: the place to add it in the first list.
  */
+/*
+ * list_splice(list, head) 
+ * 粘贴后头结点list没有做任何处理
+ * [->list_first<-->node<-->list_last<-][->head<-->head_first<-->node<-->head_last<-]
+ */
 static inline void list_splice(const struct list_head *list,
 				struct list_head *head)
 {
@@ -314,6 +442,11 @@ static inline void list_splice(const struct list_head *list,
  * list_splice_tail - join two lists, each list being a queue
  * @list: the new list to add.
  * @head: the place to add it in the first list.
+ */
+/*
+ * list_spilce_tail(list,head)
+ * 粘贴后头结点list没有做任何处理
+ * [->head<-->head_first<-->node<-->head_last<-][->list_first<-->node<-->list_last<-]
  */
 static inline void list_splice_tail(struct list_head *list,
 				struct list_head *head)
@@ -328,6 +461,11 @@ static inline void list_splice_tail(struct list_head *list,
  * @head: the place to add it in the first list.
  *
  * The list at @list is reinitialised
+ */
+/*
+ * list_splice(list, head) 
+ * 粘贴后头结点list初始化
+ * [->list_first<-->node<-->list_last<-][->head<-->head_first<-->node<-->head_last<-]
  */
 static inline void list_splice_init(struct list_head *list,
 				    struct list_head *head)
@@ -345,6 +483,11 @@ static inline void list_splice_init(struct list_head *list,
  *
  * Each of the lists is a queue.
  * The list at @list is reinitialised
+ */
+/*
+ * list_spilce_tail(list,head)
+ * 粘贴后头结点list初始化
+ * [->head<-->head_first<-->node<-->head_last<-][->list_first<-->node<-->list_last<-]
  */
 static inline void list_splice_tail_init(struct list_head *list,
 					 struct list_head *head)
@@ -614,6 +757,9 @@ static inline void list_splice_tail_init(struct list_head *list,
 #define list_safe_reset_next(pos, n, member)				\
 	n = list_next_entry(pos, member)
 
+/*
+ * #################### hash list 暂不分析 ##########################
+ */
 /*
  * Double linked lists with a single pointer list head.
  * Mostly useful for hash tables where the two pointer list head is

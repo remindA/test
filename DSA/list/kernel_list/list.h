@@ -1,6 +1,8 @@
 #ifndef _PORT_LIST_H
 #define _PORT_LIST_H
-
+typedef int bool;
+#define true  1
+#define false 0
 /*
  * 移植/include/linux/list.h的双向循环链表部分
  * 用于用户空间应用程序的使用
@@ -92,41 +94,30 @@ static inline void __list_add(struct list_head *new,
 	next->prev = new;
 	new->next = next;
 	new->prev = prev;
-	WRITE_ONCE(prev->next, new);
+	//WRITE_ONCE(prev->next, new);
+    prev->next = new;
 }
 
-/**
- * list_add - add a new entry
- * @new: new entry to be added
- * @head: list head to add it after
- *
- * Insert a new entry after the specified head.
- * This is good for implementing stacks.
- */
 /*
- * list_add(new, head) 头插
+ * list_add(new, head) 插入作为链表第一个节点
  */
 static inline void list_add(struct list_head *new, struct list_head *head)
 {
 	__list_add(new, head, head->next);
 }
 
-
-/**
- * list_add_tail - add a new entry
- * @new: new entry to be added
- * @head: list head to add it before
- *
- * Insert a new entry before the specified head.
- * This is useful for implementing queues.
- */
 /*
- * list_add_tail(new, head) 尾插 
+ * list_add_tail(new, head) 插入作为链表最后一个节点
  */
 static inline void list_add_tail(struct list_head *new, struct list_head *head)
 {
 	__list_add(new, head->prev, head);
 }
+
+/* 在节点后附加 */
+#define list_add_append(new, pos) list_add(new, pos)
+/* 在节点前插入 */
+#define list_add_insert(new, pos) list_add_tail(new, pos)
 
 /*
  * Delete a list entry by making the prev/next entries
@@ -142,7 +133,8 @@ static inline void list_add_tail(struct list_head *new, struct list_head *head)
 static inline void __list_del(struct list_head * prev, struct list_head * next)
 {
 	next->prev = prev;
-	WRITE_ONCE(prev->next, next);
+	//WRITE_ONCE(prev->next, next);
+    prev->next = next;
 }
 
 /**
@@ -285,7 +277,8 @@ static inline int list_is_last(const struct list_head *list,
  */
 static inline int list_empty(const struct list_head *head)
 {
-	return READ_ONCE(head->next) == head;
+	//return READ_ONCE(head->next) == head;
+	return head->next == head;
 }
 
 /**
@@ -552,7 +545,7 @@ static inline void list_splice_tail_init(struct list_head *list,
  */
 #define list_first_entry_or_null(ptr, type, member) ({ \
 	struct list_head *head__ = (ptr); \
-	struct list_head *pos__ = READ_ONCE(head__->next); \
+	struct list_head *pos__ = head__->next; \
 	pos__ != head__ ? list_entry(pos__, type, member) : NULL; \
 })
 
