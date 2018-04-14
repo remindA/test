@@ -34,10 +34,16 @@ int main(int argc, char **argv)
     }
 
     int count = 0;
-    struct list_head poly_a, poly_b, poly_sum;
+    struct list_head poly_a;
+    struct list_head poly_b;
+    struct list_head poly_sum;
+    struct list_head poly_mul;
+    struct list_head poly_minus;
     INIT_LIST_HEAD(&poly_a);
     INIT_LIST_HEAD(&poly_b);
     INIT_LIST_HEAD(&poly_sum);
+    INIT_LIST_HEAD(&poly_mul);
+    INIT_LIST_HEAD(&poly_minus);
 
     while(!feof(fp)) {
         count++;
@@ -58,19 +64,11 @@ int main(int argc, char **argv)
                 printf("cannot get coe and exp from '%s'\n", left);
                 continue;
             }
-            term_t *term = (term_t *)calloc(1, sizeof(term_t));
-            if(NULL == term) {
-                perror("calloc");
-                //free_polynomial(&poly_a);
-                return -1;
-            }
-            term->coe = atoi(coe);
-            term->exp = atoi(exp);
             if(count == 1) {
-                list_add_tail(&(term->list), &poly_a);
+                polynomial_term_sort_insert(&poly_a, atoi(coe), atoi(exp));
             }
             else if(count == 2) {
-                list_add_tail(&(term->list), &poly_b);
+                polynomial_term_sort_insert(&poly_b, atoi(coe), atoi(exp));
             }
             left = p + 1;
         }
@@ -80,24 +78,26 @@ int main(int argc, char **argv)
         if(2 != sscanf(left, "%[^x]x%s", coe, exp)) {
             printf("cannot get coe and exp from '%s'\n", left);
         }
-        term_t *term = (term_t *)calloc(1, sizeof(term_t));
-        if(NULL == term) {
-            perror("calloc");
-            //free_polynomial(&poly_a);
-            return -1;
-        }
-        term->coe = atoi(coe);
-        term->exp = atoi(exp);
         if(count == 1) {
-            list_add_tail(&(term->list), &poly_a);
+            polynomial_term_sort_insert(&poly_a, atoi(coe), atoi(exp));
         }
         else if(count == 2) {
-            list_add_tail(&(term->list), &poly_b);
+            polynomial_term_sort_insert(&poly_b, atoi(coe), atoi(exp));
         }
     }
     fclose(fp);
-    polynomial_print(&poly_a);
-    polynomial_print(&poly_b);
     polynomial_add(&poly_sum, &poly_a, &poly_b);
+    polynomial_mul(&poly_mul, &poly_a, &poly_b);
+    polynomial_minus(&poly_minus, &poly_a, &poly_b);
+    printf("a is :\n\t");
+    polynomial_print(&poly_a);
+    printf("b is :\n\t");
+    polynomial_print(&poly_b);
+    printf("sum is :\n\t");
+    polynomial_print(&poly_sum);
+    printf("mul is :\n\t");
+    polynomial_print(&poly_mul);
+    printf("minus is :\n\t");
+    polynomial_print(&poly_minus);
     return 0;
 }

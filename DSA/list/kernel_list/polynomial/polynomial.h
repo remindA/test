@@ -34,17 +34,23 @@
     指　数 -- exponent     --> exp
 
  */
+#define POLYNOMIAL_ADD   1
+#define POLYNOMIAL_MINUS 2
+#define POLYNOMIAL_MUL   3
+typedef int coe_t;
+typedef int exp_t;
 typedef struct {
-    int exp;
-    int coe;
+    coe_t coe;
+    exp_t exp;
     struct list_head list;
 }term_t;
 
 
-int polynomial_add(struct list_head *pnsum,
-                   struct list_head *pna,
-                   struct list_head *pnb);
-int polynomial_sort_copy(struct list_head *head_dst, struct list_head *head_src);
+int polynomial_add(struct list_head *pnsum, struct list_head *pna, struct list_head *pnb);
+int polynomial_mul(struct list_head *pnsum, struct list_head *pna, struct list_head *pnb); 
+int polynomial_minus(struct list_head *pnsum, struct list_head *pna, struct list_head *pnb); 
+int polynomial_sort_insert(struct list_head *head_dst, struct list_head *head_src, int opt); 
+int polynomial_term_sort_insert(struct list_head *head, coe_t coe, exp_t exp);
 void polynomial_print(struct list_head *head);
 
 #endif
