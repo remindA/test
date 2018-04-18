@@ -1,0 +1,12 @@
+1. 删除光标后所有内容 
+        d$ : [abc|def word] --> [abc]
+
+2. 删除光标到单词结尾单词
+        dw : [abc|def word] --> [abcword]
+
+3. 删除光标所在单词
+        daw : [h|ello world] --> [world]
+
+4. 删除光标到单词开头
+        db : [hello wo|rld] --> [hello rld]
+

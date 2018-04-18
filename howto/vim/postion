@@ -1,0 +1,11 @@
+1. 行尾  $
+2. 行首  ^
+
+3. 文件头 gg
+4. 文件尾 G
+
+5. 移动到本行字符(不跨行) f
+    fs [|abcsedf] --> [abc|sedf]
+
+6. 移动到某一单词(跨行)   /
+    /world      [hello |this world]  --> [hello this |world]
