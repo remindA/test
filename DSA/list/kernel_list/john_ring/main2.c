@@ -35,20 +35,21 @@ int main(int argc, char **argv)
         printf("people must > left, %d > %d\n", people, left);
         return 0;
     }
-    struct list_head head;
-    init_list_head(&head);
-    for(i = 1; i <= people; i++) {
+    john_t *head = (john_t *)calloc(1, sizeof(john_t));
+    init_list_head(&(head->list));
+    head->number = 1;
+    for(i = 2; i <= people; i++) {
         john_t *john = (john_t *)calloc(1, sizeof(john_t));
         if(john == NULL) {
             perror("calloc in main");
             return -1;
         }
         john->number = i;
-        list_add_tail(&(john->list), &head);
+        list_add_tail(&(john->list), &(head->list));
     }
-    do_john_ring(&head, step, left);
+    struct list_head *alive = do_john_ring2(&(head->list), step, left);
     printf("=======================\n");
-    print_ring(&head);
+    print_ring2(alive);
     return 0;
 }
 

@@ -114,6 +114,10 @@ static inline int list_empty(const struct list_head *head)
     return (head->next == head);
     //return (head->prev == head);
 }
+static inline int list_empty2(const struct list_head *head)
+{
+    return (head == NULL);
+}
 
 //判断节点是否是尾节点
 static inline int list_is_last(const struct list_head *list, const struct list_head *head)
@@ -141,6 +145,21 @@ static inline int list_is_last(const struct list_head *list, const struct list_h
 static inline int list_count(const struct list_head *head)
 {
     int cnt = 0;
+    struct list_head *list = head->next;
+    while(list != head)
+    {
+        list = list->next;
+        cnt++;
+    }
+    return cnt;
+}
+
+static inline int list_count2(const struct list_head *head)
+{
+    if(head == NULL) {
+        return 0;
+    }
+    int cnt = 1;
     struct list_head *list = head->next;
     while(list != head)
     {

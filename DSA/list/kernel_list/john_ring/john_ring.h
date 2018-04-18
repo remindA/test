@@ -30,5 +30,7 @@ typedef struct{
 
 int do_john_ring(struct list_head *head, int step, int left);
 void print_ring(struct list_head *head);
+struct list_head * do_john_ring2(struct list_head *head, int step, int left);
+void print_ring2(struct list_head *head);
 #endif
 
