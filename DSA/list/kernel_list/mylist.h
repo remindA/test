@@ -2,7 +2,9 @@
 #define _LIST_H_
 
 /*
- * 约定 : 链表的表头不存放任何数据
+ * 有两个版本的函数
+ *      链表的表头不存放任何数据
+ *      链表头结点存放数据的函数含有"2"
  */
 
 
@@ -106,13 +108,20 @@ static inline void list_move_tail(struct list_head *list, struct list_head *head
 }
 
 
-//5、链表判断
 
-//判断链表是否为空
+/*
+ * 头结点没有数据
+ */
 static inline int list_empty(const struct list_head *head)
 {
     return (head->next == head);
-    //return (head->prev == head);
+}
+/*
+ * 头结点有数据
+ */
+static inline int list_empty2(const struct list_head *head)
+{
+    return (head == NULL);
 }
 
 //判断节点是否是尾节点
@@ -137,10 +146,30 @@ static inline int list_is_last(const struct list_head *list, const struct list_h
 #define list_for_each(pos,head) \
     for(pos = (head)->next; pos != (head); pos = pos->next)
 
-//获取链表节点数(带数据的节点)
+/*
+ * 获取节点数(头结点无数据-不含头结点)
+ */
 static inline int list_count(const struct list_head *head)
 {
     int cnt = 0;
+    struct list_head *list = head->next;
+    while(list != head)
+    {
+        list = list->next;
+        cnt++;
+    }
+    return cnt;
+}
+
+/*
+ * 获取节点数(头结点有数据-含头结点)
+ */
+static inline int list_count2(const struct list_head *head)
+{
+    if(head == NULL) {
+        return 0;
+    }
+    int cnt = 1;
     struct list_head *list = head->next;
     while(list != head)
     {
