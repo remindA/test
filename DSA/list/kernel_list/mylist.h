@@ -188,5 +188,48 @@ static inline void list_print(struct list_head *head, list_print_t print)
     }
 }
 
+#define ROTATE_LEFT  0
+#define ROTATE_RIGHT 1
+
+static inline void list_rotate(struct list_head *head, int dir, int step)
+{
+    /* 就是移动头结点
+     * 左旋:头结点右移
+     * |->head<-|->1<-->2<-->3<- 变为 ->head<-->2<-->3<-->1<- (->1<-->head<-->2<-->3<-)
+     * 右旋:头结点左移
+     * ->head<-->1<-->2<-->3<- 变为 ->head<-->3<-->1<-->2<- (->1<-->2<-->head<-->3<-)
+     */
+    if(NULL == head){
+        return;
+    }
+
+    int len = list_count(head);
+    step = step>=len?step%len:step;
+    if(step <= 0) {
+        return;
+    }
+    struct list_head *prev = head->prev;
+    struct list_head *next = head->next;
+    prev->next = next;
+    next->prev = prev;
+    if(dir == ROTATE_LEFT) {
+        struct list_head *pos  = next;
+        for(int i = 1; i < step; i++) {
+            pos = pos->next;
+        }
+        __list_add(head, pos, pos->next);
+    }
+    else if(dir == ROTATE_RIGHT) {
+        struct list_head *pos  = prev;
+        for(int i = 1; i < step; i++) {
+            pos = pos->prev;
+        }
+        __list_add(head, pos->prev, pos);
+    }
+    else {
+        return;
+    }
+}
+
 #endif
 
