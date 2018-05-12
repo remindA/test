@@ -1,17 +1,17 @@
 /*
  * =====================================================================================
  *
- *       Filename:  https_proxy.c
+ *       Filename:  http_proxy.c
  *
- *    Description:  此架构适用于https代理(openssl不支持多线程)
+ *    Description:  
  *
- *        Version:  1.0
+ *        Version:  1.3
  *        Created:  2018年01月21日 15时00分13秒
  *       Revision:  none
  *       Compiler:  gcc
  *
- *         Author:  YOUR NAME (), 
- *   Organization:  
+ *         Author:  NYB 
+ *   Organization:  Hengsion
  *
  * =====================================================================================
  */
@@ -38,6 +38,7 @@
 #ifdef OpenWRT
 #include <zlib.h>
 #include <assert.h>
+#include <hregister.h>
 #endif
 
 #include "err_quit.h"
@@ -49,17 +50,18 @@
 #include "str_replace.h"
 #include "config.h"
 
-extern int h_errno;    /* #include <netdb.h> */
-extern int proxy;
+extern int h_errno;    /* for get hostbyname #include <netdb.h> */
+extern int proxy;      /* define in http.c */
 
+/* system may failed somtimes, wo need to change signal behavior of SIG_CHLD */
 typedef void(*sighandler_t)(int);
 
 /* openssl */
 SSL_CTX *ctx_s;
 SSL_CTX *ctx_c;
-char *ca_cert_file = "/etc/https_proxy/ca.crt";
-char *server_cert_file = "/etc/https_proxy/server.crt";
-char *private_key_file = "/etc/https_proxy/server.key";
+//char *ca_cert_file = "/etc/https_proxy/ca.crt";
+char *server_cert_file = "/etc/http_proxy/server.crt";
+char *private_key_file = "/etc/http_proxy/server.key";
 
 
 /* 其他 */
@@ -67,10 +69,22 @@ int l_fd;
 pcre2_code *ge_re;
 struct list_head *remap_table;
 struct list_head *regex_table;
-pthread_mutex_t session_lock; 
+
+map_t *map_tab;
+char lan_ip[24] = {0};
+char wan_ip[24] = {0};
+
+/*
+ * after init_remap_tab
+ * it is like
+ * remap_tab = {
+ *  {"lan_if_ip", {"lan_ip1", "lan_ip2", "lan_ip3"}},
+ *  {"wan_if_ip", {"wan_ip1", "wan_ip2", "wan_ip3"}},
+ * }
+ * */
 
 void usage(const char *name);
-void sig_listener(int signo);
+void sig_handler(int signo);
 int ssl_init(void);
 int proxy_listen(void);
 void worker_thread(void *ARG);
@@ -83,17 +97,213 @@ int create_proxy_server(char *host, short l_port, int listen_num);
 int create_real_server(const char *host, short port);
 int create_real_server_nonblock(const char *host, short port, int sec);
 PCRE2_SPTR replace_content_default_m(char *old, int direction, pcre2_code *re);
-int rewrite_url(char *url, pcre2_code *re);
+int rewrite_url(char *url, int max, pcre2_code *re, int direction);
 int replace_field(char *field_value, int direction, pcre2_code *re);
-int replace_http_header(http_header_t *header, pcre2_code *re);
+int replace_http_header(http_header_t *header, pcre2_code *re, int direction);
 int get_gunzip(unsigned char *src, unsigned int len_s, char **dst, unsigned int *len_d);
+#if 0
 #ifdef OpenWRT
 int http_gunzip(unsigned char *source, unsigned int s_len, unsigned char **dest, unsigned int *d_len, int gzip);
 #endif
+#endif
+int SYSTEM(const char *format, ...);
+int find_ifaceip_by_realip(const char *realip, char *ifaceip);
+int find_remapip_by_realip(const char *realip, char *remapip);
+void do_redirect(char *file);
+
+int SYSTEM(const char *format, ...)
+{
+#if 0
+	FILE *pf,*pft;
+#endif
+	static char buf[4096]="";
+	va_list arg;
+
+	memset(buf, 0, sizeof(buf));
+
+	va_start(arg, format);
+	vsnprintf(buf,4096, format, arg);
+	va_end(arg);
+	syslog(LOG_INFO, "%s\n",buf);   
+
+    sighandler_t old_handler = signal(SIGCHLD, SIG_DFL);
+    system(buf);
+    signal(SIGCHLD, old_handler);
+
+	usleep(1000);
+	return 0;
+}
+
+int find_ifaceip_by_realip(const char *realip, char *ifaceip)
+{
+    //char lanip[24];
+	//char wanip[24];
+	//hsion_get_ip(LAN_INTERFACE, lanip, sizeof(lanip));
+	//hsion_get_ip(WAN_INTERFACE, wanip, sizeof(wanip));
+    struct list_head *pos;
+    list_for_each(pos, remap_table) {
+        remap_entry_t *entry = list_entry(pos, remap_entry_t, list);
+        printf("realip=%s, entry->direction= %d, entry->before=%s\n", realip, entry->direction, entry->before);
+        if(strcmp(entry->before, realip) == 0) {
+            if(entry->direction == 0) {
+                //lan2wan
+                strcpy(ifaceip, wan_ip);
+            }
+            else if(entry->direction == 1) {
+                //wan2lan
+                strcpy(ifaceip, lan_ip);
+            }
+            return 1;
+        }
+    }
+    return 0;
+}
+
+
+int find_remapip_by_realip(const char *realip, char *remapip)
+{
+    struct list_head *pos;
+    list_for_each(pos, remap_table) {
+        remap_entry_t *entry = list_entry(pos, remap_entry_t, list);
+        if(strcmp(entry->before, realip) == 0) {
+            strcpy(remapip, entry->after);
+            return 1;
+        }
+    }
+    return 0;
+}
+
+void do_redirect(char *file)
+{
+    static struct uci_context *ctx;
+    struct uci_package *pkg;
+    struct uci_element *e = NULL;
+
+    ctx = uci_alloc_context();
+    if(UCI_OK != uci_load(ctx, file, &pkg))
+    {
+        printf("uci_load(%s) not ok\n", file);
+        goto cleanup;
+    }
+
+    uci_foreach_element(&pkg->sections, e)
+    {
+        struct uci_section *s = uci_to_section(e);
+        char *type    = uci_lookup_option_string(ctx, s, "type");
+        char *ip    = uci_lookup_option_string(ctx, s, "ip");
+        char *port  = uci_lookup_option_string(ctx, s, "port");
+        char *regex = uci_lookup_option_string(ctx, s, "regex");
+
+        if(!type || !ip || !port) {
+            continue;
+        }
+        //printf("%s,%s,%s\n", type, ip, port);
+        char iface_ip[24] = {0};
+        char remap_ip[24] = {0};
+        find_ifaceip_by_realip(ip, iface_ip);
+        find_remapip_by_realip(ip, remap_ip);
+        if(strcmp(type, "http") == 0 &&  proxy == HTTP) {
+            SYSTEM("iptables -t nat -I PREROUTING -p tcp -d %s --dport %s -j DNAT --to-destination %s:%d"
+            ,remap_ip, port, iface_ip, HTTP_PROXY_PORT);
+        }
+        else if(strcmp(type, "https") == 0 && proxy == HTTPS) {
+            SYSTEM("iptables -t nat -I PREROUTING -p tcp -d %s --dport %s -j DNAT --to-destination %s:%d"
+            ,remap_ip, port, iface_ip, HTTP_PROXY_PORT);
+        }
+    }
+cleanup:
+    uci_unload(ctx, pkg);
+    uci_free_context(ctx);
+    ctx = NULL;
+}
+
+/* 初始化map_tab
+ * @head: remap_table
+ */
+int init_map_tab(struct list_head *head)
+{
+    if(head == NULL) {
+        return -1;
+    }
+    map_tab = (map_t *)calloc(__MAP_TAB_MAX, sizeof(map_t));
+    if(NULL == map_tab) {
+        perror("calloc in init_map_tab");
+        return -1;
+    }
+    int i;
+    int cnt = list_count(head);
+    for(i = 0; i < __MAP_TAB_MAX; i++) {
+        map_tab[i].ip_tab = (ip_t *)calloc(cnt+1, sizeof(ip_t));
+        if(NULL == map_tab[i].ip_tab) {
+            safe_free(map_tab);
+            return -1;
+        }
+    }
+
+    /* init interface */
+    hsion_get_ip(LAN_INTERFACE, lan_ip, sizeof(lan_ip));
+    hsion_get_ip(WAN_INTERFACE, wan_ip, sizeof(wan_ip));
+    printf("lan_ip: %s\n", lan_ip);
+    printf("wan_ip: %s\n", wan_ip);
+    map_tab[_LAN].iface = _LAN;
+    map_tab[_WAN].iface = _WAN;
+
+    /* init ip tables */
+    /* if remap_tables is empty
+     * {
+     *      {"lan_if_ip", {NULL}},
+     *      {"wan_if_ip", {NULL}},
+     * }
+     */ 
+    struct list_head *pos;
+    ip_t *plan = map_tab[_LAN].ip_tab;
+    ip_t *pwan = map_tab[_WAN].ip_tab;
+    list_for_each(pos, head) {
+        remap_entry_t *entry = list_entry(pos, remap_entry_t, list);
+        /*lan2wan*/
+        if(entry->direction == 0) {
+            plan->ip = entry->before;
+            pwan->ip = entry->after;
+            printf("%s %s\n", plan->ip, pwan->ip);
+            plan++;
+            pwan++;
+        }
+        /*wan2lan*/
+        else if(entry->direction == 1) {
+            plan->ip = entry->after;
+            pwan->ip = entry->before;
+            printf("%s %s\n", plan->ip, pwan->ip);
+            plan++;
+            pwan++;
+        }
+    }
+    return 0;
+}
+
+int from_lan_or_wan(int fd)
+{
+    struct sockaddr_in sock;
+    socklen_t len = sizeof(sock);
+    getsockname(fd, (struct sockaddr *)&sock, &len);
+    //printf("from_lan_or_wan: lan_ip:[%s], wan_ip:[%s], from_ip:[%s]\n", lan_ip, wan_ip, inet_ntoa(sock.sin_addr));
+    if(strcmp(lan_ip, inet_ntoa(sock.sin_addr)) == 0) {
+        //printf("from_ip, is lan2wan\n");
+        return LAN2WAN;
+	}
+    else if(strcmp(wan_ip, inet_ntoa(sock.sin_addr)) == 0) {
+       // printf("from_ip is, wan2lan\n");
+    	return WAN2LAN;
+    }
+    else {
+        //printf("from_ip is nothing\n");
+    	return -1;
+	}
+}
 
 
 int main(int argc, char **argv)
 {
+    //监听的端口，缺省使用默认值
     int opt;
     if(argc != 2) {
         usage(argv[0]);
@@ -115,35 +325,49 @@ int main(int argc, char **argv)
                 return 0;
         }
     }
-    /* get_remap_table */
-    remap_table = get_remap_table_m("ipmaps");
-    if(NULL == remap_table) {
-        fprintf(stderr, "get_remap_table_m failed\n");
-        syslog(LOG_INFO, "[CONFIG] %s启动失败-获取映射表(get_remap_table)", argv[0]); 
-        exit(0);
-    }
 
-    /* get general_regex */
-    ge_re = get_general_regex("general_regex");
-    if(ge_re == NULL)
-    {
-        fprintf(stderr, "h_general_regex is NULL\n");
-        syslog(LOG_INFO, "[CONFIG] %s启动失败-必填项:通用正则表达式为空(get_general_regex)", argv[0]); 
+    openlog("http_proxy", LOG_CONS, LOG_USER);
+    /* 开关控制 */
+    int http_on = get_http_switch("http_proxy");
+    if(!http_on) return 0;
+
+    /* get_remap_table */
+    remap_table = get_remap_table_m("remap");
+    if(NULL == remap_table) {
+        fprintf(stderr, "get_remap_table_m failed, 映射表解析失败\n");
+        syslog(LOG_INFO, "%s启动失败-解析映射表(get_remap_table_m)", argv[0]); 
         exit(0);
     }
-    printf("general_regex exists = %p\n", ge_re);
 
     /* get_regex_table */
-    regex_table = get_regex_table_m("http_devices");
+    regex_table = get_regex_table_m("http_proxy");
 
-    /* get_proxy_config*/
+    /* get general_regex */
+    ge_re = get_general_regex("http_proxy");
+    if(ge_re == NULL)
+    {
+        fprintf(stderr, "general_regex is NULL,通用规则是空\n");
+        syslog(LOG_INFO, "%s启动失败-必填项:通用规则为空(get_general_regex)", argv[0]); 
+        exit(0);
+    }
+#ifdef DEBUG_CONFIG
+    printf("general_regex exists = %p\n", ge_re);
+#endif
+    if(init_map_tab(remap_table) < 0) {
+        fprintf(stderr, "general_regex is NULL\n");
+        syslog(LOG_INFO, "%s启动失败-init_map_tab不成功", argv[0]); 
+        exit(0);
+    }
+
+    sleep(2);
+    do_redirect("http_proxy");
 
     /* 初始化openssl, ctx_s, ctx_c等 */
     if(proxy == HTTPS && ssl_init() < 0) {
-        printf("cannot ssl_init()\n");
+        fprintf(stderr, "cannot ssl_init()\n");
+        syslog(LOG_INFO, "ssl_init failed");
         return 0;
     }
-    pthread_mutex_init(&session_lock, NULL);
 
     /* 建立socket */
     int   l_num = 100;
@@ -152,18 +376,24 @@ int main(int argc, char **argv)
     l_fd = create_proxy_server(l_host, l_port, l_num);
     if(l_fd < 0) {
         printf("cannot create proxy server\n");
+        syslog(LOG_INFO, "create proxy server failed");
         return 0;
     }
     /* 监听 */
     switch(fork()) {
         case 0:
             printf("%s在后台启动\n", argv[0]);
-            syslog(LOG_INFO, "[CONFIG] %s程序启动", argv[0]); 
+            if(proxy == HTTP) {
+                syslog(LOG_INFO, "%s程序启动: http proxy", argv[0]); 
+            }
+            if(proxy == HTTPS) {
+                syslog(LOG_INFO, "%s程序启动: https proxy", argv[0]); 
+            }
             proxy_listen();
             exit(0);
         case -1:
             printf("fork()监听进程失败\n");
-            syslog(LOG_INFO, "[CONFIG] %s启动失败-fork failed", argv[0]); 
+            syslog(LOG_INFO, "%s启动失败: fork failed", argv[0]); 
             err_quit("fork()");
             break;
         default:
@@ -186,10 +416,38 @@ void usage(const char *name)
  *          SIGHUP: 退出进程
  *  
  */
-void sig_listener(int signo)
+void sig_handler(int signo)
 {
-    printf("[[[capture signal %d]]]\n", signo);
-    exit(1);
+    switch(signo) {
+        case SIGUSR1:
+            if(proxy == HTTP) {
+                syslog(LOG_INFO, "http_proxy exit SIGUSR1");
+                exit(1);
+            }
+            break;
+        case SIGUSR2:
+            if(proxy == HTTPS){
+                syslog(LOG_INFO, "https_proxys exit SIGUSR2");
+                exit(1);
+            }
+            break;
+        case SIGPIPE:
+            if(proxy == HTTP) {
+                syslog(LOG_INFO, "http_proxy ignore SIGPIPE", signo);
+            }
+            if(proxy == HTTPS) {
+                syslog(LOG_INFO, "http_proxys ignore SIGPIPE", signo);
+            }
+            break;
+        default:
+            if(proxy == HTTP) {
+                syslog(LOG_INFO, "http_proxy exit because of sig_%d", signo);
+            }
+            if(proxy == HTTPS) {
+                syslog(LOG_INFO, "http_proxys exit because of sig_%d", signo);
+            }
+            exit(1);
+    }
 }
 
 
@@ -200,26 +458,16 @@ int ssl_init(void)
 #endif
     SSL_load_error_strings();
     //OpenSSL_add_ssl_algorithms();
-    SSLeay_add_ssl_algorithms();
+    SSL_library_init();
 
-#ifdef SR04I
-    ctx_c = SSL_CTX_new(TLSv1_client_method());  //代理客户端
-#endif
-#ifdef OpenWRT
     ctx_c = SSL_CTX_new(TLSv1_2_client_method());  //代理客户端
-#endif
     if(!ctx_c) {
 #ifdef DEBUG_SSL
         printf("cannot create ctx_c\n");
 #endif
         return -1;
     }
-#ifdef SR04I
-    ctx_s = SSL_CTX_new(TLSv1_server_method());  //代理服务器
-#endif
-#ifdef OpenWRT
     ctx_s = SSL_CTX_new(TLSv1_2_server_method());  //代理服务器
-#endif
     if(!ctx_s) {
 #ifdef DEBUG_SSL
         printf("cannot create ctx_s\n");
@@ -258,27 +506,33 @@ int ssl_init(void)
     return 0;
 }
 
-
-
 int proxy_listen(void)
 {
-    //#ifdef FUNC
     printf("\n==========start proxy_listen(%d)==========\n", getpid());
-    //#endif
-
-    if(signal(SIGINT, sig_listener) == SIG_ERR) {
+    if(signal(SIGINT, sig_handler) == SIG_ERR) {
         err_quit("signal()");
     }
-    if(signal(SIGSEGV, sig_listener) == SIG_ERR) {
+    printf("register SIGINT=%d\n", SIGINT);
+
+    if(signal(SIGSEGV, sig_handler) == SIG_ERR) {
         err_quit("signal()");
     }
-    if(signal(SIGPIPE, SIG_IGN) == SIG_ERR) {
+    printf("register SIGSEGV=%d\n", SIGSEGV);
+
+    if(signal(SIGPIPE, sig_handler) == SIG_ERR) {
         err_quit("signal()");
     }
+    printf("register SIGPIPE=%d\n", SIGPIPE);
 
-    printf("proxy_listen: signal ok\n");
+    if(signal(SIGUSR1, sig_handler) == SIG_ERR) {
+        err_quit("signal()");
+    }
+    printf("register SIGUSR1=%d\n", SIGUSR1);
 
-
+    if(signal(SIGUSR2, sig_handler) == SIG_ERR) {
+        err_quit("signal()");
+    }
+    printf("register SIGUSR2=%d\n", SIGUSR2);
 
     struct sockaddr_in client_addr;
     bzero(&client_addr, sizeof(client_addr));
@@ -291,12 +545,21 @@ int proxy_listen(void)
             perror("cannot accept correctly, accept()");
             continue;
         }
-        //printf("%d client on\n", ++cnt);
         int *fd = (int *)malloc(sizeof(int));
         if(NULL == fd) {
             perror("malloc()");
             continue;
         }
+        /*
+        struct sockaddr_in sock;
+        socklen_t sock_len = sizeof(sock);
+        if(0 == getsockname(c_fd, (struct sockaddr *)&sock, &sock_len)) {
+            printf("\nClient coming from %s :%d\n", inet_ntoa(sock.sin_addr), ntohs(sock.sin_port));
+        }
+        else {
+            perror("getsockname");
+        }
+        */
         *fd = c_fd;
         pthread_t th3;
         if(pthread_create(&th3, NULL, (void *)worker_thread, (void *)fd) < 0) {
@@ -306,9 +569,7 @@ int proxy_listen(void)
         }
     }
     //隐式回收
-#ifdef FUNC
     printf("==========finish proxy_listen()==========\n");
-#endif
     return 0;
 }
 
@@ -326,30 +587,31 @@ void worker_thread(void *ARG)
     SSL *ssl_c = NULL;
     pcre2_code *re = NULL;
     if(proxy == HTTPS) {
+#ifdef TIME_COST
         struct timeval st;
         struct timeval ed;
         gettimeofday(&st, NULL);
+#endif
         /* ssl */
         ssl_s = SSL_new(ctx_s);
         if(NULL == ssl_s) {
             printf("handle_client(%d): cannot create ssl\n", tid);
             goto worker_exit;
         }
-        //printf("handle_client(%d): SSL_new ok\n", tid);
         ret = SSL_set_fd(ssl_s, c_fd);
         if(ret != 1) {
             print_ssl_error(ssl_s, ret, "handle_client: SSL_set_fd");
             goto worker_exit;
         }
-        //printf("handle_client(%d): SSL_set_fd ok\n", tid);
         if((ret = SSL_accept(ssl_s)) == 0) {
             print_ssl_error(ssl_s, ret, "handle_client: SSL_accept()");
             goto worker_exit;
         }
+#ifdef TIME_COST
         gettimeofday(&ed, NULL);
-        //printf("ssl_accept total use  %ldms\n", (ed.tv_sec-st.tv_sec)*1000 + (ed.tv_usec-st.tv_usec)/1000);
-        //printf("handle_client(%d): SSL_accept ok\n", tid);
-
+        printf("ssl_accept total use  %ldms\n", (ed.tv_sec-st.tv_sec)*1000 + (ed.tv_usec-st.tv_usec)/1000);
+        syslog(LOG_INFO, "ssl_accept total use  %ldms\n", (ed.tv_sec-st.tv_sec)*1000 + (ed.tv_usec-st.tv_usec)/1000);
+#endif
     }
     while(1) {
         ret = read_process_forward(c_fd, ssl_s, &s_fd, &ssl_c, &re);
@@ -381,7 +643,9 @@ worker_exit:
     if(s_fd > 0) {
         close(s_fd);
     }
-    //printf("==========worker_thread() exit==========\n");
+#ifdef DEBUG
+    printf("==========worker_thread() exit==========\n");
+#endif
     pthread_exit(&ret);
 }
 
@@ -391,19 +655,25 @@ worker_exit:
  * return: 
  *  <= 0 : failed
  *  > 0  : ok
+ *  第一次调用时:(肯定是request)
+ *      会在函数内解析header
+ *      然后connect到真正服务器的地址，保存fd_to, ssl_to(https), regex
+ *      根据服务器地址确定正则表达式
+ *  第二次调用就是response
+ *
+ *  之后的每次调用都是一次request，一次response
  */
-
 int read_process_forward(int fd_from,  SSL *ssl_from, int *fd_to, SSL **ssl_to, pcre2_code **regex)
 {
 #ifdef RPS
     printf("==========start read_process_forward()==========\n");
 #endif
-    /* 1. 读http头 */
     int  pr;
     int  len;
     int  ret;
     int  encd;
     int  direction;
+    int  req_or_rsp;
     short port;
     char *gunzip = NULL;
     char *before_ip = NULL;
@@ -413,17 +683,19 @@ int read_process_forward(int fd_from,  SSL *ssl_from, int *fd_to, SSL **ssl_to, 
     PCRE2_SPTR new_body = NULL;
     pcre2_code *re;
 
-    ret = read_double_crlf(fd_from, ssl_from, buff_header, sizeof(buff_header) - 1);
+    direction = from_lan_or_wan(fd_from);
+
+    /* 1. 读http头 */
+    ret = read_http_header(fd_from, ssl_from, buff_header, sizeof(buff_header) - 1);
     if(ret <= 0) {
 #ifdef RPS
-        printf("cannot read_double_crlf\n");
+        printf("cannot read_http_header\n");
 #endif
         return ret;
     }
 
     /* 2. 解析http头 */
-    http_header_t *header = (http_header_t *)malloc(sizeof(http_header_t));
-    memset(header, 0, sizeof(http_header_t));
+    http_header_t *header = (http_header_t *)calloc(1, sizeof(http_header_t));
     init_list_head(&(header->head));
 
     if(parse_http_header(buff_header, header) < 0) {
@@ -433,13 +705,13 @@ int read_process_forward(int fd_from,  SSL *ssl_from, int *fd_to, SSL **ssl_to, 
         return -1;
     }
 
-    /* 3. 获取host:port和before_ip */
+    /* 3. 获取host:port和before_ip, 这里的host是映射后的地址 */
     get_host_port(header, host, &port);
     before_ip = get_ip_before_remap(remap_table, host);
 
     /* 第一次请求包, 创建连接, 确定regex, 获取服务器的session*/
-    direction = is_http_req_rsp(header);
-    if(direction == IS_REQUEST && *fd_to < 0) {
+    req_or_rsp = is_http_req_rsp(header);
+    if(req_or_rsp == IS_REQUEST && *fd_to < 0) {
         /* 不在列表中依然可以 */
         struct timeval strt;
         struct timeval end;
@@ -469,7 +741,6 @@ int read_process_forward(int fd_from,  SSL *ssl_from, int *fd_to, SSL **ssl_to, 
                 close(*fd_to);
                 return -1;
             }
-            //printf("SSL_new ok\n");
             if(session) {
                 long tnow  = time(NULL);
                 long ctime = SSL_SESSION_get_time(session);
@@ -499,7 +770,6 @@ int read_process_forward(int fd_from,  SSL *ssl_from, int *fd_to, SSL **ssl_to, 
                 SSL_free(*ssl_to);
                 return -1;
             }
-            //printf("SSL_set_fd ssl_c ok\n");
             ret = SSL_connect(*ssl_to);
             if(ret <= 0) {
                 print_ssl_error(*ssl_to, ret, "SSL_connect ssl_c");
@@ -507,25 +777,16 @@ int read_process_forward(int fd_from,  SSL *ssl_from, int *fd_to, SSL **ssl_to, 
                 SSL_free(*ssl_to);
                 return -1;
             }
-            //printf("SSL_connect ssl_c ok\n");
             gettimeofday(&end, NULL);
             session = SSL_get_session(*ssl_to);
             set_ssl_session(remap_table, before_ip, session);
-            /*
-            if(session == NULL) {
-                session = SSL_get_session(*ssl_to);
-                set_ssl_session(remap_table, before_ip, session);
-            }
-            */
             printf("tcp_ssl_connect total use %ldms\n",
                     (end.tv_sec-strt.tv_sec)*1000 + (end.tv_usec-strt.tv_usec)/1000);
         }
     }
     /* 5. 替换http头 */
     re = *regex;
-    replace_http_header(header, re);
-    //方案2性能更好，但不灵活，全替换
-    //目前遇到的情况来看，可以使用全替换
+    replace_http_header(header, re, direction);
 
     /* 6. 解析优先级，编码，长度信息 */
     len = get_pr_encd(&(header->head), &pr, &encd);
@@ -601,13 +862,14 @@ int read_process_forward(int fd_from,  SSL *ssl_from, int *fd_to, SSL **ssl_to, 
                         }
                     }
                     else {
-                        rewrite_clen_encd(&(header->head), strlen((char *)new_body), GZIP2GZIP);
+                        rewrite_clen_encd(&(header->head), strlen((char *)new_body), ENCD_KEEP);
                         http_header_tostr(header, buff_header);
                         mywr = my_write(*fd_to, *ssl_to, "ldld", strlen(buff_header), buff_header, strlen((char *)new_body), new_body);
                         if(mywr < 0) {
                             free_http_header(&header);
                             return -1;
                         }
+                        printf("write: new_header and new_body %d\n", mywr);
                     }
                 }
 
@@ -629,7 +891,7 @@ int read_process_forward(int fd_from,  SSL *ssl_from, int *fd_to, SSL **ssl_to, 
                         }
                         else {
                             /* 替换成功，发送解压并替换后的包 */
-                            rewrite_clen_encd(&(header->head), strlen((char *)new_body), GZIP2FLATE);
+                            rewrite_clen_encd(&(header->head), strlen((char *)new_body), ENCD2FLATE);
                             http_header_tostr(header, buff_header);
                             mywr = my_write(*fd_to, *ssl_to, "ldld", strlen(buff_header), buff_header, strlen((char *)new_body), new_body);
                             if(mywr < 0) {
@@ -695,7 +957,7 @@ int read_process_forward(int fd_from,  SSL *ssl_from, int *fd_to, SSL **ssl_to, 
                     if(ret == 0)
                     {
                         /* 解压成功 */
-                        rewrite_c_encd(&(header->head), ENCD_FLATE);
+                        rewrite_encd(&(header->head), ENCD2FLATE);
                         new_body = replace_content_default_m(gunzip, direction, re);
                         if(new_body != NULL)
                         {
@@ -911,13 +1173,13 @@ int read_process_forward(int fd_from,  SSL *ssl_from, int *fd_to, SSL **ssl_to, 
                     free_http_header(&header);
                     return -1;
                 }
-                if(IS_REQUEST == direction) {
+                if(IS_REQUEST == req_or_rsp) {
 #ifdef RPS
                     printf("PR_NONE_TXT_NONE: is_request\n");
 #endif
                     break;
                 }
-                else if(IS_RESPONSE == direction) {
+                else if(IS_RESPONSE == req_or_rsp) {
 #ifdef RPS
                     printf("PR_NONE_TXT_NONE: is_response\n");
 #endif
@@ -1020,16 +1282,16 @@ int read_forward_txt_chunk(int fd_from, SSL *ssl_from, int fd_to, SSL *ssl_to, i
 #ifdef FUNC
     printf("==========start read_forward_txt_chunk()==========\n");
 #endif
-    char s_size[64] = {0};
-    char chunk_size[64] = {0};
     uint32_t size = 0;
     uint32_t n;
     int mywr;
 
     while(1) {
-        memset(s_size, 0, sizeof(s_size));
-        memset(chunk_size, 0, sizeof(chunk_size));
-        n = read_line(fd_from, ssl_from, s_size, sizeof(s_size));
+        char crlf_chunk[3] = {0};
+        char crlf_body[3] = {0};
+        char size_str[64] = {0};
+        char chunk_size[64] = {0};
+        n = read_line(fd_from, ssl_from, size_str, sizeof(size_str));
         if(n < 0) {
             return -1;
         }
@@ -1037,27 +1299,11 @@ int read_forward_txt_chunk(int fd_from, SSL *ssl_from, int fd_to, SSL *ssl_to, i
             break;
         }
 #ifdef DEBUG
-        printf("[0x%s]\n", s_size);
+        printf("[0x%s]\n", size_str);
 #endif
-        erase_nhex(s_size);
-        hex2dec(s_size, &size);
-        char *buff = (char *)malloc(size + 2);
-        if(NULL == buff) {
-            perror("read_forward_txt_chunk: malloc()");
-            break;
-        }
-        n = readn(fd_from, ssl_from, buff, size + 2);
-        if(n < 0) {
-            SAFE_FREE(buff);
-            return -1;
-        }
-        else if(n == 0){
-            SAFE_FREE(buff);
-            break;
-        }
-
+        size = get_chunk_size_crlf(size_str, crlf_chunk);
         if(size == 0) {
-            SAFE_FREE(buff);
+            /* chunk footer */
             mywr = my_write(fd_to, ssl_to, "ld", 5, "0\r\n\r\n");
             if(mywr < 0) {
                 return -1;
@@ -1065,16 +1311,40 @@ int read_forward_txt_chunk(int fd_from, SSL *ssl_from, int fd_to, SSL *ssl_to, i
             break;
         }
 
+        char *buff = (char *)malloc(size);
+        if(NULL == buff) {
+            perror("read_forward_txt_chunk: malloc()");
+            break;
+        }
+        n = readn(fd_from, ssl_from, buff, size);
+        if(n < 0) {
+            SAFE_FREE(buff);
+            return -1;
+        }
+        else if(n == 0){
+            SAFE_FREE(buff);
+            break;
+        }
+
+        if(n != size) {
+            printf("read_forward_txt_chunk actual read %d, should read %d\n", n, size);
+            syslog(LOG_INFO, "read_forward_txt_chunk actual read %d, should read %d\n", n, size);
+            strcpy(crlf_body, "\r\n");
+        }
+        else {
+            read_chunk_body_crlf(fd_from, ssl_from, crlf_body, sizeof(crlf_body));
+        }
+        /* 完整 or not, 都转发 */
         PCRE2_SPTR new_chunk = replace_content_default_m(buff, direction, re);
         if(new_chunk) {
-            int new_size = strlen((char *)new_chunk);
-            sprintf(chunk_size, "%x\r\n", new_size - 2);
+            sprintf(chunk_size, "%x%s", strlen((char *)new_chunk), crlf_chunk);
 #ifdef DEBUG
             printf("\033[33m");
             printf("replace, new chunked size=%s\n", chunk_size);
             printf("\033[0m");
 #endif
-            mywr = my_write(fd_to, ssl_to, "ldldld", strlen(chunk_size), chunk_size, strlen((char *)new_chunk), new_chunk);
+            mywr = my_write(fd_to, ssl_to, "ldldld", strlen(chunk_size), chunk_size,
+                    strlen((char *)new_chunk), new_chunk, strlen(crlf_body), crlf_body);
             SAFE_FREE(new_chunk);
             if(mywr < 0) {
                 SAFE_FREE(buff);
@@ -1083,19 +1353,21 @@ int read_forward_txt_chunk(int fd_from, SSL *ssl_from, int fd_to, SSL *ssl_to, i
 
         }
         else {
-            sprintf(chunk_size, "%x\r\n", n - 2);
+            sprintf(chunk_size, "%x%s", n, crlf_chunk);
 #ifdef DEBUG
             printf("\033[33m");
             printf("no replace, new chunked size=%s\n", chunk_size);
             printf("\033[0m");
 #endif
-            mywr = my_write(fd_to, ssl_to, "ldld", strlen(chunk_size), chunk_size, n, buff);
+            mywr = my_write(fd_to, ssl_to, "ldldld", strlen(chunk_size), chunk_size,
+                    n, buff, strlen(crlf_body), crlf_body);
             if(mywr < 0) {
                 SAFE_FREE(buff);
                 return -1;
             }
 
         }
+
         SAFE_FREE(buff);
     }
 
@@ -1108,6 +1380,19 @@ int read_forward_txt_chunk(int fd_from, SSL *ssl_from, int fd_to, SSL *ssl_to, i
     printf("==========finish read_forward_txt_chunk()==========\n");
     //#endif
     return 0;
+}
+
+
+int get_chunk_size_crlf(const char *str, char *crlf)
+{
+    int ret;
+    char size[64] = {0};
+    if(2 == sscanf(str, "%[0-9a-fA-F]%[\r\n]", size, crlf)) {
+        unsigned int s = 0;
+        hex2dec(size, &s);
+        return s;
+    }
+    return -1;
 }
 
 /*出错时，不由此函数来释放header*/
@@ -1181,7 +1466,7 @@ int forward_txt_none(int fd, SSL *ssl, http_header_t *header, unsigned char *bod
 #ifdef DEBUG
                     printf("whole, forward new_body");
 #endif
-                    rewrite_c_encd(&(header->head), ENCD_FLATE);
+                    rewrite_encd(&(header->head), ENCD2FLATE);
                     http_header_tostr(header, buff_header);
                     mywr = my_write(fd, ssl, "ldld", strlen(buff_header), buff_header, strlen((char *)new_body), new_body);
                     SAFE_FREE(new_body);
@@ -1321,9 +1606,9 @@ int create_real_server(const char *host, short port)
 #ifdef FUNC
     printf("==========start create_real_server()==========\n");
 #endif
-#ifdef DEBUG
+//#ifdef DEBUG
     printf("create_real_server host=%s, port=%d\n", host, port);
-#endif
+//#endif
     int s_fd = socket(AF_INET, SOCK_STREAM, 0);
     if(s_fd < 0) {
         perror("socket()");
@@ -1337,11 +1622,12 @@ int create_real_server(const char *host, short port)
 
     if(connect(s_fd, (struct sockaddr *) &server_addr, sizeof(server_addr)) < 0) {
         perror("connect");
+        syslog(LOG_INFO, "cannot create connect with %s:%d", host, port);
         return -1;
     }
-#ifdef DEBUG
+//#ifdef DEBUG
     printf("connected to %s:%d\n", host, port);
-#endif
+//#endif
 #ifdef FUNC
     printf("==========finish create_real_server()==========\n");
 #endif
@@ -1387,17 +1673,17 @@ int create_real_server_nonblock(const char *host, short port, int sec)
     server_addr.sin_port = htons(port);
     /* inet_pton(AF_INET, host, &(server_addr.sin_addr.s_addr)); */
     memcpy(&(server_addr.sin_addr.s_addr), server->h_addr, server->h_length);
-#ifdef DEBUG
+//#ifdef DEBUG
     char ip[16] = {0};
     printf("%s <--> %s port=%d\n", host, inet_ntop(AF_INET, server->h_addr, ip, sizeof(ip)), port);
-#endif
+//#endif
     if(connect(s_fd, (struct sockaddr *) &server_addr, sizeof(server_addr)) < 0)
     {
         if(errno != EINPROGRESS)
         {
-#ifdef DEBUG
+//#ifdef DEBUG
             printf("connect err\n");
-#endif
+//#endif
             goto end;
         }
     }
@@ -1452,7 +1738,6 @@ end:
 }
 
 
-
 PCRE2_SPTR replace_content_default_m(char *old, int direction, pcre2_code *re)
 {
 #ifdef FUNC
@@ -1463,15 +1748,23 @@ PCRE2_SPTR replace_content_default_m(char *old, int direction, pcre2_code *re)
     struct timeval end;
     gettimeofday(&strt, NULL);
 #endif
+    //printf("old = [%s]\n", old);
     PCRE2_SPTR new = NULL;
     struct list_head *head = get_list_substring_compiled_code((PCRE2_SPTR) old, re);
-    if(head == NULL)
+    if(head == NULL) {
         return NULL;
+    }
 
+    printf("direction=%d\n", direction);
     if(direction == REQUEST)
         pad_list_rplstr_malloc(head, pad_list_rplstr_remap_table_req_m, remap_table);
     else if(direction == RESPONSE)
         pad_list_rplstr_malloc(head, pad_list_rplstr_remap_table_rsp_m, remap_table);
+    else if(direction == LAN2WAN)
+        pad_list_rplstr_malloc(head, pad_list_rplstr_lan2wan, remap_table);
+    else if(direction == WAN2LAN)
+        pad_list_rplstr_malloc(head, pad_list_rplstr_wan2lan, remap_table);
+
     new = replace_all_default_malloc((PCRE2_SPTR) old, head);
     free_list_substring(&head);
 #ifdef FUNC
@@ -1487,40 +1780,48 @@ PCRE2_SPTR replace_content_default_m(char *old, int direction, pcre2_code *re)
 }
 
 
-int rewrite_url(char *url, pcre2_code *re)
+int rewrite_url(char *url, int max, pcre2_code *re, int direction)
 {
     /* 替换ip */
 #ifdef FUNC
     printf("==========start rewrite_url()==========\n");
 #endif
-    int len;
-    PCRE2_SPTR subject = replace_content_default_m(url, IS_REQUEST, re);
-    if(subject)
-    {
-        len = strlen((char *)subject);
-        memmove(url, (char *)subject, strlen((char *)subject));
-        *(url + len) = '\0';
-        SAFE_FREE(subject);
-    }
 
     /* 重写格式 */
-    char *p = strstr(url, "http://");
-    if(p)
-    {
+    /* url中的协议名和域名部分不区分大小写, 路径区分大小写 */
+    int len;
+    char *start = url;
+    while(*start == ' ') start++;
+    char *p = strcasestr(start, "http://");
+    /* 如果GET提交表单中含有http://，不作数 */
+    if(p && p==start) {
         char *p1 = strchr(p + 7, '/');
-        if(p1)
-        {
+        if(p1) {
             /* http://192.168.1.33/setup.cgi?ip1=192.168.1.33&ip2=192.168.1.22  --> /setup.cgi?ip1=192.168.1.33&ip2=192.168.1.22 */
             len = strlen(p1);
             memmove(url, p1, strlen(p1));
             *(url + len) = '\0';
         }
-        else
-        {
+        else {
             /* http://192.168.1.33 --> / */
             memset(url, 0, LEN_URL);
             strcpy(url, "/");
         }
+    }
+
+    PCRE2_SPTR subject = replace_content_default_m(url, direction, re);
+    if(subject) {
+        len = strlen((char *)subject);
+        if(len < max-1) {
+            memset(url, 0, max);
+            memmove(url, (char *)subject, len);
+            *(url + len) = '\0';
+        }
+        else{
+            printf("替换后的url长度过长");
+            syslog(LOG_INFO, "替换后的url长度过长");
+        }
+        SAFE_FREE(subject);
     }
     //printf("after rewrite url=%s\n", req->url);
 #ifdef FUNC
@@ -1544,6 +1845,10 @@ int replace_field(char *field_value, int direction, pcre2_code *re)
         pad_list_rplstr_malloc(head, pad_list_rplstr_remap_table_req_m, remap_table);
     else if(direction == RESPONSE)
         pad_list_rplstr_malloc(head, pad_list_rplstr_remap_table_rsp_m, remap_table);
+    else if(direction == LAN2WAN)
+        pad_list_rplstr_malloc(head, pad_list_rplstr_lan2wan, remap_table);
+    else if(direction == WAN2LAN)
+        pad_list_rplstr_malloc(head, pad_list_rplstr_wan2lan, remap_table);
     PCRE2_SPTR new_subject = replace_all_default_malloc(subject, head);
     if(NULL == new_subject)
     {
@@ -1561,10 +1866,10 @@ int replace_field(char *field_value, int direction, pcre2_code *re)
 }
 
 /* 
- * 
+ * 遍历链表，每一个节点做匹配和替换 
+ * 目前已知包含ip地址的域有Host, Origin, Referer, Location
  */
-//int rewrite_http_header(struct list_head *head, int direction, pcre2_code *re)
-int replace_http_header(http_header_t *header, pcre2_code *re)
+int replace_http_header(http_header_t *header, pcre2_code *re, int direction)
 {
 #ifdef FUNC
     printf("==========start replace_http_header()==========\n");
@@ -1574,40 +1879,40 @@ int replace_http_header(http_header_t *header, pcre2_code *re)
     struct timeval end;
     gettimeofday(&strt, NULL);
 #endif
-    int direction = is_http_req_rsp(header);
+    int req_or_rsp = is_http_req_rsp(header);
     /* replace url */
-    if(direction == IS_REQUEST) {
-        rewrite_url(header->url, re);
+    if(req_or_rsp == IS_REQUEST) {
+        rewrite_url(header->url, sizeof(header->url), re, direction);
     }
-    /* 使用get方法时 GET /setup.cgi?ip=192.168.1.1&port=8080提交的表单数据不应该被替换 */
+
     struct list_head *head = &(header->head);
-    struct list_head *pos = NULL;
+    struct list_head *pos;
     list_for_each(pos, head)
     {
         http_field_t *field = list_entry(pos, http_field_t, list);
 
-        if(strcasecmp(field->key, "Host") == 0)
+        if(strcasestr(field->key, "Host"))
         {
 #ifdef DEBUG
             printf("<%s>\n", field->key);
 #endif
             replace_field(field->value, direction, re);
         }
-        if(strcasecmp(field->key, "Referer") == 0)
+        if(strcasestr(field->key, "Referer"))
         {
 #ifdef DEBUG
             printf("<%s>\n", field->key);
 #endif
             replace_field(field->value, direction, re);
         }
-        if(strcasecmp(field->key, "Origin") == 0)
+        if(strcasestr(field->key, "Origin"))
         {
 #ifdef DEBUG
             printf("<%s>\n", field->key);
 #endif
             replace_field(field->value, direction, re);
         }
-        if(strcasecmp(field->key, "Location") == 0)
+        if(strcasestr(field->key, "Location"))
         {
 #ifdef DEBUG
             printf("<%s>\n", field->key);
@@ -1625,7 +1930,6 @@ int replace_http_header(http_header_t *header, pcre2_code *re)
     return 0;
 }
 
-#ifdef SR04I
 int get_gunzip(unsigned char *src, unsigned int len_s, char **dst, unsigned int *len_d)
 {
 #ifdef FUNC
@@ -1684,8 +1988,8 @@ int get_gunzip(unsigned char *src, unsigned int len_s, char **dst, unsigned int 
 #endif
     return 0;
 }
-#endif
 
+#if 0
 #ifdef OpenWRT
 int get_gunzip(unsigned char *src, unsigned int len_s, char **dst, unsigned int *len_d)
 {
@@ -1696,6 +2000,7 @@ int get_gunzip(unsigned char *src, unsigned int len_s, char **dst, unsigned int 
     ret = http_gunzip(src, len_s, dst, len_d, GZIP2FLATE);
 #ifdef DEBUG
     printf("ret = %d, len_s = %d, *len_d = %d *dst=%p\n", ret == Z_OK?0:-1, len_s, *len_d, *dst);
+    printf("gunzip = [%s]\n", *dst);
 #endif
 #ifdef FUNC
     printf("==========get_gunzip==========\n");
@@ -1705,6 +2010,7 @@ int get_gunzip(unsigned char *src, unsigned int len_s, char **dst, unsigned int 
 
 int http_gunzip(unsigned char *source, unsigned int s_len, unsigned char **dest, unsigned int *d_len, int gzip)
 { 
+    /* 这段代码暂时还是有问题 */
     int ret; 
     unsigned have; 
     z_stream strm; 
@@ -1761,4 +2067,5 @@ int http_gunzip(unsigned char *source, unsigned int s_len, unsigned char **dest,
     printf("*dest=%p\n", *dest);
     return ret == Z_STREAM_END ? Z_OK : Z_DATA_ERROR;
 }
+#endif
 #endif

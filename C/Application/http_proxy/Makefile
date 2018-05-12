@@ -1,71 +1,115 @@
-#the value of PLATFORM is either SR04I or OpenWRT
-PLATFORM = SR04I
+#Makefile standard format
 
-CA_CRT = ca.crt
-SERVER_KEY = server.key
-SERVER_CRT = server.crt
-CFLAGS = -Wall -Os -s
-CFLAGS += -D $(PLATFORM)
-CFLAGS += -D VERSION=\"1.3-多线程\"
-OBJS =  http_proxy.o config.o http.o pad_rplstr.o str_replace.o
-BIN = http_proxy
+############################
+#### 1. import makefile ####
+############################
 
-##########################调试宏#############################
-#CFLAGS += -D DEBUG
-#CFLAGS += -D FUNC
-#CFLAGS += -D DEBUG_HTTP
-#CFLAGS += -D PADDEBUG
-#CFLAGS += -D NAMED_GROUP
-#CFLAGS += -D PRINTMATCH
-#CFLAGS += -D STRDEBUG
-#CFLAGS += -D RPS
-#CFLAGS += -D HANDLE_CLIENT
-#CFLAGS += -D HANDLE_SERVER
-#CFLAGS += -D NO_REPLACE
-#CFLAGS += -D TIME_COST
-##########################调试宏#############################
+include $(TOPDIR)/rules.mk
+include $(INCLUDE_DIR)/package.mk
 
 
-ifeq ($(PLATFORM), SR04I)
-include ../../Rule.mk
-INC_KERNEL_PATH = ../../kernel/linux/include
-OBJS += socket_tools.o
-CFLAGS += -DIMP=\"$(IMP)\" -DPNUM=$(PNUM) -DWAN_INTERFACE=\"$(WAN_INTERFACE)\" -DLAN_INTERFACE=\"$(LAN_INTERFACE)\"
-INCLUDES = -I. -I./include -I$(INC_KERNEL_PATH)
-INCLUDES += -I../bcmutils  -I../nvram  -I../../build/target/usr/include
-LIBS =  -L../bcmutils -lbcmutils -L../nvram -lnvram 
-LIBS += -L../../build/target/usr/lib -lpcre2-8
-LIBS += -L../openssl-1.0.2k -lssl -lcrypto
-LIBS += -Wl,-rpath,/lib/
-LIBS += $(LIBNewPATH) -lz -lm -lpthread
-#openssl库, ELDK自带openssl库,但是版本太老,还不支持TLSv1.2
-
-
-else ifeq ($(PLATFORM), OpenWRT)
-INCLUDES = -I. -I./include
-LIBS += -lssl -lcrypto -lpcre2-8 -lz -lm -lrt -lpthread -luci
-
-
-else ifeq ($(PLATFORM), x86)
-INCLUDES = -I. -I./include
-LIBS = -lssl -lcrypto -lpcre2-8 -lz -lm -lrt -lpthread
-endif
+#####################################
+#### 2. basic info about package ####
+#####################################
 
 
 
+PKG_NAME:=http_proxy# package name 目录名
+PKG_VERSION:=1.3# package version
+PKG_RELEASE:=1# makefile version
+#PKG_SOURCE:=# src code file name
+#PKG_SOURCE_URL:=# src code URL
 
-all: $(BIN)
+#PKG_MD5SUM:=
+#PKG_CAT:=
+PKG_BUILD_DIR:=$(BUILD_DIR)/$(PKG_NAME)
 
-$(BIN): $(OBJS)
-	$(CC) $(CFLAGS) $(OBJS) -o $@ $(LIBS)
-	@echo "make $@ finished on `date`"
+#PKG_SOURCE_SUBDIR:=
+#PKG_SOURCE_PROTO:=
+#PKG_SOURCE_MIRROR:=
+#PKG_SOURCE_VERSION:=
 
-%.o: %.c
-	$(CC) $(CFLAGS) $(INCLUDES) -c $< -o $@ $(LIBS)
 
-install:
-	cp -a $(BIN) ../../target/usr/sbin
-	cp $(CA_CRT) ../../target/usr/ 
 
-clean:
-	rm -rf $(BIN) $(OBJS)
+###########################
+#### 3. define package ####
+###########################
+#用户态应用程序: Package
+#内核模块      : KernelPackage
+#此处定义的软件名可以软件包名不同
+#define Package/NYB-helloopenwrt也可以
+
+#=== Package基本信息
+define Package/$(PKG_NAME)
+	SECTION:=utils#包的类型
+	CATEGORY:=Hengsion#分类，在menuconfig下显示
+	TITLE:=hengsion http_proxy#brief description
+	DEPENDS:=+libuci +libpcre2 +zlib +libm +libopenssl +libpthread +libhregister
+	MAINTAINER:=NYB#维护者
+#	URL:=#下载地址
+endef
+
+#=== Package的描述
+define Package/$(PKG_NAME)/description
+	This is a http_proxy process.
+endef
+
+#=== Package的编译准备方法
+#=== 网上下载的Package一般不需，自己开发的必须
+define Build/Prepare
+	mkdir -p $(PKG_BUILD_DIR)
+	$(CP) ./src/* $(PKG_BUILD_DIR)/
+endef
+
+#=== Package的./configure脚本配置
+#define Build/Configure
+#./configure配置脚本配置
+#参考dropbear
+#endef
+
+#=== Package的编译方法
+#=== 缺省默认使用方法Build/Compile/Default
+#define Build/Compile
+# 	$(MAKE) -C $(PKG_BUILD_DIR)\
+# 		$(TARGET_CONFIGURE_OPTS) CFLAGS="$(TARGET_CFLAGS) -I$(LINUX_DIR)/include"
+#endef
+
+#=== Package的安装方法
+#=== $(1)表示镜像目录
+#=== INSTALL_DIR, INSTALL_BIN在$(TOPDIR)/rules.mk中定义
+#=== INSTALL_BIN:=install -m0755    ===> rwxr-xr-x
+#=== INSTALL_DIR:=install -d -m0755 ===> rwxr-xr-x
+define Package/$(PKG_NAME)/install
+	$(INSTALL_DIR) $(1)/usr/sbin
+	$(INSTALL_BIN) $(PKG_BUILD_DIR)/$(PKG_NAME) $(1)/usr/sbin
+	#=== 开启自启动 && 配置文件 && init.d服务
+	$(INSTALL_DIR) $(1)/etc/init.d
+	$(INSTALL_DIR) $(1)/etc/config
+	$(INSTALL_DIR) $(1)/etc/http_proxy
+	$(INSTALL_BIN) ./files/server.crt $(1)/etc/http_proxy/server.crt
+	$(INSTALL_BIN) ./files/server.key $(1)/etc/http_proxy/server.key
+endef
+
+
+#=== Package安装前的处理方法previous install-使用脚本语言
+#Package/$(PKG_NAME)/preinst
+
+#=== Package安装后的处理方法post install-使用脚本语言
+#Package/$(PKG_NAME)/postinst
+	
+#=== Package删除前的处理方法previous remove-使用脚本语言
+#Package/$(PKG_NAME)/prerm
+
+#=== Package删除后的处理方法post remove-使用脚本语言
+#Package/$(PKG_NAME)/postrm
+
+
+
+#####################################
+# 	4. use define, make it work 	#
+#####################################
+#***call函数中好像不能使用$(PKG_NAME)只能使用真正的名称?***#
+#=== 如果一个软件包有多个应用程序，PKG_NAME灵活变通
+#=== eval函数的用法需要再研究
+#=== $(eval$(call KernelPackage, $(PKG_NAME)))
+$(eval $(call BuildPackage,http_proxy))

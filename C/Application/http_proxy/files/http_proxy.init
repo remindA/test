@@ -1,0 +1,26 @@
+#!/bin/sh /etc/rc.common
+
+START=98
+
+#使用procd启动
+USE_PROCD=1
+
+BINLOADER_BIN="/usr/sbin/http_proxy -d & /usr/sbin/http_proxy -s"
+
+start_service() {
+    procd_open_instance
+
+    procd_set_param respawn
+    procd_set_param command "$BINLOADER_BIN"
+
+    procd_close_instance
+}
+
+stop_service(){
+    killall http_proxy
+}
+
+restart() {
+    stop
+    start
+}

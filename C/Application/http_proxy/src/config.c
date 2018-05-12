@@ -22,158 +22,6 @@
 #include "http.h"
 extern int proxy;
 
-#ifdef SR04I
-struct list_head *get_remap_table_m(char *key)
-{
-    //创建head,并初始化
-    struct list_head *head = (struct list_head *) malloc(sizeof (struct list_head));
-
-    if (NULL == head)
-    {
-        perror("malloc");
-        return head;
-    }
-    init_list_head(head);
-
-    //从nvram中读取信息
-    int ret = scfgmgr_getall(&nvram_data);
-    if (ret < 0 || NULL == nvram_data)
-    {
-        printf("get nvram failed, ret=%d\n", ret);
-        SAFE_FREE(head);
-        return NULL;
-    }
-    char *remap = value_parser(key);
-#ifdef PADDEBUG
-    printf("%s=%s\n", key, remap);
-#endif
-    int i = 0;
-    int cnt = 0;
-    for (i = 0; i < strlen(remap); i++)
-        if (remap[i] == ';')
-            cnt++;
-    //分割，取出，添加到链表remap_table
-    printf("cnt=%d\n", cnt);
-    char *str, *token;
-    char *saveptr;
-    for (i = 1, str = remap;; i++, str = NULL)
-    {
-        token = strtok_r(str, ";", &saveptr);
-        if (NULL == token && i == cnt + 1)
-        {
-            printf("strtok_r ends\n");
-            break;
-        }
-        remap_entry_t *entry = (remap_entry_t *) malloc(sizeof (remap_entry_t));
-        if (NULL == entry)
-        {
-            perror("malloc");
-            free_remap_table(&head);
-            return NULL;
-        }
-        memset(entry->before, 0, LEN_IP);
-        memset(entry->after, 0, LEN_IP);
-        char *format = "%[^,],%[^,],%[^,]";
-        char direction[16] = { 0 };
-        printf("token=%s\n", token);
-        int n = sscanf(token, format, direction, entry->before, entry->after);
-        printf("get_remap_table_m. n=%d, direction=%s, before=%s, after=%s\n", n, direction, entry->before, entry->after);
-        entry->direction = atoi(direction);
-        if(proxy == HTTPS) {
-            entry->session = NULL;
-            pthread_mutex_init(&(entry->lock), NULL); 
-        }
-        list_add_tail(&(entry->list), head);
-    }
-    free(nvram_data);
-    return head;
-}
-
-struct list_head *get_regex_table_m(char *key)
-{
-    struct list_head *head = (struct list_head *)malloc(sizeof(struct list_head));
-    if(head == NULL)
-    {
-        perror("malloc");
-        return head;
-    }
-    init_list_head(head);
-    //从nvram中读取信息
-    int ret = scfgmgr_getall(&nvram_data);
-    if (ret < 0 || NULL == nvram_data)
-    {
-        printf("get nvram failed, ret=%d\n", ret);
-        SAFE_FREE(head);
-        return NULL;
-    }
-    char *http_devices = value_parser(key);
-    //#ifdef PADDEBUG
-    printf("%s=%s\n", key, http_devices);
-    //#endif
-    /* 假设条目的分割字符是,;
-     * 192.168.1.9,80,(?:...);192.168.1.9,6300,(?:...);
-     * ****  要求：正则表达式中不含,和;  ****
-     */
-    char *p, *p1;
-    for(p = http_devices; p1 = strstr(p, ";") ; p = p1 + 1)
-    {
-        *p1 = '\0';
-        char ip[LEN_IP];
-        char s_port[LEN_IP];
-        char pattern[LEN_PATTERN];
-        char *format = "%[^,],%[^,],%s";
-        int ret = sscanf(p, format, ip, s_port, pattern);
-        if(ret == 3)
-        {
-            printf("-ip=%s\n-port=%s\n-regex=%s\n\n", ip, s_port, pattern);
-            short port = (short)atoi(s_port);
-            pcre2_code *re = get_compile_code((PCRE2_SPTR)pattern, 0);
-            regex_entry_t *entry = (regex_entry_t *)malloc(sizeof(regex_entry_t));
-            if(entry == NULL)
-            {
-                perror("malloc");
-                free_regex_table(&head);
-                return -1;
-            }
-            strcpy(entry->ip, ip);
-            entry->port = port;
-            entry->re = re;
-            list_add_tail(&(entry->list), head);
-        }
-    }
-    SAFE_FREE(http_devices);
-    SAFE_FREE(nvram_data);
-    if(list_empty(head))
-    {
-        SAFE_FREE(head);
-        return NULL;
-    }
-    return head;
-}
-
-pcre2_code *get_general_regex(char *key)
-{
-    //从nvram中读取信息
-    int ret = scfgmgr_getall(&nvram_data);
-    if (ret < 0 || NULL == nvram_data)
-    {
-        printf("get nvram failed, ret=%d\n", ret);
-        return NULL;
-    }
-    char *ge_regex = value_parser(key);
-    //#ifdef PADDEBUG
-    printf("%s=%s\n", key, ge_regex);
-    //#endif
-    pcre2_code *re = get_compile_code((PCRE2_SPTR)ge_regex, 0);
-    SAFE_FREE(ge_regex);
-    SAFE_FREE(nvram_data);
-    return re;
-}
-
-#endif
-
-
-#ifdef OpenWRT
 /* 20171206-6801G-接口*/
 struct list_head *get_remap_table_m(char *file)
 {
@@ -203,9 +51,9 @@ struct list_head *get_remap_table_m(char *file)
     uci_foreach_element(&pkg->sections, e)
     {
         struct uci_section *s = uci_to_section(e);
-        char *remap  = uci_lookup_option_string(ctx, s, "remap");
-        char *fromip = uci_lookup_option_string(ctx, s, "fromip");
-        char *toip   = uci_lookup_option_string(ctx, s, "toip");
+        const char *remap  = uci_lookup_option_string(ctx, s, "remap");
+        const char *fromip = uci_lookup_option_string(ctx, s, "fromip");
+        const char *toip   = uci_lookup_option_string(ctx, s, "toip");
 
         if(remap && fromip && toip)
         {
@@ -292,6 +140,7 @@ struct list_head *get_remap_table_m(char *file)
                 entry->session = NULL;
                 pthread_mutex_init(&(entry->lock), NULL); 
             }
+            printf("drct=%d, before=[%s],after=[%s]\n", entry->direction, entry->before, entry->after);
             list_add_tail(&(entry->list), head);
         }
     }
@@ -334,10 +183,14 @@ struct list_head *get_regex_table_m(char *file)
     uci_foreach_element(&pkg->sections, e)
     {
         struct uci_section *s = uci_to_section(e);
-        char *ip    = uci_lookup_option_string(ctx, s, "ip");
-        char *port  = uci_lookup_option_string(ctx, s, "port");
-        char *regex = uci_lookup_option_string(ctx, s, "regex");
-
+        const char *type    = uci_lookup_option_string(ctx, s, "type");
+        const char *ip    = uci_lookup_option_string(ctx, s, "ip");
+        const char *port  = uci_lookup_option_string(ctx, s, "port");
+        const char *regex = uci_lookup_option_string(ctx, s, "regex");
+        if(!type || !ip || !port) {
+            continue;
+        }
+        printf("type=%s, ip=%s, port=%s, regex=%s\n", type, ip, port, regex);
         pcre2_code *re = get_compile_code((PCRE2_SPTR)regex, 0);
         regex_entry_t *entry = (regex_entry_t *)malloc(sizeof(regex_entry_t));
         if(entry == NULL)
@@ -369,7 +222,6 @@ cleanup:
 pcre2_code *get_general_regex(char *file)
 {
     //创建head,并初始化
-    int cnt = 0;
     pcre2_code *re = NULL;
     static struct uci_context *ctx;
     struct uci_package *pkg;
@@ -385,9 +237,11 @@ pcre2_code *get_general_regex(char *file)
     uci_foreach_element(&pkg->sections, e)
     {
         struct uci_section *s = uci_to_section(e);
-        char *ge_re = uci_lookup_option_string(ctx, s, "general_regex");
-        if(ge_re && cnt == 0)
+        const char *ge_re = uci_lookup_option_string(ctx, s, "general_regex");
+        if(ge_re) {
+            printf("ge_re = [%s]\n", ge_re);
             re = get_compile_code((PCRE2_SPTR)ge_re, 0);
+        }    
     }
     uci_unload(ctx, pkg);
 cleanup:
@@ -395,8 +249,66 @@ cleanup:
     ctx = NULL;
     return re;
 }
-#endif
 
+int get_http_switch(char *file)
+{
+    static struct uci_context *ctx;
+    struct uci_package *pkg;
+    struct uci_element *e = NULL;
+
+    ctx = uci_alloc_context();
+    if(UCI_OK != uci_load(ctx, file, &pkg))
+    {
+        printf("uci_load(%s) not ok\n", file);
+        goto cleanup;
+    }
+    int on = 0;
+    uci_foreach_element(&pkg->sections, e)
+    {
+        struct uci_section *s = uci_to_section(e);
+        const char *http_on = uci_lookup_option_string(ctx, s, "http_on");
+        if(http_on) {
+            if(strcmp(http_on, "1") == 0)
+                on = 1;
+        }
+    }
+    uci_unload(ctx, pkg);
+cleanup:
+    uci_free_context(ctx);
+    ctx = NULL;
+    return on;
+}
+
+
+int get_https_switch(char *file)
+{
+    static struct uci_context *ctx;
+    struct uci_package *pkg;
+    struct uci_element *e = NULL;
+
+    ctx = uci_alloc_context();
+    if(UCI_OK != uci_load(ctx, file, &pkg))
+    {
+        printf("uci_load(%s) not ok\n", file);
+        goto cleanup;
+    }
+
+    int on = 0;
+    uci_foreach_element(&pkg->sections, e)
+    {
+        struct uci_section *s = uci_to_section(e);
+        const char *https_on = uci_lookup_option_string(ctx, s, "https_on");
+        if(https_on) {
+            if(strcmp(https_on, "1") == 0)
+                on = 1;
+        }
+    }
+    uci_unload(ctx, pkg);
+cleanup:
+    uci_free_context(ctx);
+    ctx = NULL;
+    return on;
+}
 
 
 //一般不会使用此函数来释放。remap_table就是要驻留在内存中用来读取
@@ -440,8 +352,6 @@ void free_regex_table(struct list_head **head)
     }
     SAFE_FREE(*head);
 }
-
-
 
 pcre2_code *get_re_by_host_port(struct list_head *head, char *host, short port)
 {
@@ -501,7 +411,7 @@ SSL_SESSION *get_ssl_session(struct list_head *head, const char *ip)
             }
             SSL_SESSION *session;
             pthread_mutex_lock(&(entry->lock));
-            session = ssl_session_dup(entry->session, 1);
+            session = SSL_SESSION_dup(entry->session);
             pthread_mutex_unlock(&(entry->lock));
             return session;
         }
@@ -530,13 +440,11 @@ int set_ssl_session(struct list_head *head, const char *ip, SSL_SESSION *session
                 printf("after ssl_session_free, entry->session = %p\n", entry->session);
 #endif
             }
-            entry->session = ssl_session_dup(session, 1);
+            entry->session = SSL_SESSION_dup(session);
             pthread_mutex_unlock(&(entry->lock));
 
             if(entry->session) {
-#ifdef DEBUG
                 printf("new entry->session = %p, session = %p\n", entry->session, session);
-#endif
                 return 0;
             }
             else {

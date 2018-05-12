@@ -59,7 +59,22 @@ typedef struct
     struct list_head list;
 }regex_entry_t;
 
+#define LAN2WAN  3
+#define WAN2LAN  4
+enum {
+    _LAN,
+    _WAN,
+    __MAP_TAB_MAX,
+};
 
+typedef struct {
+    char *ip;
+}ip_t;
+
+typedef struct{
+    int iface;
+    ip_t *ip_tab;
+}map_t;
 
 #ifdef SR04I
 char *nvram_data;
@@ -67,6 +82,8 @@ char *nvram_data;
 struct list_head *get_remap_table_m(char *key);
 struct list_head *get_regex_table_m(char *key);
 pcre2_code *get_general_regex(char *key);
+int get_http_switch(char *key);
+int get_https_switch(char *key);
 void free_remap_table(struct list_head **head);
 void free_regex_table(struct list_head **head);
 pcre2_code *get_re_by_host_port(struct list_head *head, char *host, short port);
@@ -75,7 +92,5 @@ char *get_ip_before_remap(struct list_head *head, const char *ip);
 extern SSL_SESSION *get_ssl_session(struct list_head *head, const char *ip);
 extern int set_ssl_session(struct list_head *head, const char *ip, SSL_SESSION *session); 
 
-SSL_SESSION *SSL_SESSION_dup(SSL_SESSION *src);
-SSL_SESSION *ssl_session_dup(SSL_SESSION *src, int ticket);
 #endif
 

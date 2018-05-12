@@ -46,3 +46,35 @@
     handle_server: msqid_s2c, SIGUSR2
     监听线程对msqid_pool操作要加锁
  
+
+2018.05.10-05.12    
+    1. 程序版本升级为1.4
+    2. 修改替换模式
+            从lan发往wan的包，lan内的所有ip替换为wan内ip(根据映射表替换)
+    3. 重写对http换行(header, chunked)的处理。兼容"\n"和"\r\n"
+    4. 监听端口可配置： 命令行 > 配置文件 > 默认监听端口
+    5. 增加syslog便于调试
+    6. 调试宏设计
+        -
+        -
+        -
+    7. 所有注册的信号统一使用信号处理函数
+        信号处理函数易名: sig_listener --> sig_handler
+    8. read_double_crlf易名read_http_header
+    9. 所有的strstr替换为strcasestr
+            openwrt使用ulibc包含strcasestr
+            在代理中使用到strstr的地方全都是header, url。在http标准中
+            -url中的协议名和域名不分大小写 http://www.baidu.com/index.html  <==> HTTP://WWW.BAIDU.COM/index.html
+            -header的key字段部分大小写  content-type: text/html  <==> Content-type : text/html
+
+    10. header_t增加crlf成员用于存储http头结束标志
+
+
+    *解压缩目前只支持gzip, 当前的代码还不好做扩展
+    Content-encoding: 
+        br:
+        gzip:
+        deflate:
+        compress:
+        identity: RFC-- "this can only be used in Accept-encoding, but not Content-encoding."
+

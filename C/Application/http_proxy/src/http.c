@@ -21,6 +21,7 @@ c_type_t text_table[] = {
     /*{ "text/css"			   },
       { "application/javascript" },
       */
+    { "application/VIID+JSON"},     /* 2018-05-10,凌轩图像认证 */
     { "application/atom+xml"   },
     { "application/json"       },   /* 南京茂业 */
     { "application/soap+xml"   },   /* 南京茂业 */
@@ -30,7 +31,9 @@ c_type_t text_table[] = {
     { "application/xml-dtd"    },
     { "application/xop+xml"    },
     { "application/rdf+xml"    },
-    { "application/xml"        }  /* 海康枪式摄像头 */
+    { "application/x-www-form-urlencoded"},  /* 自己测试表单提交-chrome */
+    { "application/xml"        },  /* 海康枪式摄像头 */
+    {NULL}
 };
 
 static int _readn(int fd, void *buff, int n);
@@ -38,7 +41,7 @@ static int _read_line(int fd, char *buff, int cnt);
 static int _read_double_crlf(int fd, char *buff, int cnt);
 static int _readn_ssl(SSL *ssl, void *buff, int n);
 static int _read_line_ssl(SSL *ssl, char *buff, int cnt);
-static int _read_double_crlf_ssl(SSL *ssl, char *buff, int cnt);
+static int _read_http_header_ssl(SSL *ssl, char *buff, int cnt);
 
 /* return
  *      -1 : err
@@ -57,9 +60,10 @@ int read_line(int fd, SSL *ssl, char *buff, int n)
     return (proxy == HTTP)?_read_line(fd, buff, n):_read_line_ssl(ssl, buff, n);
 }
 
-int read_double_crlf(int fd, SSL *ssl, char *buff, int n)
+
+int read_http_header(int fd, SSL *ssl, char *buff, int n)
 {
-    return (proxy == HTTP)?_read_double_crlf(fd, buff, n):_read_double_crlf_ssl(ssl, buff, n);
+    return (proxy == HTTP)?_read_http_header(fd, buff, n):_read_http_header_ssl(ssl, buff, n);
 }
 
 
@@ -147,15 +151,18 @@ static int _read_line(int fd, char *buff, int cnt)
 }
 
 /*
- * read_double_crlf()
+ * read_http_header()
  * return : 
  *  -1 : failed
  *  >0 : actual num readed
+ *  header: 结束标志
+ *      \r\n\r\n
+ *      \n\n
  */
-static int _read_double_crlf(int fd, char *buff, int cnt)
+static int _read_http_header(int fd, char *buff, int cnt)
 {
 #ifdef FUNC
-    printf("==========start _read_double_crlf()==========\n");
+    printf("==========start _read_http_header()==========\n");
 #endif
     int tot_read = 0;
     int n = 0;
@@ -174,7 +181,8 @@ static int _read_double_crlf(int fd, char *buff, int cnt)
             if (errno == EINTR)
                 continue;
             else {
-                perror("_read_double_crlf: read()");
+                perror("_read_http_header: read()");
+                syslog("_read_http_header时出错");
                 return -1;
             }
         }
@@ -196,22 +204,25 @@ static int _read_double_crlf(int fd, char *buff, int cnt)
         if (c == '\n' && tot_read >= 4)
         {
 #ifdef DEBUG_HTTP
-            printf("0x%02x 0x%02x 0x%02x 0x%02x\n", start[tot_read - 4], start[tot_read - 3], start[tot_read  - 2], start[tot_read - 1]);
+            printf("0x%02x 0x%02x 0x%02x 0x%02x\n", start[tot_read - 4], 
+                    start[tot_read - 3], start[tot_read  - 2], start[tot_read - 1]);
 #endif
-            if('\r' == start[tot_read - 4] &&
-                    '\n' == start[tot_read - 3] &&
-                    '\r' == start[tot_read - 2] &&
-                    '\n' == start[tot_read - 1]) {
+            if('\r' == start[tot_read - 4] && '\n' == start[tot_read - 3] &&
+                    '\r' == start[tot_read - 2] && '\n' == start[tot_read - 1]) {
+                break;
+            }
+            if('\n' == start[tot_read - 2] && '\n' == start[tot_read - 1] ) {
                 break;
             }
         }
     }
 #ifdef TIME_COST
     gettimeofday(&end, NULL);
-    printf("execute _read_double_crlf use time: start=%lds %ldms, end in %lds %ldms\n", strt.tv_sec, strt.tv_usec, end.tv_sec, end.tv_usec);
+    printf("execute _read_http_header use time: start=%lds %ldms, end in %lds %ldms\n",
+            strt.tv_sec, strt.tv_usec, end.tv_sec, end.tv_usec);
 #endif
 #ifdef FUNC
-    printf("==========finish _read_double_crlf()==========\n");
+    printf("==========finish _read_http_header()==========\n");
 #endif
     return tot_read;
 }
@@ -300,15 +311,18 @@ static int _read_line_ssl(SSL *ssl, char *buff, int cnt)
 }
 
 /*
- * read_double_crlf()
+ * read_http_header_ssl()
  * return : 
  *  -1 : failed
  *  >0 : actual num readed
+ *  header: 结束标志
+ *      \r\n\r\n
+ *      \n\n
  */
-static int _read_double_crlf_ssl(SSL *ssl, char *buff, int cnt)
+static int _read_http_header_ssl(SSL *ssl, char *buff, int cnt)
 {
 #ifdef FUNC
-    printf("==========start _read_double_crlf_ssl()==========\n");
+    printf("==========start _read_http_header_ssl()==========\n");
 #endif
     int tot_read = 0;
     int n = 0;
@@ -323,7 +337,7 @@ static int _read_double_crlf_ssl(SSL *ssl, char *buff, int cnt)
     {
         n = SSL_read(ssl, &c, 1);
         if (n < 0) {
-            print_ssl_error(ssl, n, "_read_double_crlf_ssl()");
+            print_ssl_error(ssl, n, "_read_http_header_ssl()");
             if (errno == EINTR) {
                 continue;
             }
@@ -349,22 +363,25 @@ static int _read_double_crlf_ssl(SSL *ssl, char *buff, int cnt)
 
         if (c == '\n' && tot_read >= 4) {
 #ifdef DEBUG_HTTP
-            printf("0x%02x 0x%02x 0x%02x 0x%02x\n", start[tot_read - 4], start[tot_read - 3], start[tot_read  - 2], start[tot_read - 1]);
+            printf("0x%02x 0x%02x 0x%02x 0x%02x\n", start[tot_read - 4], 
+                    start[tot_read - 3], start[tot_read  - 2], start[tot_read - 1]);
 #endif
-            if('\r' == start[tot_read - 4] &&
-                    '\n' == start[tot_read - 3] &&
-                    '\r' == start[tot_read - 2] &&
-                    '\n' == start[tot_read - 1]) {
+            if('\r' == start[tot_read - 4] && '\n' == start[tot_read - 3] &&
+                    '\r' == start[tot_read - 2] && '\n' == start[tot_read - 1]) {
+                break;
+            }
+            if('\n' == start[tot_read - 2] && '\n' == start[tot_read - 1] )  {
                 break;
             }
         }
     }
 #ifdef TIME_COST
     gettimeofday(&end, NULL);
-    printf("execute _read_double_crlf_ssl use time: start=%lds %ldms, end in %lds %ldms\n", strt.tv_sec, strt.tv_usec, end.tv_sec, end.tv_usec);
+    printf("execute _read_http_header_ssl use time: start=%lds %ldms, end in %lds %ldms\n",
+            strt.tv_sec, strt.tv_usec, end.tv_sec, end.tv_usec);
 #endif
 #ifdef FUNC
-    printf("==========finish _read_double_crlf_ssl()==========\n");
+    printf("==========finish _read_http_header_ssl()==========\n");
 #endif
     return tot_read;
 }
@@ -432,34 +449,30 @@ int my_write(int fd, SSL *ssl, const char *fmt, ...)
  * return :
  *     0 : ok
  *     -1: failed
+ * 解析时，所有的':' 和'\r\n'都保留下来了
  */
 int parse_http_header(const char *buf, http_header_t *header)
 {
 #ifdef FUNC
     printf("==========start parse_http_header()==========\n");
 #endif
-#ifdef DEBUG_HTTP
-    printf("parse_http_header:\n[%s]\n", buf);
-#endif
     if(buf == NULL) {
         return -1;
     }
-    char *line;
+    int ret;
     char *start;
     char *crlf;
     start = buf;
-    line  = buf;
-    int ret;
-    /* 请求行/状态行 */
-    if(crlf = strstr(line, "\r\n")) {
-        *crlf = '\0';
-#ifdef DEBUG_HTTP
-        printf("%s\n", line);
-#endif
+    if(crlf = strchr(start, '\n')) {
+        char line[LEN_LINE] = {0};
         char str[LEN_METHOD + LEN_VER] = {0};
         char mid[LEN_URL + LEN_STAT_CODE] = {0};
         char end[LEN_VER + LEN_STAT_INFO] = {0};
-        char *format = "%s %s %[^'\r''\n']";
+        strncpy(line, start, crlf-start+1);  /* include '\n' */
+#ifdef DEBUG_HTTP
+        printf("[%s]\n", line);
+#endif
+        char *format = "%s %s %s";
         ret = sscanf(line, format, str, mid, end);
         if(ret != 3) {
 #ifdef DEBUG_HTTP
@@ -467,6 +480,8 @@ int parse_http_header(const char *buf, http_header_t *header)
 #endif
             return -1;
         }
+
+
         if(atoi(mid) > 0) {
             strcpy(header->ver, str);
             strcpy(header->stat_code, mid);
@@ -477,14 +492,20 @@ int parse_http_header(const char *buf, http_header_t *header)
             strcpy(header->url, mid);
             strcpy(header->ver, end);
         }
-        line = crlf + 2;
+        start = crlf + 1;
     }
     /* field */
-    while((crlf = strstr(line, "\r\n"))) {
-        *crlf = '\0';
+    while((crlf = strchr(start, '\n'))) {
+        char line[LEN_LINE] = {0};
+        strncpy(line, start, crlf-start+1);  /*include '\n'*/
 #ifdef DEBUG_HTTP
         printf("%s\n", line);
 #endif
+        if((line[0] == '\n') || (line[0] == '\r' && line[1] == '\n')) {
+            strcpy(header->crlf, line);
+            break;
+        }
+
         http_field_t *field = (http_field_t *)malloc(sizeof(http_field_t));
         if(parse_http_field(line, field) < 0) {
 #ifdef DEBUG_HTTP
@@ -494,7 +515,7 @@ int parse_http_header(const char *buf, http_header_t *header)
         else {
             list_add_tail(&(field->list), &(header->head)); 
         }
-        line = crlf + 2;
+        start = crlf + 1;
     }
 #ifdef FUNC
     printf("==========finish parse_http_header()==========\n");
@@ -512,18 +533,17 @@ int parse_http_field(const char *line, http_field_t *field)
     /* Host: 192.168.1.33 */
     /* Date: 2017.09.20 11:33:33 */
 #ifdef FUNC
-    //printf("==========start parse_http_field()==========\n");
+    printf("==========start parse_http_field()==========\n");
 #endif
     int ret;
     char *p = strchr(line, ':');
     if(NULL == p) {
         return -1;
     }
-    *p = '\0';
-    strcpy(field->key, line);
+    strncpy(field->key, line, p-line+1);  /* include ':' */
     strcpy(field->value, p + 1);
 #ifdef FUNC
-    //printf("==========finish parse_http_field()==========\n");
+    printf("==========finish parse_http_field()==========\n");
 #endif
     return 0;
 }
@@ -623,81 +643,81 @@ int get_pr_encd(struct list_head *head, int *pr, int *encd)
     list_for_each(pos, head){
         http_field_t *field = list_entry(pos, http_field_t, list);
 
-        if (strcasecmp("Content-type", field->key) == 0) {
+        /* openwrt 使用的是ulibc，包含strcasestr函数, glibc也包含 */
+        if (strcasestr(field->key, "Content-type")) {
 #ifdef DEBUG_HTTP
             printf("\033[32m");
-            printf("Content-type: %s\n", field->value);
+            printf("[%s%s]\n", field->key, field->value);
             printf("\033[0m");
 #endif
-            int i = 0;
-            for (i = 0; i < sizeof (text_table) / sizeof (c_type_t); i++) {
-                if (strstr(field->value, text_table[i].type)) {
+            c_type_t *t;
+            for (t = text_table; t->type; t++) {
+                if (strcasestr(field->value, t->type)) {
                     is_txt = 1;
                     break;
                 }
             }
-#ifdef DEBUG_HTTP
-            printf("is_txt=%d\n", is_txt);
-#endif
         }
 
-        if (strcasecmp("Content-length", field->key) == 0) {
+        if (strcasestr(field->key, "Content-length")) {
 #ifdef DEBUG_HTTP
             printf("\033[32m");
-            printf("Content-length: %s\n", field->value);
+            printf("[%s%s]\n", field->key, field->value);
             printf("\033[0m");
 #endif
             is_clen = 1;
             len = (int) atoi(field->value);
         }
 
-        if (strcasecmp("Transfer-encoding", field->key) == 0 && strstr(field->value, "chunked")) {
+        if (strcasestr(field->key, "Transfer-encoding") && strcasestr(field->value, "chunked")) {
 #ifdef DEBUG_HTTP
             printf("\033[32m");
-            printf("Transfer-encoding: %s\n", field->value);
+            printf("[%s%s]\n", field->key, field->value);
             printf("\033[0m");
 #endif
             is_chunk = 1;
         }
 
-        if (strcasecmp("Content-Encoding", field->key) == 0)
+        if (strcasestr(field->key, "Content-Encoding"))
         {
 #ifdef DEBUG_HTTP
             printf("\033[32m");
-            printf("Content-encoding: %s\n", field->value);
+            printf("[%s%s]\n", field->key, field->value);
             printf("\033[0m");
 #endif
-            if (strstr(field->value, "gzip")) {
+            if (strcasestr(field->value, "gzip")) {
                 *encd = ENCD_GZIP;
             }
+            /*
+             * not used
+             else if(strcasestr(field->value, "br")) {
+             *encd = ENCD_BR;
+             }
+             else if(strcasestr(field->value, "deflate")) {
+             *encd = ENCD_DEFLATE;
+             }
+             else if(strcasestr(field->value, "compress")) {
+             *encd = ENCD_COMPRESS;
+             }
+             */
             else {
                 *encd = ENCD_NONE;
             }
         }
     }
 
+#ifdef DEBUG_HTTP
+    printf("is_txt=%d\n", is_txt);
+#endif
+    /*
+       可读性很差
+     *pr = is_txt?(is_chunk?PR_TXT_CHUNK:(is_clen?PR_TXT_LEN:PR_TXT_NONE)):(is_chunk?PR_NONE_TXT_CHK:(is_clen?PR_NONE_TXT_LEN:PR_NONE_TXT_NONE));
+     */
     if(is_txt) {
-        if(is_chunk) {
-            *pr = PR_TXT_CHUNK;
-        }
-        else if (is_clen) {
-            *pr = PR_TXT_LEN;
-        }
-        else {
-            *pr = PR_TXT_NONE;
-        }
+        *pr = is_chunk?PR_TXT_CHUNK:(is_clen?PR_TXT_LEN:PR_TXT_NONE);
     }
     else {
-        if(is_chunk) {
-            *pr = PR_NONE_TXT_CHK;
-        }
-        else if(is_clen) {
-            *pr = PR_NONE_TXT_LEN;
-        }
-        else {
-            *pr = PR_NONE_TXT_NONE;
-        }
-
+        *pr = is_chunk?PR_NONE_TXT_CHK:(is_clen?PR_NONE_TXT_LEN:PR_NONE_TXT_NONE);
     }
 #ifdef FUNC
     printf("==========finish get_pr_encd()==========\n");
@@ -725,33 +745,35 @@ int get_host_port(http_header_t *header, char *host, short *port)
     list_for_each(pos, head){
         http_field_t *field = list_entry(pos, http_field_t, list);
 
-        if (strcasecmp(field->key, "Host") == 0)
+        if (strcasestr(field->key, "Host"))
         {
-            char *space = strchr(field->value, ' ');
-            char *colon = strchr(field->value, ':');
-            if(NULL == space) {
-                space = field->value;
-            }
-            else {
-                space += 1;
-            }
+            /* [Host :| 192.168.1.1:80 ]  */
+            /* host中不能有space */
+            char *start = field->value;
+            while(*start == ' ') start++;
 
-            if (colon) {
-                char *format = "%[^:]:%s";
-                char s_port[12] = { 0 };
-                ret = sscanf(space, format, host, s_port);
+            if(strchr(start ':')) {
+                char *format = "%[^:]:%[0-9]";
+                char s_port[10] = {0};
+                ret = sscanf(start, format, host, s_port);
                 if(ret == 2) {
                     *port = (short) atoi(s_port);  //aoti(" 123 ") also works well
                 }
                 else if(ret == 1) {
+                    syslog(LOG_INFO, "get_host_port [%s] sscanf only return 1, make port default 80/443", start);
                     *port = (proxy==HTTPS)?DEFAULT_HTTPS_PORT:DEFAULT_HTTP_PORT;
                 }
                 else {
+                    syslog(LOG_INFO, "get_host_port [%s] sscanf error", start);
                     return -1;
                 }
             }
             else {
-                strcpy(host, space);
+                /* [192.168.1.1 \r\n] */
+                if(1 != sscanf(start, "%s[^\r^\n^ ]", host)) {
+                    syslog(LOG_INFO, "get_host_port [%s] sscanf error", start);
+                    return -1;
+                }
                 *port = (proxy==HTTPS)?DEFAULT_HTTPS_PORT:DEFAULT_HTTP_PORT;
             }
             return 0;
@@ -772,6 +794,7 @@ int is_http_req_rsp(http_header_t *header)
  * 使用了sprintf()可能会引起缓冲区溢出, 确保缓冲区够大
  * 后期再优化
  */
+
 int http_header_tostr(http_header_t *header, char *buff)
 {
 #ifdef FUNC
@@ -786,9 +809,9 @@ int http_header_tostr(http_header_t *header, char *buff)
     int req_rsp = is_http_req_rsp(header);
     if(req_rsp == IS_REQUEST) {
         if(*(header->method) != '\0' &&
-           *(header->url) != '\0' &&
-           *(header->ver) != '\0') {
-            sprintf(buff, "%s %s %s\r\n", header->method, header->url, header->ver);
+                *(header->url) != '\0' &&
+                *(header->ver) != '\0') {
+            sprintf(buff, "%s %s %s", header->method, header->url, header->ver);
         }
         else {
             printf("http_header_tostr: request. first line wrong.\n");
@@ -797,9 +820,9 @@ int http_header_tostr(http_header_t *header, char *buff)
     }
     else if(req_rsp == IS_RESPONSE) {
         if(*(header->ver) != '\0' &&
-           *(header->stat_code) != '\0' &&
-           *(header->stat_info) != '\0') {
-            sprintf(buff, "%s %s %s\r\n", header->ver, header->stat_code, header->stat_info);
+                *(header->stat_code) != '\0' &&
+                *(header->stat_info) != '\0') {
+            sprintf(buff, "%s %s %s", header->ver, header->stat_code, header->stat_info);
         }
         else {
             printf("http_header_tostr: response.  first line wrong.\n");
@@ -810,26 +833,24 @@ int http_header_tostr(http_header_t *header, char *buff)
         printf("http_header_tostr: neither request or response\n");
         return -1;
     }
-    
+
     struct list_head *head = &(header->head);
     struct list_head *pos = NULL;
     list_for_each(pos, head) {
         http_field_t *field = list_entry(pos, http_field_t, list);
-        //printf("%s: %s\n", field->key, field->value);
-        sprintf(buff, "%s%s:%s\r\n", buff, field->key, field->value);
+        strcat(buff, field->key);
+        strcat(buff, field->value);
     }
-    strcat(buff, "\r\n");
+    strcat(buff, header->crlf);
 #ifdef DEBUG_HTTP
-//    if(req_rsp == IS_RESPONSE) {
-        printf("\nhttp_header_tostr:\n[%s]\n", buff);
-//    }
-#endif
-#ifdef FUNC
-    printf("==========finish http_header_tostr()==========\n");
+    printf("\nhttp_header_tostr:\n[%s]\n", buff);
 #endif
 #ifdef TIME_COST
     gettimeofday(&end, NULL);
     printf("execute header_to_str use time: start=%lds %ldms, end in %lds %ldms\n", strt.tv_sec, strt.tv_usec, end.tv_sec, end.tv_usec);
+#endif
+#ifdef FUNC
+    printf("==========finish http_header_tostr()==========\n");
 #endif
     return 0;
 }
@@ -844,23 +865,36 @@ int rewrite_clen_encd(struct list_head *head, int content_length, int gunzip)
 #ifdef FUNC
     printf("==========start rewrite_clen_encd()==========\n");
 #endif
-    struct list_head *pos;
-    list_for_each(pos, head){
+    struct list_head *pos = head->next;
+    while(pos != head) {
         http_field_t *field = list_entry(pos, http_field_t, list);
-
-        if(strcasecmp("Content-length", field->key) == 0)
-        {
+        if(strcasestr(field->key, "Content-length")) {
+            int len = strlen(field->key);
+            int cr = (field->key)[len-2]=='\r'?1:0;
+            int lf = (field->key)[len-1]=='\n'?1:0;
+            if(!lf){
+                printf("content-length没有行结束标志\\n");
+                return 0;
+            }
             memset(field->value, 0, LEN_FIELD_VALUE);
             sprintf(field->value, "%d", content_length);
-        }
-        if(strcasecmp("Content-encoding", field->key) == 0)
-        {
-            if(gunzip == GZIP2FLATE)
-            {
-                memset(field->value, 0, LEN_FIELD_VALUE);
-                sprintf(field->value, "%s", "none");
+            if(cr) {
+                strcat(field->value, "\r\n");
+            }
+            else {
+                strcat(field->value, "\n");
             }
         }
+        if(strcasestr(field->key, "Content-encoding")) {
+            if(gunzip == ENCD2FLATE) {
+                /* 解压之后删除content-encoding */
+                struct list_head *tmp = pos->next;
+                list_del(pos);
+                SAFE_FREE(field);
+                pos = tmp->prev;
+            }
+        }
+        pos = pos->next;
     }
 #ifdef FUNC
     printf("==========finish rewrite_clen_encd()==========\n");
@@ -868,28 +902,29 @@ int rewrite_clen_encd(struct list_head *head, int content_length, int gunzip)
     return 0;
 }
 
-int rewrite_c_encd(struct list_head *head, int encd)
+int rewrite_encd(struct list_head *head, int encd)
 {
 #ifdef FUNC
     printf("==========start rewrite_c_encd()==========\n");
 #endif
-    struct list_head *pos;
-    list_for_each(pos, head)
-    {
+    struct list_head *pos = head->next;
+    while(pos != head) {
         http_field_t *field = list_entry(pos, http_field_t, list);
-        if(strcasecmp("Content-encoding", field->key) == 0)
-        {
-            if(encd == ENCD_FLATE)
-            {
-                memset(field->value, 0, LEN_FIELD_VALUE);
-                sprintf(field->value, "%s", " ");
+        if(strcasecmp("Content-encoding", field->key) == 0) {
+            if(encd == ENCD2FLATE) {
+                struct list_head *tmp = pos->next;
+                list_del(pos);
+                SAFE_FREE(field);
+                pos = tmp->prev;
             }
-            else if(encd == ENCD_GZIP)
-            {
-                memset(field->value, 0, LEN_FIELD_VALUE);
-                sprintf(field->value, "%s", "gzip");
+            else if(encd == ENCD_KEEP) {
+                /*memset(field->value, 0, LEN_FIELD_VALUE);
+                  sprintf(field->value, "%s", "gzip");
+                  */
+                ;
             }
         }
+        pos = pos->next;
     }
 #ifdef FUNC
     printf("==========finish rewrite_c_encd()==========\n");

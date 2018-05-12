@@ -4,9 +4,7 @@ pcre2_code *get_compile_code(PCRE2_SPTR pattern, uint32_t compile_options)
 {
 	if (NULL == pattern || strlen((char *) pattern) == 0)   //strlen(NULL) will cause segment fault.but it would never happen in this code.
 	{
-#ifdef STRDEBUG
-		printf("get_compile_code: pattern is NULL or " "\n");
-#endif
+		printf("get_compile_code: pattern is NULL or empty_string\n");
 		return NULL;
 	}
 	pcre2_code *re;
@@ -115,11 +113,11 @@ struct list_head *get_list_substring_compiled_code(PCRE2_SPTR subject, pcre2_cod
 	node_sub->rplstr = NULL;
 	node_sub->len_substr = length;
 	strncpy(node_sub->substr, (char *) (subject + ovector[0]), node_sub->len_substr);
-#ifdef PRINTMATCH
+//#ifdef PRINTMATCH
     printf("\033[33m");
     printf("match_%d: %s\n", node_sub->index, node_sub->substr);
     printf("\033[0m");
-#endif
+//#endif
 	list_add_tail(&(node_sub->list), head);
 	int i = 0;
 #ifdef STRDEBUG
@@ -372,6 +370,7 @@ PCRE2_SPTR _replace_all_malloc(PCRE2_SPTR subject, struct list_head *head, const
 		offset = node->startoffset + node->len_substr;
 	}
 	strncat((char *) new_subject, (char *) subject + offset, strlen((char *) subject) - offset);
+    printf("new_subject length=%d, new_subject=%s\n", size_new_subject, (char *)new_subject);
 	return new_subject;
 }
 
@@ -409,7 +408,9 @@ PCRE2_SPTR replace_all_default_malloc(PCRE2_SPTR subject, struct list_head *head
 		else
 			size_sum_rplstr += node->len_substr;        //为NULL则不替换(替换为本身)
 	}
-	if (size_sum_substr == size_sum_rplstr)             //所有节点的rplstr都为NULL,那就不替换了。
+
+	//if (size_sum_substr == size_sum_rplstr)             //所有节点的rplstr都为NULL,那就不替换了。
+	if (0 == size_sum_rplstr)             //所有节点的rplstr都为NULL,那就不替换了。
 	{
 #ifdef STRDEBUG
 		printf("replace_all_default_malloc: all list node's rplstr is NULL\n");
@@ -523,6 +524,11 @@ PCRE2_SPTR replace_index_malloc(PCRE2_SPTR subject, PCRE2_SPTR pattern, uint32_t
 	return new_subject;
 }
 
+/*
+ *@head: 匹配到的字串链表
+ *@pad:
+ *table_head: NULL
+ */
 void pad_list_rplstr_malloc(struct list_head *head, pad_rplstr_t pad, struct list_head *table_head)
 {
 	if (NULL == head || NULL == pad || (table_head->next == table_head) || (table_head->prev == table_head))

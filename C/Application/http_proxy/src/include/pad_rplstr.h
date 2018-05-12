@@ -14,6 +14,8 @@
 extern void pad_list_rplstr_remap_table_req_m(node_substr_t *node, struct list_head *head_table);
 extern void pad_list_rplstr_remap_table_rsp_m(node_substr_t *node, struct list_head *head_table);
 
+extern void pad_list_rplstr_lan2wan(node_substr_t *node, struct list_head *head);
+extern void pad_list_rplstr_wan2lan(node_substr_t *node, struct list_head *head);
 
 #endif
 

@@ -3,6 +3,7 @@
 
 #include <math.h>
 #include <string.h>
+#include <syslog.h>
 #include <openssl/ssl.h>
 #include <openssl/err.h>
 #include <openssl/x509.h>
@@ -24,7 +25,7 @@
 #define DEFAULT_HTTP_PORT   80
 #define DEFAULT_HTTPS_PORT  443
 #define HTTP_PROXY_PORT     8082
-#define HTTPS_PROXY_PORT    8888
+#define HTTPS_PROXY_PORT    8083
 #define LEN_SSL_RECORD      16384
 
 /*
@@ -46,13 +47,17 @@
 #define PR_NONE_TXT_NONE 6
 
 
-#define ENCD_FLATE     0
+#define ENCD_NONE      0
 #define ENCD_GZIP      1
-#define ENCD_NONE      ENCD_FLATE
+//not used
+#define ENCD_BR
+#define ENCD_DEFLATE
+#define ENCD_COMPRESS
 
 
-#define GZIP2GZIP      0
-#define GZIP2FLATE     1
+
+#define ENCD_KEEP      0
+#define ENCD2FLATE     1
 
 #define LEN_METHOD    16  
 #define LEN_URL       1024
@@ -82,6 +87,7 @@ typedef struct _http_header{
 	char   ver[LEN_VER];
 	char   stat_code[LEN_STAT_CODE];
 	char   stat_info[LEN_STAT_INFO];
+    char   crlf[3];
     struct list_head head;
 }http_header_t;
 
@@ -95,7 +101,7 @@ typedef struct _http_field
 
 typedef struct content_type_text
 {
-    char type[32];
+    char *type;
 }c_type_t;
 
 
