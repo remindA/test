@@ -1,0 +1,5 @@
+GET /index.html HTTP1.1
+Accept-enconding: gzip
+Accept-type: txt/html
+Server: nginx
+
