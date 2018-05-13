@@ -1228,45 +1228,8 @@ int read_all_txt_chunk_m(int fd, SSL *ssl, unsigned char **all_chunk, unsigned i
 #ifdef FUNC
     printf("==========start read_all_txt_chunk_m()==========\n");
 #endif
-    int    n = 0;
-    char   crlf[2];
-    char   s_size[64] = {0};
-    unsigned int size = 0;
-    unsigned int tot = 0;
-    unsigned char *data = (unsigned char *)calloc(1, 1);
-    unsigned char *tmp  = NULL;
-    while(1)
-    {
-        if((n = read_line(fd, ssl, s_size, sizeof(s_size))) <= 0)
-            return -1;
-#ifdef DEBUG
-        printf("[0x%s]\n", s_size);
-#endif
-        erase_nhex(s_size);
-        hex2dec(s_size, &size);
-        memset(s_size, 0, sizeof(s_size));
-        if(size > 0)
-        {
-            tmp = (unsigned char *)calloc(1, tot + size);
-            memcpy(tmp, data, tot);
-            SAFE_FREE(data);
-            data = tmp; 
-            /* read data and \r\n */
-            readn(fd, ssl, data + tot, size);
-            readn(fd, ssl, crlf, 2);
-            tot += size;
-#ifdef DEBUG
-            printf("read_all_txt_chunk_m tot=%d\n", tot);
-#endif
-        }
-        else if(size == 0) {
-            /* no data but has \r\n */
-            n = readn(fd, ssl, crlf, 2);
-            break;
-        }
+    while(1) {
     }
-    *all_chunk = data;
-    *len = tot;
 #ifdef FUNC
     printf("==========finish read_all_txt_chunk_m()==========\n");
 #endif
@@ -1282,117 +1245,193 @@ int read_forward_txt_chunk(int fd_from, SSL *ssl_from, int fd_to, SSL *ssl_to, i
 #ifdef FUNC
     printf("==========start read_forward_txt_chunk()==========\n");
 #endif
-    uint32_t size = 0;
-    uint32_t n;
-    int mywr;
-
     while(1) {
-        char crlf_chunk[3] = {0};
-        char crlf_body[3] = {0};
-        char size_str[64] = {0};
-        char chunk_size[64] = {0};
-        n = read_line(fd_from, ssl_from, size_str, sizeof(size_str));
-        if(n < 0) {
+        int   ret;
+        int   tot_len;
+        char *new_chunk;
+        http_chunk_t chunk;
+        ret = read_parse_chk_size_ext_crlf(fd_from, ssl_from, &chunk);
+        if(ret <= 0) {
+            free_http_chunk(&chunk);
+            return ret;
+        }
+        ret = read_parse_chk_body_crlf(fd_from, ssl_from, &chunk);
+        if(ret <= 0) {
+            free_http_chunk(&chunk);
+            return ret;
+        }
+        http_chunk_replace(&chunk, direction, re);
+        ret = http_chunk_to_buff(&chunk, &new_chunk, &tot_len);
+        if(ret <= 0) {
+            free_http_chunk(&chunk);
+            return ret;
+        }
+        ret = my_write(fd_to, ssl_to, "ld", tot_len, new_chunk);
+        if(ret <= 0) {
             return -1;
         }
-        else if(n == 0){
+        int size = chunk.chk_size;
+        free_http_chunk(&chunk);
+        SAFE_FREE(new_chunk);
+        if(size <= 0) {
             break;
         }
-#ifdef DEBUG
-        printf("[0x%s]\n", size_str);
-#endif
-        size = get_chunk_size_crlf(size_str, crlf_chunk);
-        if(size == 0) {
-            /* chunk footer */
-            mywr = my_write(fd_to, ssl_to, "ld", 5, "0\r\n\r\n");
-            if(mywr < 0) {
-                return -1;
-            }
-            break;
-        }
-
-        char *buff = (char *)malloc(size);
-        if(NULL == buff) {
-            perror("read_forward_txt_chunk: malloc()");
-            break;
-        }
-        n = readn(fd_from, ssl_from, buff, size);
-        if(n < 0) {
-            SAFE_FREE(buff);
-            return -1;
-        }
-        else if(n == 0){
-            SAFE_FREE(buff);
-            break;
-        }
-
-        if(n != size) {
-            printf("read_forward_txt_chunk actual read %d, should read %d\n", n, size);
-            syslog(LOG_INFO, "read_forward_txt_chunk actual read %d, should read %d\n", n, size);
-            strcpy(crlf_body, "\r\n");
-        }
-        else {
-            read_chunk_body_crlf(fd_from, ssl_from, crlf_body, sizeof(crlf_body));
-        }
-        /* 完整 or not, 都转发 */
-        PCRE2_SPTR new_chunk = replace_content_default_m(buff, direction, re);
-        if(new_chunk) {
-            sprintf(chunk_size, "%x%s", strlen((char *)new_chunk), crlf_chunk);
-#ifdef DEBUG
-            printf("\033[33m");
-            printf("replace, new chunked size=%s\n", chunk_size);
-            printf("\033[0m");
-#endif
-            mywr = my_write(fd_to, ssl_to, "ldldld", strlen(chunk_size), chunk_size,
-                    strlen((char *)new_chunk), new_chunk, strlen(crlf_body), crlf_body);
-            SAFE_FREE(new_chunk);
-            if(mywr < 0) {
-                SAFE_FREE(buff);
-                return -1;
-            }
-
-        }
-        else {
-            sprintf(chunk_size, "%x%s", n, crlf_chunk);
-#ifdef DEBUG
-            printf("\033[33m");
-            printf("no replace, new chunked size=%s\n", chunk_size);
-            printf("\033[0m");
-#endif
-            mywr = my_write(fd_to, ssl_to, "ldldld", strlen(chunk_size), chunk_size,
-                    n, buff, strlen(crlf_body), crlf_body);
-            if(mywr < 0) {
-                SAFE_FREE(buff);
-                return -1;
-            }
-
-        }
-
-        SAFE_FREE(buff);
     }
-
-    /* 转发chunk后的拖挂内容 一般是补充的域(field)信息
-     * 如果包含拖挂内容,拖挂内容的长度是无法确定的,Keep-alive就会引起问题,这里:舍弃拖挂内容
-     while((n = read(s_fd, buff, sizeof(buff))) > 0)
-     m = write(c_fd, buff, n);
-     */
-    //#ifdef FUNC
+        
+#ifdef FUNC
     printf("==========finish read_forward_txt_chunk()==========\n");
-    //#endif
+#endif
     return 0;
 }
 
 
-int get_chunk_size_crlf(const char *str, char *crlf)
+int read_parse_chk_size_ext_crlf(int fd, SSL* ssl, http_chunk_t *chunk)
 {
     int ret;
-    char size[64] = {0};
-    if(2 == sscanf(str, "%[0-9a-fA-F]%[\r\n]", size, crlf)) {
-        unsigned int s = 0;
-        hex2dec(size, &s);
-        return s;
+    char line[LEN_LINE] = {0};
+    ret = read_line(fd, ssl, line, sizeof(line));
+    if(ret <=0) {
+        return ret;
     }
-    return -1;
+    /* size ext crlf */
+    /* ext: 
+     * "ext_name":"ext_value"
+     *
+     */
+    char size[64] = {0};
+    ret = sscanf(line, "%[0-9a-zA-Z]", size);
+    if(1 != ret) {
+        printf("chk_size error\n");
+        return -1;
+    }
+    chunk->chk_size = hex2dec(size); 
+
+    char *lf = strstr(line, "\n");
+    char *crlf = strstr(line, "\r\n");
+    crlf = crlf?crlf:lf;
+    if(NULL == crlf) {
+        printf("chk_crlf error\n");
+        return -1;
+    }
+    if(strlen(crlf) > sizeof(chunk->chk_crlf)-1) {
+        printf("chk_crlf length over 2, [%s]\n", crlf);
+        return -1;
+    }
+    strcpy(chunk->chk_crlf, crlf);
+    
+    char *split = strchr(line, ';');
+    if(split) {
+        chunk->chk_ext = (char *)calloc(1, crlf-split+1);
+        strncpy(chunk->chk_ext, split, crlf-split);
+    }
+    return 0;
+}
+
+
+int read_parse_chk_body_crlf(int fd, SSL *ssl, http_chunk_t *chunk)
+{
+    /* 非trailer */
+    /* 可能是压缩过的内容:w */
+    if(chunk->chk_size > 0) {
+        int ret1, ret2;
+        chunk->trl_size = 0;
+        chunk->chk_body = (char *)calloc(1, chunk->chk_size);
+        ret1 = readn(fd, ssl, chunk->chk_body, chunk->chunk_size);
+        if(ret1 <=0) {
+            return ret1;
+        }
+        if(ret1 != chunk->chk_size) {
+            printf("chunk body: should read %d, actual read %d\n", chunk->chk_size, ret1);
+        }
+        ret2 = read_line(fd, ssl, chunk->body_crlf, sizeof(chunk->body_crlf));
+        if(ret2 <=0) {
+            return ret2;
+        }
+        return ret1;
+    }
+    /* trailer */
+    else {
+        int ret;
+        int tot = 0;
+        char line[LEN_LINE] = {0};
+        while((ret = read_line(fd, ssl, sizeof(line))) > 0){
+            if(is_empty_line(line)) {
+                chunk->trl_size = tot;
+                memcpy(chunk->body_crlf, line, ret);
+                break;
+            }
+            else{
+                chunk->trailer = realloc(chunk->trailer, tot+ret);
+                memcpy(chunk->trailer+tot, line, ret);
+                tot += ret;
+            }
+            memset(line, 0, sizeof(line));
+        }
+    }
+}
+
+int is_empty_line(const char *line)
+{
+    if(NULL == line) {
+        return 0;
+    }
+    int len = strlen(line);
+    if(1 == len && line[0] == '\n'){
+        return 1;
+    }
+    else if(2 == len && line[0] == '\r' && line[1] == '\n') {
+        return 1;
+    }
+    else {
+        return 0;
+    }
+}
+
+
+int http_chunk_replace(http_chunk_t *chunk, int direction, pcre2_code *re)
+{
+    PCRE2_SPTR new = replace_content_default_m(chunk->body, direction, re);
+    if(new) {
+        SAFE_FREE(chunk->body);
+        chunk->body = (char *)new;
+        chun->chk_size = strlen(new);
+    }
+    return 0;
+}
+
+int http_chunk_to_buff(http_chunk_t *chunk, char **buf, int *len)
+{
+    /* 32位操作系统十六进制字符串最长8 */
+    char size[64] = {0};
+    sprintf(size, "%x", chunk->chk_size);
+    *len = strlen(size) + (chunk->chk_ext?strlen(chunk->chk_ext):0) +
+        strlen(chunk->chk_crlf) + chunk->chk_size + chunk->trl_size +
+        strlen(chunk->body_crlf);
+    *buf = (char *)calloc(1, *len);
+    if(NULL == *buf) {
+        perror("calloc in http_chunk_to_buf");
+        return -1;
+    }
+    int offset = 0; 
+    memcpy(*buf + offset, size, strlen(size));
+    offset += strlen(size);
+    if(chunk->chk_ext) {
+        memcpy(*buf + offset, chunk->chk_ext, strlen(chunk->chk_ext));
+        offset += strlen(chunk->chk_ext);
+    }
+    memcpy(*buf + offset, chunk->chk_crlf, strlen(chunk->chk_crlf));
+    offset += strlen(chunk->chk_crlf);
+    if(chunk->chk_size > 0) {
+        memcpy(*buf + offset, chunk->body, chunk->chk_size);
+        offset += chunk->chk_size;
+    }
+    if(chunk->trl_size > 0) {
+        memcpy(*buf + offset, chunk->trailer, chunk->trl_size);
+        offset += chunk->trl_size;
+    }
+    memcpy(*buf + offset, chunk->body_crlf, strlen(chunk->body_crlf));
+    offset += strlen(chunk->body_crlf);
+    return 0;
 }
 
 /*出错时，不由此函数来释放header*/

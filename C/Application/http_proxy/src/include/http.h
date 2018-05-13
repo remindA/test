@@ -104,6 +104,19 @@ typedef struct content_type_text
     char *type;
 }c_type_t;
 
+typedef struct {
+    int  chk_size;
+    char *chk_ext;
+    char chk_crlf[3];
+    /* 非trailer */
+    char *body;
+    /* trailer */
+    int  trl_size;
+    char *trailer;
+    char body_crlf[3];
+    struct list_head list_head;
+}http_chunk_t;
+
 
 /* 定义在http.c中 */
 extern int proxy;
