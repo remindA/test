@@ -2,6 +2,10 @@
 #define _HTTP_H_
 
 #include <math.h>
+/* ulibc: __USE_GUN
+ * glibs: _GUN_SOURCE
+ */
+#define __USE_GNU
 #include <string.h>
 #include <syslog.h>
 #include <openssl/ssl.h>
@@ -114,7 +118,7 @@ typedef struct {
     int  trl_size;
     char *trailer;
     char body_crlf[3];
-    struct list_head list_head;
+    struct list_head list;
 }http_chunk_t;
 
 
@@ -124,9 +128,8 @@ extern c_type_t text_table[];
 
 extern int readn(int fd, SSL *ssl, void *buff, int n);
 extern int read_line(int fd, SSL *ssl, char *buff, int cnt);
-extern int read_double_crlf(int fd, SSL *ssl, char *buff, int cnt);
+extern int read_http_header(int fd, SSL *ssl, char *buff, int cnt);
 extern int my_write(int fd, SSL *ssl, const char *fmt, ...);
-extern int print_ssl_error(SSL *ssl, int ret, const char *remark);
 
 extern int parse_http_header(const char *buf, http_header_t *header);
 extern int parse_http_field(const char *line, http_field_t *field);
@@ -138,7 +141,17 @@ extern int get_host_port(http_header_t *header, char *host, short *port);
 extern int is_http_req_rsp(http_header_t *header);
 extern int http_header_tostr(http_header_t *header, char *buff);
 extern int rewrite_clen_encd(struct list_head *head, int content_length, int gunzip);
-extern int rewrite_c_encd(struct list_head *head, int encd);
+extern int rewrite_encd(struct list_head *head, int encd);
+struct list_head *read_all_chunk(int fd, SSL *ssl);
+int read_parse_chunk(int fd, SSL* ssl, http_chunk_t *chunk);
+int read_parse_chk_size_ext_crlf(int fd, SSL* ssl, http_chunk_t *chunk);
+int read_parse_chk_body_crlf(int fd, SSL *ssl, http_chunk_t *chunk);
+int is_empty_line(const char *line);
+int http_chunk_to_buff(http_chunk_t *chunk, unsigned char **buf, unsigned int *len);
+int http_all_chunk_to_buff(struct list_head *head, unsigned char **buff, unsigned int *len);
+void free_http_chunk(http_chunk_t *chunk);
+void free_chunk_list(struct list_head *head); 
+extern int print_ssl_error(SSL *ssl, int ret, const char *remark);
 
 #endif
 

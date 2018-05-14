@@ -27,10 +27,10 @@ struct list_head *get_remap_table_m(char *file)
 {
     //创建head,并初始化
     int err = 0;
-    struct list_head *head = (struct list_head *) malloc(sizeof (struct list_head));
+    struct list_head *head = (struct list_head *) calloc(1, sizeof (struct list_head));
     if (NULL == head)
     {
-        perror("malloc");
+        perror("calloc");
         err = 1;
         goto cleanup;
     }
@@ -106,15 +106,14 @@ struct list_head *get_remap_table_m(char *file)
                 int j = 0;
                 for(j = 0; j < len_bfr; j++)
                 {
-                    remap_entry_t *entry = (remap_entry_t *)malloc(sizeof(remap_entry_t));
+                    remap_entry_t *entry = (remap_entry_t *)calloc(1, sizeof(remap_entry_t));
                     if(NULL == entry)
                     {
-                        perror("malloc");
+                        perror("calloc");
                         free_remap_table(&head);
                         err = 1;
                         return NULL;
                     }
-                    memset(entry, 0, sizeof(remap_entry_t));
                     sprintf(entry->before, "%s%d", prefix_bfr, strt_aft + j);
                     sprintf(entry->after, "%s%d", prefix_aft, strt_aft + j);
                     entry->direction = drct;
@@ -124,10 +123,10 @@ struct list_head *get_remap_table_m(char *file)
                 continue;
             }
 
-            remap_entry_t *entry = (remap_entry_t *)malloc(sizeof(remap_entry_t));
+            remap_entry_t *entry = (remap_entry_t *)calloc(1, sizeof(remap_entry_t));
             if(entry == NULL)
             {
-                perror("malloc() in get remap_table");
+                perror("calloc() in get remap_table");
                 free_remap_table(&head);
                 err = 1;
                 goto cleanup;
@@ -159,10 +158,10 @@ struct list_head *get_regex_table_m(char *file)
 {
     //创建head,并初始化
     int err = 0;
-    struct list_head *head = (struct list_head *)malloc(sizeof(struct list_head));
+    struct list_head *head = (struct list_head *)calloc(1, sizeof(struct list_head));
     if(head == NULL)
     {
-        perror("malloc");
+        perror("calloc");
         err = 1;
         goto cleanup;
     }
@@ -192,10 +191,10 @@ struct list_head *get_regex_table_m(char *file)
         }
         printf("type=%s, ip=%s, port=%s, regex=%s\n", type, ip, port, regex);
         pcre2_code *re = get_compile_code((PCRE2_SPTR)regex, 0);
-        regex_entry_t *entry = (regex_entry_t *)malloc(sizeof(regex_entry_t));
+        regex_entry_t *entry = (regex_entry_t *)calloc(1, sizeof(regex_entry_t));
         if(entry == NULL)
         {
-            perror("malloc() in get regex_table");
+            perror("calloc() in get regex_table");
             free_regex_table(&head);
             err = 1;
             goto cleanup;

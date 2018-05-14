@@ -89,14 +89,13 @@ void pad_list_rplstr_lan2wan(node_substr_t *node, struct list_head *head)
 			printf("node->substr=%s, match=%s, rpl=%s\n", node->substr, p->ip, rpl);
 //#endif
 			int len_rpl = strlen(rpl);
-			node->rplstr = (char *) malloc(len_rpl + 1);
+			node->rplstr = (char *) calloc(1, len_rpl + 1);
 			if (NULL == node->rplstr)
 			{
-				perror("malloc");
+				perror("calloc");
 			}
 			else
 			{
-				memset(node->rplstr, 0, len_rpl + 1);
 				memcpy(node->rplstr, rpl, len_rpl);
 			}
             break;
@@ -116,14 +115,13 @@ void pad_list_rplstr_wan2lan(node_substr_t *node, struct list_head *head)
 			printf("node->substr=%s, match=%s, rpl=%s\n", node->substr, p->ip, rpl);
 //#endif
 			int len_rpl = strlen(rpl);
-			node->rplstr = (char *) malloc(len_rpl + 1);
+			node->rplstr = (char *) calloc(1, len_rpl + 1);
 			if (NULL == node->rplstr)
 			{
 				perror("malloc");
 			}
 			else
 			{
-				memset(node->rplstr, 0, len_rpl + 1);
 				memcpy(node->rplstr, rpl, len_rpl);
 			}
             break;

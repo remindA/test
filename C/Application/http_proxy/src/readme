@@ -77,4 +77,4 @@
         deflate:
         compress:
         identity: RFC-- "this can only be used in Accept-encoding, but not Content-encoding."
-
+    11. 大文件采用分次，content-length传输，每次包含range，那么不仅要该content-length,还要修改range.
