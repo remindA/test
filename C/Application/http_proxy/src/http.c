@@ -8,7 +8,6 @@ c_type_t text_table[] = {
     { "text/xml"			   },
     { "text/x-component"	   },
     { "text/html"			   },
-    /*{ "text/javascript"		   }, */
     { "text/x-vcard"		   },
     { "text/scriptlet"		   },
     { "text/vnd.wap.wml"	   },
@@ -18,10 +17,12 @@ c_type_t text_table[] = {
     { "text/vnd.rn-realtext3d" },
     { "text/x-ms-doc"		   },
     { "text/webviewhtml"	   },
-    /*{ "text/css"			   },
-      { "application/javascript" },
-      */
-    { "application/VIID+JSON"},     /* 2018-05-10,凌轩图像认证 */
+#ifdef DEBUG
+    { "text/css"			   },
+    { "application/javascript" },
+    { "text/javascript"		   },
+#endif
+    { "application/VIID+JSON"  },   /* 2018-05-10,凌轩图像认证 */
     { "application/atom+xml"   },
     { "application/json"       },   /* 南京茂业 */
     { "application/soap+xml"   },   /* 南京茂业 */
@@ -65,7 +66,6 @@ int read_http_header(int fd, SSL *ssl, char *buff, int n)
 {
     return (proxy == HTTP)?_read_http_header(fd, buff, n):_read_http_header_ssl(ssl, buff, n);
 }
-
 
 static int _readn(int fd, void *buff, int n)
 {
@@ -173,6 +173,9 @@ static int _read_http_header(int fd, char *buff, int cnt)
     struct timeval end;
     gettimeofday(&strt, NULL);
 #endif
+    int port = 0;
+    char ip[16] = {0};
+    get_peer_ip(fd, ip, &port);
     while (1)
     {
         n = read(fd, &c, 1);
@@ -182,7 +185,7 @@ static int _read_http_header(int fd, char *buff, int cnt)
                 continue;
             else {
                 perror("_read_http_header: read()");
-                syslog(LOG_INFO, "_read_http_header时出错");
+                syslog(LOG_INFO, "_read_http_header from %s:%d\n", ip, port);
                 return -1;
             }
         }
@@ -386,6 +389,11 @@ static int _read_http_header_ssl(SSL *ssl, char *buff, int cnt)
     return tot_read;
 }
 
+/*
+ * return:
+ *      ok      : >0
+ *      failed  : -1
+ */ 
 int my_write(int fd, SSL *ssl, const char *fmt, ...)
 {
 #ifdef FUNC
@@ -472,20 +480,24 @@ int parse_http_header(const char *buf, http_header_t *header)
 #ifdef DEBUG_HTTP
         printf("parse_http_header, first line=[%s]\n", line);
 #endif
-        char *p = strchr(line, '\r');
-        char *q = strchr(line, '\n');
-        char *format = "%s %s %s";
-        ret = sscanf(line, format, str, mid, end);
-        printf("str=[%s], len=%d\n", str, strlen(str));
-        printf("mid=[%s], len=%d\n", mid, strlen(mid));
-        strcat(end, p?:q);
-        printf("end=[%s], len=%d\n", end, strlen(end));
-        if(ret != 3) {
+        char *format = "%s %s";
+        ret = sscanf(line, format, str, mid);
+        if(ret != 2) {
 #ifdef DEBUG_HTTP
-            printf("parse_http_header: message line ret = %d != 3\n", ret);
+            printf("parse_http_header: message line ret = %d != 2\n", ret);
 #endif
+            syslog(LOG_INFO, "parse_http_header ret is not 2");
             return -1;
         }
+        char *m = strstr(line, mid);
+        if(NULL == m) {
+            printf("parse_http_header: mid wrong\n");
+            return -1;
+        }
+        strcpy(end, m+strlen(mid)); /*end包含空格*/ 
+        printf("str=[%s], len=%d\n", str, strlen(str));
+        printf("mid=[%s], len=%d\n", mid, strlen(mid));
+        printf("end=[%s], len=%d\n", end, strlen(end));
 
         if(atoi(mid) > 0) {
             strcpy(header->ver, str);
@@ -516,6 +528,9 @@ int parse_http_header(const char *buf, http_header_t *header)
 #ifdef DEBUG_HTTP
             printf("cannot parse_http_line[%s]\n", line);
 #endif
+            syslog(LOG_INFO, "cannot parse_http_line[%s]\n", line);
+            free_http_header(header);
+            return -1;
         }
         else {
             list_add_tail(&(field->list), &(header->head)); 
@@ -553,17 +568,17 @@ int parse_http_field(const char *line, http_field_t *field)
 }
 
 
-void free_http_header(http_header_t **header)
+void free_http_header(http_header_t *header)
 {
     /* 避免重复释放
      * 写成了if(header == NULL), 导致第二次释放header非法访问了内存
      * 这个小bug害的我从15:00一直调试到23:00．都没能回家陪女朋友
      */
-    if(*header == NULL) {
+    if(header == NULL) {
         printf("cannot free_http_header: do not double free http_header\n");
         return;
     }
-    struct list_head *head = &((*header)->head);
+    struct list_head *head = &(header)->head;
     struct list_head *pos =  head->next;
     struct list_head *tmp = NULL;
     while(pos != head) {
@@ -572,7 +587,6 @@ void free_http_header(http_header_t **header)
         SAFE_FREE(field);
         pos = tmp;
     }
-    SAFE_FREE(*header);
 }
 
 
@@ -638,6 +652,7 @@ int get_pr_encd(struct list_head *head, int *pr, int *encd)
     printf("==========start get_pr_encd()==========\n");
 #endif
     int len = 0;
+    int has_txt = 0;
     int is_txt = 0;
     int is_clen = 0;
     int is_chunk = 0;
@@ -654,6 +669,7 @@ int get_pr_encd(struct list_head *head, int *pr, int *encd)
             printf("[%s%s]\n", field->key, field->value);
             printf("\033[0m");
 #endif
+            has_txt = 1;
             c_type_t *t;
             for (t = text_table; t->type; t++) {
                 if (strcasestr(field->value, t->type)) {
@@ -670,7 +686,7 @@ int get_pr_encd(struct list_head *head, int *pr, int *encd)
             printf("\033[0m");
 #endif
             is_clen = 1;
-            len = (int) atoi(field->value);
+            len = atoi(field->value);
         }
 
         if (strcasestr(field->key, "Transfer-encoding") && strcasestr(field->value, "chunked")) {
@@ -717,11 +733,14 @@ int get_pr_encd(struct list_head *head, int *pr, int *encd)
        可读性很差
      *pr = is_txt?(is_chunk?PR_TXT_CHUNK:(is_clen?PR_TXT_LEN:PR_TXT_NONE)):(is_chunk?PR_NONE_TXT_CHK:(is_clen?PR_NONE_TXT_LEN:PR_NONE_TXT_NONE));
      */
-    if(is_txt) {
-        *pr = is_chunk?PR_TXT_CHUNK:(is_clen?PR_TXT_LEN:PR_TXT_NONE);
-    }
-    else {
-        *pr = is_chunk?PR_NONE_TXT_CHK:(is_clen?PR_NONE_TXT_LEN:PR_NONE_TXT_NONE);
+    if(has_txt) {
+        if(is_txt) {
+            *pr = is_chunk?PR_TXT_CHUNK:(is_clen?PR_TXT_LEN:PR_TXT_NONE);
+        }
+        else {
+            *pr = is_chunk?PR_NONE_TXT_CHK:(is_clen?PR_NONE_TXT_LEN:PR_NONE_TXT_NONE);
+        }
+
     }
 #ifdef FUNC
     printf("==========finish get_pr_encd()==========\n");
@@ -812,11 +831,25 @@ int http_header_tostr(http_header_t *header, char *buff)
     gettimeofday(&strt, NULL);
 #endif
     int req_rsp = is_http_req_rsp(header);
+#if 0
     if(req_rsp == IS_REQUEST) {
-        sprintf(buff, "%s %s %s", header->method, header->url, header->ver);
+        sprintf(buff, "%s %s%s", header->method, header->url, header->ver);
     }
     else if(req_rsp == IS_RESPONSE) {
-        sprintf(buff, "%s %s %s", header->ver, header->stat_code, header->stat_info);
+        sprintf(buff, "%s %s%s", header->ver, header->stat_code, header->stat_info);
+    }
+    else {
+        printf("http_header_tostr: neither request or response\n");
+        return -1;
+    }
+#endif
+    
+    //针对宇视
+    if(req_rsp == IS_REQUEST) {
+        sprintf(buff, " %s%s", header->url, header->ver);
+    }
+    else if(req_rsp == IS_RESPONSE) {
+        sprintf(buff, " %s%s", header->stat_code, header->stat_info);
     }
     else {
         printf("http_header_tostr: neither request or response\n");
@@ -923,24 +956,23 @@ int rewrite_encd(struct list_head *head, int encd)
 }
 
 
-struct list_head *read_all_chunk(int fd, SSL *ssl)
+int read_all_chunk(int fd, SSL *ssl, struct list_head *head)
 {
 #ifdef FUNC
     printf("==========start read_all_chunk()==========\n");
 #endif
-    struct list_head *head = (struct list_head *)calloc(1, sizeof(struct list_head));
-    init_list_head(head);
+    if(head == NULL) {
+        return -1;
+    }
     while(1) {
         http_chunk_t *chunk = (http_chunk_t *)calloc(1, sizeof(http_chunk_t));
         if(NULL == chunk) {
             free_chunk_list(head);
-            SAFE_FREE(head);
-            return head;
+            return -1;
         }
         if(read_parse_chunk(fd, ssl, chunk) <= 0) {
             free_chunk_list(head);
-            SAFE_FREE(head);
-            return head;
+            return -1;
         }
         list_add_tail(&(chunk->list), head);
         if(chunk->chk_size <= 0) {
@@ -950,7 +982,7 @@ struct list_head *read_all_chunk(int fd, SSL *ssl)
 #ifdef FUNC
     printf("==========finish read_all_chunk()==========\n");
 #endif
-    return head;
+    return 1;
 }
 
 
@@ -1022,16 +1054,22 @@ int read_parse_chk_body_crlf(int fd, SSL *ssl, http_chunk_t *chunk)
         int ret1, ret2;
         chunk->trl_size = 0;
         chunk->body = (char *)calloc(1, chunk->chk_size);
+        if(NULL == chunk->body) {
+            return ERR_CHK_MEM;
+        }
         ret1 = readn(fd, ssl, chunk->body, chunk->chk_size);
         if(ret1 <=0) {
+            SAFE_FREE(chunk->body);
             printf("readn in read_parse_chk_body_crlf return %d\n", ret1);
             return ret1;
         }
         if(ret1 != chunk->chk_size) {
             printf("chunk body: should read %d, actual read %d\n", chunk->chk_size, ret1);
         }
+        //printf("chunk->body is [%s]\n", chunk->body);
         ret2 = read_line(fd, ssl, chunk->body_crlf, sizeof(chunk->body_crlf));
         if(ret2 <=0) {
+            SAFE_FREE(chunk->body);
             printf("read_line in read_parse_chk_body_crlf return %d\n", ret2);
             return ret2;
         }
@@ -1213,3 +1251,14 @@ int print_ssl_error(SSL *ssl, int ret, const char *remark)
     }
     return -1;
 }
+
+int get_peer_ip(int fd, char *ip, int *port)
+{
+    struct sockaddr_in sock;
+    socklen_t len = sizeof(sock);
+    getpeername(fd, (struct sockaddr *)&sock, &len);
+    strcpy(ip, inet_ntoa(sock.sin_addr));
+    *port = ntohs(sock.sin_port);
+    return 0;
+}
+

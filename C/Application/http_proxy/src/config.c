@@ -117,6 +117,10 @@ struct list_head *get_remap_table_m(char *file)
                     sprintf(entry->before, "%s%d", prefix_bfr, strt_aft + j);
                     sprintf(entry->after, "%s%d", prefix_aft, strt_aft + j);
                     entry->direction = drct;
+                    if(proxy == HTTPS) {
+                        entry->session = NULL;
+                        pthread_mutex_init(&(entry->lock), NULL); 
+                    }
                     printf("drct=%d, before=%s,after=%s\n", entry->direction, entry->before, entry->after);
                     list_add_tail(&(entry->list), head);
                 }
@@ -352,7 +356,7 @@ void free_regex_table(struct list_head **head)
     SAFE_FREE(*head);
 }
 
-pcre2_code *get_re_by_host_port(struct list_head *head, char *host, short port)
+pcre2_code *get_re_by_host_port(struct list_head *head, const char *host, short port)
 {
 #ifdef x86
     return NULL;
@@ -393,6 +397,9 @@ char *get_ip_before_remap(struct list_head *head, const char *ip)
     return NULL;
 }
 
+/*
+ * SSL_session_dup，所以用完需要释放
+ */
 SSL_SESSION *get_ssl_session(struct list_head *head, const char *ip)
 {
     if(NULL == head || ip == NULL) {
@@ -405,12 +412,14 @@ SSL_SESSION *get_ssl_session(struct list_head *head, const char *ip)
 #ifdef DEBUG
             printf("get_ssl_session for %s\n", ip);
 #endif
-            if(entry->session == NULL) {
-                return NULL;
-            }
-            SSL_SESSION *session;
+            SSL_SESSION *session = NULL;
             pthread_mutex_lock(&(entry->lock));
-            session = SSL_SESSION_dup(entry->session);
+            if(entry->session == NULL) {
+                session = NULL;
+            }
+            else {
+                session = SSL_SESSION_dup(entry->session);
+            }
             pthread_mutex_unlock(&(entry->lock));
             return session;
         }
@@ -424,34 +433,23 @@ int set_ssl_session(struct list_head *head, const char *ip, SSL_SESSION *session
     if(NULL == head || session == NULL) {
         return -1;
     }
+    int ret = -1;
     struct list_head *pos;
     list_for_each(pos, head) {
         remap_entry_t *entry = list_entry(pos, remap_entry_t, list);
         if(strcmp(ip, entry->before) == 0) {
             pthread_mutex_lock(&(entry->lock));
             if(entry->session) {
-#ifdef DEBUG
-                printf("entry->session is not NULL = %p\n", entry->session);
-#endif
                 SSL_SESSION_free(entry->session);
                 entry->session = NULL;
-#ifdef DEBUG
-                printf("after ssl_session_free, entry->session = %p\n", entry->session);
-#endif
             }
             entry->session = SSL_SESSION_dup(session);
+            ret = entry->session?0:-1;
             pthread_mutex_unlock(&(entry->lock));
-
-            if(entry->session) {
-                printf("new entry->session = %p, session = %p\n", entry->session, session);
-                return 0;
-            }
-            else {
-                printf("cannot set session %p\n", session);
-                return -1;
-            }
+            break;
         }
     }
+    
     return -1;
 }
 
