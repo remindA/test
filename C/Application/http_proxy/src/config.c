@@ -446,7 +446,7 @@ int set_ssl_session(struct list_head *head, const char *ip, SSL_SESSION *session
             entry->session = SSL_SESSION_dup(session);
             ret = entry->session?0:-1;
             pthread_mutex_unlock(&(entry->lock));
-            break;
+            return 1;
         }
     }
     

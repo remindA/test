@@ -495,9 +495,11 @@ int parse_http_header(const char *buf, http_header_t *header)
             return -1;
         }
         strcpy(end, m+strlen(mid)); /*end包含空格*/ 
+#ifdef DEBUG_HTTP
         printf("str=[%s], len=%d\n", str, strlen(str));
         printf("mid=[%s], len=%d\n", mid, strlen(mid));
         printf("end=[%s], len=%d\n", end, strlen(end));
+#endif
 
         if(atoi(mid) > 0) {
             strcpy(header->ver, str);
@@ -575,7 +577,7 @@ void free_http_header(http_header_t *header)
      * 这个小bug害的我从15:00一直调试到23:00．都没能回家陪女朋友
      */
     if(header == NULL) {
-        printf("cannot free_http_header: do not double free http_header\n");
+        printf("do not double free http_header\n");
         return;
     }
     struct list_head *head = &(header)->head;
@@ -844,7 +846,7 @@ int http_header_tostr(http_header_t *header, char *buff)
     }
 #endif
     
-    //针对宇视
+    /* coperate with feed_dog() in http_proxy.c */
     if(req_rsp == IS_REQUEST) {
         sprintf(buff, " %s%s", header->url, header->ver);
     }
@@ -856,7 +858,6 @@ int http_header_tostr(http_header_t *header, char *buff)
         return -1;
     }
 
-    printf("first line[%s]\n", buff);
     struct list_head *pos;
     struct list_head *head = &(header->head);
     list_for_each(pos, head) {
@@ -1073,7 +1074,6 @@ int read_parse_chk_body_crlf(int fd, SSL *ssl, http_chunk_t *chunk)
             printf("read_line in read_parse_chk_body_crlf return %d\n", ret2);
             return ret2;
         }
-        printf("read_body: is_empty_line=%d, [%s]\n", is_empty_line(chunk->body_crlf), chunk->body_crlf);
         return ret1;
     }
     /* trailer */
