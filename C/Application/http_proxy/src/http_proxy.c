@@ -1221,13 +1221,12 @@ int read_process_forward(int fd_from,  SSL *ssl_from, int *fd_to, SSL **ssl_to, 
 }
 
 
-//后期优化: 使用链表处理
-//chunk体太大时会发生内存分配错误
 int read_all_txt_chunk_m(int fd, SSL *ssl, unsigned char **all_chunk, unsigned int *len)
 {
 #ifdef FUNC
     printf("==========start read_all_txt_chunk_m()==========\n");
 #endif
+    /* 存入链表 */
     while(1) {
     }
 #ifdef FUNC
