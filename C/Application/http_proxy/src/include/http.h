@@ -2,11 +2,22 @@
 #define _HTTP_H_
 
 #include <math.h>
+/* ulibc: __USE_GUN
+ * glibs: _GUN_SOURCE
+ */
+#define __USE_GNU
 #include <string.h>
 #include <syslog.h>
 #include <openssl/ssl.h>
 #include <openssl/err.h>
 #include <openssl/x509.h>
+#include <netdb.h>
+#include <sys/types.h>
+#include <sys/socket.h>
+#include <arpa/inet.h>
+#include <netinet/in.h>
+#include <sys/stat.h>
+#include <sys/time.h>
 
 #include "str_replace.h"
 #include "pad_rplstr.h"
@@ -30,13 +41,16 @@
 
 /*
  * 关于PR的说明
- * 0-PR_NONE: 从header中无法分析出任何有效信息
+ * 0-PR_NONE:           !body_type, !content_length, !chunked                   
+ *      (GET, 304 Not Modified ...)
  * 1-PR_TXT_LEN:        body_type ∈　text_table[],  content-length
  * 2-PR_TXT_CHUNK:      body_type ∈　text_table[],  chunked
  * 5-PR_TXT_NONE:       body_type ∈　text_table[], !content-length && !chunked
+ *      (connection-close)
  * 3-PR_NONE_TXT_LEN:   body_type !∈　text_table[], content-length
  * 4-PR_NONE_TXT_CHUNK: body_type !∈　text_table[], chunked
  * 6-PR_NONE_TXT_NONE:  body_type !∈　text_table[], !content-length && !chunked
+ *      (connection-close)
  */
 #define PR_NONE          0
 #define PR_TXT_CHUNK     1
@@ -45,6 +59,8 @@
 #define PR_NONE_TXT_CHK  4
 #define PR_TXT_NONE      5
 #define PR_NONE_TXT_NONE 6
+#define ERR_CHK_MEM      -10
+#define ERR_BODY_MEM      -10
 
 
 #define ENCD_NONE      0
@@ -114,7 +130,7 @@ typedef struct {
     int  trl_size;
     char *trailer;
     char body_crlf[3];
-    struct list_head list_head;
+    struct list_head list;
 }http_chunk_t;
 
 
@@ -124,13 +140,12 @@ extern c_type_t text_table[];
 
 extern int readn(int fd, SSL *ssl, void *buff, int n);
 extern int read_line(int fd, SSL *ssl, char *buff, int cnt);
-extern int read_double_crlf(int fd, SSL *ssl, char *buff, int cnt);
+extern int read_http_header(int fd, SSL *ssl, char *buff, int cnt);
 extern int my_write(int fd, SSL *ssl, const char *fmt, ...);
-extern int print_ssl_error(SSL *ssl, int ret, const char *remark);
 
 extern int parse_http_header(const char *buf, http_header_t *header);
 extern int parse_http_field(const char *line, http_field_t *field);
-extern void free_http_header(http_header_t **header);
+extern void free_http_header(http_header_t *header);
 extern int hex2dec(char *hex, unsigned int *dec);
 extern int erase_nhex(char *chunk_size);
 extern int get_pr_encd(struct list_head *head, int *pr, int *encd);
@@ -138,7 +153,18 @@ extern int get_host_port(http_header_t *header, char *host, short *port);
 extern int is_http_req_rsp(http_header_t *header);
 extern int http_header_tostr(http_header_t *header, char *buff);
 extern int rewrite_clen_encd(struct list_head *head, int content_length, int gunzip);
-extern int rewrite_c_encd(struct list_head *head, int encd);
+extern int rewrite_encd(struct list_head *head, int encd);
+int read_all_chunk(int fd, SSL *ssl, struct list_head *head);
+int read_parse_chunk(int fd, SSL* ssl, http_chunk_t *chunk);
+int read_parse_chk_size_ext_crlf(int fd, SSL* ssl, http_chunk_t *chunk);
+int read_parse_chk_body_crlf(int fd, SSL *ssl, http_chunk_t *chunk);
+int is_empty_line(const char *line);
+int http_chunk_to_buff(http_chunk_t *chunk, unsigned char **buf, unsigned int *len);
+int http_all_chunk_to_buff(struct list_head *head, unsigned char **buff, unsigned int *len);
+void free_http_chunk(http_chunk_t *chunk);
+void free_chunk_list(struct list_head *head); 
+extern int print_ssl_error(SSL *ssl, int ret, const char *remark);
+int get_peer_ip(int fd, char *ip, int *port);
 
 #endif
 

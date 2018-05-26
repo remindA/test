@@ -119,8 +119,8 @@ struct list_head *get_list_substring_compiled_code(PCRE2_SPTR subject, pcre2_cod
     printf("\033[0m");
 //#endif
 	list_add_tail(&(node_sub->list), head);
-	int i = 0;
 #ifdef STRDEBUG
+	int i = 0;
 	for (i = 0; i < rc; i++)
 	{
 		PCRE2_SPTR substring_start = subject + ovector[2 * i];
@@ -147,6 +147,7 @@ struct list_head *get_list_substring_compiled_code(PCRE2_SPTR subject, pcre2_cod
 		(void) pcre2_pattern_info(re, PCRE2_INFO_NAMETABLE, &name_table);
 		(void) pcre2_pattern_info(re, PCRE2_INFO_NAMEENTRYSIZE, &name_entry_size);
 		tabptr = name_table;
+        int i;
 		for (i = 0; i < namecount; i++)
 		{
 			int n = (tabptr[0] << 8) | tabptr[1];
@@ -396,6 +397,7 @@ PCRE2_SPTR replace_all_default_malloc(PCRE2_SPTR subject, struct list_head *head
 #endif
 		return NULL;
 	}
+    int replace = 0;
 	size_t size_sum_substr = 0;
 	size_t size_sum_rplstr = 0;
 	struct list_head *pos = head->next;
@@ -403,14 +405,16 @@ PCRE2_SPTR replace_all_default_malloc(PCRE2_SPTR subject, struct list_head *head
 		node_substr_t *node = list_entry(pos, node_substr_t, list);
 
 		size_sum_substr += node->len_substr;
-		if (NULL != node->rplstr)
+		if (NULL != node->rplstr) {
 			size_sum_rplstr += strlen(node->rplstr);
-		else
+            replace = 1;
+        }
+		else {
 			size_sum_rplstr += node->len_substr;        //为NULL则不替换(替换为本身)
+        }
 	}
 
-	//if (size_sum_substr == size_sum_rplstr)             //所有节点的rplstr都为NULL,那就不替换了。
-	if (0 == size_sum_rplstr)             //所有节点的rplstr都为NULL,那就不替换了。
+	if (!replace) //所有节点的rplstr都为NULL,那就不替换了。
 	{
 #ifdef STRDEBUG
 		printf("replace_all_default_malloc: all list node's rplstr is NULL\n");
@@ -430,7 +434,10 @@ PCRE2_SPTR replace_all_default_malloc(PCRE2_SPTR subject, struct list_head *head
 	}
 	memset((void *) new_subject, 0, size_new_subject);
 	strcpy((char *) new_subject, "");
-	//拼接新的字符串
+	/* 拼接新的字符串
+     * 有替换串，拼接替换串
+     * 没有，拼接字串
+     */
 	pos = head->next;
 	size_t offset = 0;
 	list_for_each(pos, head){

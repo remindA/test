@@ -8,7 +8,6 @@ c_type_t text_table[] = {
     { "text/xml"			   },
     { "text/x-component"	   },
     { "text/html"			   },
-    /*{ "text/javascript"		   }, */
     { "text/x-vcard"		   },
     { "text/scriptlet"		   },
     { "text/vnd.wap.wml"	   },
@@ -18,10 +17,12 @@ c_type_t text_table[] = {
     { "text/vnd.rn-realtext3d" },
     { "text/x-ms-doc"		   },
     { "text/webviewhtml"	   },
-    /*{ "text/css"			   },
-      { "application/javascript" },
-      */
-    { "application/VIID+JSON"},     /* 2018-05-10,凌轩图像认证 */
+#ifdef DEBUG
+    { "text/css"			   },
+    { "application/javascript" },
+    { "text/javascript"		   },
+#endif
+    { "application/VIID+JSON"  },   /* 2018-05-10,凌轩图像认证 */
     { "application/atom+xml"   },
     { "application/json"       },   /* 南京茂业 */
     { "application/soap+xml"   },   /* 南京茂业 */
@@ -38,7 +39,7 @@ c_type_t text_table[] = {
 
 static int _readn(int fd, void *buff, int n);
 static int _read_line(int fd, char *buff, int cnt);
-static int _read_double_crlf(int fd, char *buff, int cnt);
+static int _read_http_header(int fd, char *buff, int cnt);
 static int _readn_ssl(SSL *ssl, void *buff, int n);
 static int _read_line_ssl(SSL *ssl, char *buff, int cnt);
 static int _read_http_header_ssl(SSL *ssl, char *buff, int cnt);
@@ -65,7 +66,6 @@ int read_http_header(int fd, SSL *ssl, char *buff, int n)
 {
     return (proxy == HTTP)?_read_http_header(fd, buff, n):_read_http_header_ssl(ssl, buff, n);
 }
-
 
 static int _readn(int fd, void *buff, int n)
 {
@@ -173,6 +173,9 @@ static int _read_http_header(int fd, char *buff, int cnt)
     struct timeval end;
     gettimeofday(&strt, NULL);
 #endif
+    int port = 0;
+    char ip[16] = {0};
+    get_peer_ip(fd, ip, &port);
     while (1)
     {
         n = read(fd, &c, 1);
@@ -182,7 +185,7 @@ static int _read_http_header(int fd, char *buff, int cnt)
                 continue;
             else {
                 perror("_read_http_header: read()");
-                syslog("_read_http_header时出错");
+                syslog(LOG_INFO, "_read_http_header from %s:%d\n", ip, port);
                 return -1;
             }
         }
@@ -386,6 +389,11 @@ static int _read_http_header_ssl(SSL *ssl, char *buff, int cnt)
     return tot_read;
 }
 
+/*
+ * return:
+ *      ok      : >0
+ *      failed  : -1
+ */ 
 int my_write(int fd, SSL *ssl, const char *fmt, ...)
 {
 #ifdef FUNC
@@ -462,25 +470,36 @@ int parse_http_header(const char *buf, http_header_t *header)
     int ret;
     char *start;
     char *crlf;
-    start = buf;
-    if(crlf = strchr(start, '\n')) {
+    start = (char *)buf;
+    if((crlf = strchr(start, '\n'))) {
         char line[LEN_LINE] = {0};
         char str[LEN_METHOD + LEN_VER] = {0};
         char mid[LEN_URL + LEN_STAT_CODE] = {0};
         char end[LEN_VER + LEN_STAT_INFO] = {0};
-        strncpy(line, start, crlf-start+1);  /* include '\n' */
+        strncpy(line, start, crlf+1-start);  /* include '\n' */
 #ifdef DEBUG_HTTP
-        printf("[%s]\n", line);
+        printf("parse_http_header, first line=[%s]\n", line);
 #endif
-        char *format = "%s %s %s";
-        ret = sscanf(line, format, str, mid, end);
-        if(ret != 3) {
+        char *format = "%s %s";
+        ret = sscanf(line, format, str, mid);
+        if(ret != 2) {
 #ifdef DEBUG_HTTP
-            printf("parse_http_header: message line ret = %d != 3\n", ret);
+            printf("parse_http_header: message line ret = %d != 2\n", ret);
 #endif
+            syslog(LOG_INFO, "parse_http_header ret is not 2");
             return -1;
         }
-
+        char *m = strstr(line, mid);
+        if(NULL == m) {
+            printf("parse_http_header: mid wrong\n");
+            return -1;
+        }
+        strcpy(end, m+strlen(mid)); /*end包含空格*/ 
+#ifdef DEBUG_HTTP
+        printf("str=[%s], len=%d\n", str, strlen(str));
+        printf("mid=[%s], len=%d\n", mid, strlen(mid));
+        printf("end=[%s], len=%d\n", end, strlen(end));
+#endif
 
         if(atoi(mid) > 0) {
             strcpy(header->ver, str);
@@ -499,18 +518,21 @@ int parse_http_header(const char *buf, http_header_t *header)
         char line[LEN_LINE] = {0};
         strncpy(line, start, crlf-start+1);  /*include '\n'*/
 #ifdef DEBUG_HTTP
-        printf("%s\n", line);
+        printf("[%s]\n", line);
 #endif
-        if((line[0] == '\n') || (line[0] == '\r' && line[1] == '\n')) {
+        if(is_empty_line(line)) {
             strcpy(header->crlf, line);
             break;
         }
 
-        http_field_t *field = (http_field_t *)malloc(sizeof(http_field_t));
+        http_field_t *field = (http_field_t *)calloc(1, sizeof(http_field_t));
         if(parse_http_field(line, field) < 0) {
 #ifdef DEBUG_HTTP
-            printf("cannot parse_http_line[%s]", line);
+            printf("cannot parse_http_line[%s]\n", line);
 #endif
+            syslog(LOG_INFO, "cannot parse_http_line[%s]\n", line);
+            free_http_header(header);
+            return -1;
         }
         else {
             list_add_tail(&(field->list), &(header->head)); 
@@ -535,7 +557,6 @@ int parse_http_field(const char *line, http_field_t *field)
 #ifdef FUNC
     printf("==========start parse_http_field()==========\n");
 #endif
-    int ret;
     char *p = strchr(line, ':');
     if(NULL == p) {
         return -1;
@@ -549,17 +570,17 @@ int parse_http_field(const char *line, http_field_t *field)
 }
 
 
-void free_http_header(http_header_t **header)
+void free_http_header(http_header_t *header)
 {
     /* 避免重复释放
      * 写成了if(header == NULL), 导致第二次释放header非法访问了内存
      * 这个小bug害的我从15:00一直调试到23:00．都没能回家陪女朋友
      */
-    if(*header == NULL) {
-        printf("cannot free_http_header: do not double free http_header\n");
+    if(header == NULL) {
+        printf("do not double free http_header\n");
         return;
     }
-    struct list_head *head = &((*header)->head);
+    struct list_head *head = &(header)->head;
     struct list_head *pos =  head->next;
     struct list_head *tmp = NULL;
     while(pos != head) {
@@ -568,7 +589,6 @@ void free_http_header(http_header_t **header)
         SAFE_FREE(field);
         pos = tmp;
     }
-    SAFE_FREE(*header);
 }
 
 
@@ -634,6 +654,7 @@ int get_pr_encd(struct list_head *head, int *pr, int *encd)
     printf("==========start get_pr_encd()==========\n");
 #endif
     int len = 0;
+    int has_txt = 0;
     int is_txt = 0;
     int is_clen = 0;
     int is_chunk = 0;
@@ -650,6 +671,7 @@ int get_pr_encd(struct list_head *head, int *pr, int *encd)
             printf("[%s%s]\n", field->key, field->value);
             printf("\033[0m");
 #endif
+            has_txt = 1;
             c_type_t *t;
             for (t = text_table; t->type; t++) {
                 if (strcasestr(field->value, t->type)) {
@@ -666,7 +688,7 @@ int get_pr_encd(struct list_head *head, int *pr, int *encd)
             printf("\033[0m");
 #endif
             is_clen = 1;
-            len = (int) atoi(field->value);
+            len = atoi(field->value);
         }
 
         if (strcasestr(field->key, "Transfer-encoding") && strcasestr(field->value, "chunked")) {
@@ -713,11 +735,14 @@ int get_pr_encd(struct list_head *head, int *pr, int *encd)
        可读性很差
      *pr = is_txt?(is_chunk?PR_TXT_CHUNK:(is_clen?PR_TXT_LEN:PR_TXT_NONE)):(is_chunk?PR_NONE_TXT_CHK:(is_clen?PR_NONE_TXT_LEN:PR_NONE_TXT_NONE));
      */
-    if(is_txt) {
-        *pr = is_chunk?PR_TXT_CHUNK:(is_clen?PR_TXT_LEN:PR_TXT_NONE);
-    }
-    else {
-        *pr = is_chunk?PR_NONE_TXT_CHK:(is_clen?PR_NONE_TXT_LEN:PR_NONE_TXT_NONE);
+    if(has_txt) {
+        if(is_txt) {
+            *pr = is_chunk?PR_TXT_CHUNK:(is_clen?PR_TXT_LEN:PR_TXT_NONE);
+        }
+        else {
+            *pr = is_chunk?PR_NONE_TXT_CHK:(is_clen?PR_NONE_TXT_LEN:PR_NONE_TXT_NONE);
+        }
+
     }
 #ifdef FUNC
     printf("==========finish get_pr_encd()==========\n");
@@ -752,11 +777,12 @@ int get_host_port(http_header_t *header, char *host, short *port)
             char *start = field->value;
             while(*start == ' ') start++;
 
-            if(strchr(start ':')) {
+            if(strchr(start, ':')) {
                 char *format = "%[^:]:%[0-9]";
                 char s_port[10] = {0};
                 ret = sscanf(start, format, host, s_port);
                 if(ret == 2) {
+                    printf("s_port=[%s]\n", s_port);
                     *port = (short) atoi(s_port);  //aoti(" 123 ") also works well
                 }
                 else if(ret == 1) {
@@ -807,35 +833,33 @@ int http_header_tostr(http_header_t *header, char *buff)
     gettimeofday(&strt, NULL);
 #endif
     int req_rsp = is_http_req_rsp(header);
+#if 0
     if(req_rsp == IS_REQUEST) {
-        if(*(header->method) != '\0' &&
-                *(header->url) != '\0' &&
-                *(header->ver) != '\0') {
-            sprintf(buff, "%s %s %s", header->method, header->url, header->ver);
-        }
-        else {
-            printf("http_header_tostr: request. first line wrong.\n");
-            return -1;
-        }
+        sprintf(buff, "%s %s%s", header->method, header->url, header->ver);
     }
     else if(req_rsp == IS_RESPONSE) {
-        if(*(header->ver) != '\0' &&
-                *(header->stat_code) != '\0' &&
-                *(header->stat_info) != '\0') {
-            sprintf(buff, "%s %s %s", header->ver, header->stat_code, header->stat_info);
-        }
-        else {
-            printf("http_header_tostr: response.  first line wrong.\n");
-            return -1;
-        } 
+        sprintf(buff, "%s %s%s", header->ver, header->stat_code, header->stat_info);
+    }
+    else {
+        printf("http_header_tostr: neither request or response\n");
+        return -1;
+    }
+#endif
+    
+    /* coperate with feed_dog() in http_proxy.c */
+    if(req_rsp == IS_REQUEST) {
+        sprintf(buff, " %s%s", header->url, header->ver);
+    }
+    else if(req_rsp == IS_RESPONSE) {
+        sprintf(buff, " %s%s", header->stat_code, header->stat_info);
     }
     else {
         printf("http_header_tostr: neither request or response\n");
         return -1;
     }
 
+    struct list_head *pos;
     struct list_head *head = &(header->head);
-    struct list_head *pos = NULL;
     list_for_each(pos, head) {
         http_field_t *field = list_entry(pos, http_field_t, list);
         strcat(buff, field->key);
@@ -869,11 +893,11 @@ int rewrite_clen_encd(struct list_head *head, int content_length, int gunzip)
     while(pos != head) {
         http_field_t *field = list_entry(pos, http_field_t, list);
         if(strcasestr(field->key, "Content-length")) {
-            int len = strlen(field->key);
-            int cr = (field->key)[len-2]=='\r'?1:0;
-            int lf = (field->key)[len-1]=='\n'?1:0;
+            int len = strlen(field->value);
+            int cr = (field->value)[len-2]=='\r'?1:0;
+            int lf = (field->value)[len-1]=='\n'?1:0;
             if(!lf){
-                printf("content-length没有行结束标志\\n");
+                printf("content-length没有行结束标志\n");
                 return 0;
             }
             memset(field->value, 0, LEN_FIELD_VALUE);
@@ -910,7 +934,7 @@ int rewrite_encd(struct list_head *head, int encd)
     struct list_head *pos = head->next;
     while(pos != head) {
         http_field_t *field = list_entry(pos, http_field_t, list);
-        if(strcasecmp("Content-encoding", field->key) == 0) {
+        if(strcasestr(field->key, "Content-encoding")) {
             if(encd == ENCD2FLATE) {
                 struct list_head *tmp = pos->next;
                 list_del(pos);
@@ -932,6 +956,252 @@ int rewrite_encd(struct list_head *head, int encd)
     return 0;
 }
 
+
+int read_all_chunk(int fd, SSL *ssl, struct list_head *head)
+{
+#ifdef FUNC
+    printf("==========start read_all_chunk()==========\n");
+#endif
+    if(head == NULL) {
+        return -1;
+    }
+    while(1) {
+        http_chunk_t *chunk = (http_chunk_t *)calloc(1, sizeof(http_chunk_t));
+        if(NULL == chunk) {
+            free_chunk_list(head);
+            return -1;
+        }
+        if(read_parse_chunk(fd, ssl, chunk) <= 0) {
+            free_chunk_list(head);
+            return -1;
+        }
+        list_add_tail(&(chunk->list), head);
+        if(chunk->chk_size <= 0) {
+            break;
+        }
+    }
+#ifdef FUNC
+    printf("==========finish read_all_chunk()==========\n");
+#endif
+    return 1;
+}
+
+
+/*
+ * 读取一个chunk并
+ * return:  ok    : 1  
+ *          failed: <=0
+ */ 
+int read_parse_chunk(int fd, SSL* ssl, http_chunk_t *chunk)
+{
+    int ret;
+    ret = read_parse_chk_size_ext_crlf(fd, ssl, chunk);
+    if(ret <= 0) {
+        return ret;
+    }
+    return read_parse_chk_body_crlf(fd, ssl, chunk);
+}
+
+int read_parse_chk_size_ext_crlf(int fd, SSL* ssl, http_chunk_t *chunk)
+{
+    int ret;
+    char line[LEN_LINE] = {0};
+    ret = read_line(fd, ssl, line, sizeof(line));
+    if(ret <=0) {
+        return ret;
+    }
+    /* size ext crlf */
+    /* ext: 
+     * "ext_name":"ext_value"
+     *
+     */
+    char size[64] = {0};
+    printf("chunk_size=[%s]\n", line);
+    ret = sscanf(line, "%[0-9a-zA-Z]", size);
+    if(1 != ret) {
+        printf("chk_size error\n");
+        return -1;
+    }
+    hex2dec(size, (unsigned int *)&(chunk->chk_size)); 
+    printf("size=%d\n", chunk->chk_size);
+
+    char *lf = strstr(line, "\n");
+    char *crlf = strstr(line, "\r\n");
+    crlf = crlf?crlf:lf;
+    if(NULL == crlf) {
+        printf("chk_crlf error\n");
+        return -1;
+    }
+    if(strlen(crlf) > sizeof(chunk->chk_crlf)-1) {
+        printf("chk_crlf length over 2, [%s]\n", crlf);
+        return -1;
+    }
+    strcpy(chunk->chk_crlf, crlf);
+
+    char *split = strchr(line, ';');
+    if(split) {
+        chunk->chk_ext = (char *)calloc(1, crlf-split+1);
+        strncpy(chunk->chk_ext, split, crlf-split);
+    }
+    return 1;
+}
+
+
+int read_parse_chk_body_crlf(int fd, SSL *ssl, http_chunk_t *chunk)
+{
+    /* 非trailer */
+    /* 可能是压缩过的内容:w */
+    if(chunk->chk_size > 0) {
+        int ret1, ret2;
+        chunk->trl_size = 0;
+        chunk->body = (char *)calloc(1, chunk->chk_size);
+        if(NULL == chunk->body) {
+            return ERR_CHK_MEM;
+        }
+        ret1 = readn(fd, ssl, chunk->body, chunk->chk_size);
+        if(ret1 <=0) {
+            SAFE_FREE(chunk->body);
+            printf("readn in read_parse_chk_body_crlf return %d\n", ret1);
+            return ret1;
+        }
+        if(ret1 != chunk->chk_size) {
+            printf("chunk body: should read %d, actual read %d\n", chunk->chk_size, ret1);
+        }
+        //printf("chunk->body is [%s]\n", chunk->body);
+        ret2 = read_line(fd, ssl, chunk->body_crlf, sizeof(chunk->body_crlf));
+        if(ret2 <=0) {
+            SAFE_FREE(chunk->body);
+            printf("read_line in read_parse_chk_body_crlf return %d\n", ret2);
+            return ret2;
+        }
+        return ret1;
+    }
+    /* trailer */
+    else {
+        int ret;
+        int tot = 0;
+        char line[LEN_LINE] = {0};
+        while((ret = read_line(fd, ssl, line, sizeof(line))) > 0){
+            if(is_empty_line(line)) {
+                chunk->trl_size = tot;
+                memcpy(chunk->body_crlf, line, ret);
+                break;
+            }
+            else{
+                chunk->trailer = realloc(chunk->trailer, tot+ret);
+                memcpy(chunk->trailer+tot, line, ret);
+                tot += ret;
+            }
+            memset(line, 0, sizeof(line));
+        }
+        return ret;
+    }
+}
+
+int is_empty_line(const char *line)
+{
+    if(NULL == line) {
+        return 0;
+    }
+    int len = strlen(line);
+    if(1 == len && line[0] == '\n'){
+        return 1;
+    }
+    else if(2 == len && line[0] == '\r' && line[1] == '\n') {
+        return 1;
+    }
+    else {
+        return 0;
+    }
+}
+
+
+int http_chunk_to_buff(http_chunk_t *chunk, unsigned char **buf, unsigned int *len)
+{
+    /* 32位操作系统十六进制字符串最长8 */
+    char size[64] = {0};
+    sprintf(size, "%x", chunk->chk_size);
+    *len = strlen(size) + (chunk->chk_ext?strlen(chunk->chk_ext):0) +
+        strlen(chunk->chk_crlf) + chunk->chk_size + chunk->trl_size +
+        strlen(chunk->body_crlf);
+    *buf = (unsigned  char *)calloc(1, *len);
+    if(NULL == *buf) {
+        perror("calloc in http_chunk_to_buf");
+        return -1;
+    }
+    int offset = 0; 
+    memcpy(*buf + offset, size, strlen(size));
+    offset += strlen(size);
+    if(chunk->chk_ext) {
+        memcpy(*buf + offset, chunk->chk_ext, strlen(chunk->chk_ext));
+        offset += strlen(chunk->chk_ext);
+    }
+    memcpy(*buf + offset, chunk->chk_crlf, strlen(chunk->chk_crlf));
+    offset += strlen(chunk->chk_crlf);
+    if(chunk->chk_size > 0) {
+        memcpy(*buf + offset, chunk->body, chunk->chk_size);
+        offset += chunk->chk_size;
+    }
+    if(chunk->trl_size > 0) {
+        memcpy(*buf + offset, chunk->trailer, chunk->trl_size);
+        offset += chunk->trl_size;
+    }
+    memcpy(*buf + offset, chunk->body_crlf, strlen(chunk->body_crlf));
+    offset += strlen(chunk->body_crlf);
+    return 0;
+}
+
+
+/*
+ * http_all_chunk_to_buff:
+ *  把所有chunk body拼接完整，放入到一个缓冲区,解压
+ *  如果调用此函数，对每个chunk来说，ext是无用的
+ *  trailer暂时去掉
+ *  转发按照协议规定进行
+ *  [size]\r\n
+ *  [body]\r\n
+ *  0\r\n
+ *  \r\n
+ */ 
+int http_all_chunk_to_buff(struct list_head *head, unsigned char **buff, unsigned int *len)
+{
+    *len = 0;
+    struct list_head *pos;
+    list_for_each(pos, head) {
+        http_chunk_t *chunk = list_entry(pos, http_chunk_t, list);
+        if(chunk->chk_size > 0){
+            *buff = (unsigned char *)realloc(*buff, *len+chunk->chk_size);
+            if(NULL == *buff) {
+                perror("realloc, in http_chunk_all_to_buff");
+                return -1;
+            }
+            memcpy(*buff + *len, chunk->body, chunk->chk_size);
+            *len += chunk->chk_size;
+        }
+    }
+    return 0;
+}
+
+void free_http_chunk(http_chunk_t *chunk)
+{
+    SAFE_FREE(chunk->chk_ext);
+    SAFE_FREE(chunk->body);
+    SAFE_FREE(chunk->trailer);
+}
+
+void free_chunk_list(struct list_head *head) 
+{
+    struct list_head *tmp;
+    struct list_head *pos = head->next;
+    while(pos != head) {
+        http_chunk_t *chunk = list_entry(pos, http_chunk_t, list);
+        tmp = pos->next;
+        list_del(pos);
+        pos = tmp;
+        free_http_chunk(chunk);
+        SAFE_FREE(chunk);
+    }
+}
 
 int print_ssl_error(SSL *ssl, int ret, const char *remark)
 {
@@ -981,3 +1251,14 @@ int print_ssl_error(SSL *ssl, int ret, const char *remark)
     }
     return -1;
 }
+
+int get_peer_ip(int fd, char *ip, int *port)
+{
+    struct sockaddr_in sock;
+    socklen_t len = sizeof(sock);
+    getpeername(fd, (struct sockaddr *)&sock, &len);
+    strcpy(ip, inet_ntoa(sock.sin_addr));
+    *port = ntohs(sock.sin_port);
+    return 0;
+}
+

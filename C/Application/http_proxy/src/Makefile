@@ -1,5 +1,6 @@
 #the value of PLATFORM is either SR04I or OpenWRT
 PLATFORM = OpenWRT
+GDB = YES
 
 SERVER_KEY = server.key
 SERVER_CRT = server.crt
@@ -10,6 +11,10 @@ INCLUDES = -I. -I./include
 OBJS =  http_proxy.o config.o http.o pad_rplstr.o str_replace.o
 BIN = http_proxy
 
+ifeq ($(GDB), YES)
+CFLAGS += -g
+endif
+
 ##########################调试宏#############################
 #CFLAGS += -D DEBUG
 #CFLAGS += -D FUNC
@@ -19,11 +24,12 @@ BIN = http_proxy
 #CFLAGS += -D NAMED_GROUP
 #CFLAGS += -D PRINTMATCH
 #CFLAGS += -D STRDEBUG
-#CFLAGS += -D RPS
+#:wCFLAGS += -D RPS
 #CFLAGS += -D HANDLE_CLIENT
 #CFLAGS += -D HANDLE_SERVER
 #CFLAGS += -D NO_REPLACE
 #CFLAGS += -D TIME_COST
+#CFLAGS += -D DEBUG_SIGNAL
 ##########################调试宏#############################
 
 

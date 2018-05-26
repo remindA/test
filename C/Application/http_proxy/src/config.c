@@ -27,10 +27,10 @@ struct list_head *get_remap_table_m(char *file)
 {
     //创建head,并初始化
     int err = 0;
-    struct list_head *head = (struct list_head *) malloc(sizeof (struct list_head));
+    struct list_head *head = (struct list_head *) calloc(1, sizeof (struct list_head));
     if (NULL == head)
     {
-        perror("malloc");
+        perror("calloc");
         err = 1;
         goto cleanup;
     }
@@ -106,28 +106,31 @@ struct list_head *get_remap_table_m(char *file)
                 int j = 0;
                 for(j = 0; j < len_bfr; j++)
                 {
-                    remap_entry_t *entry = (remap_entry_t *)malloc(sizeof(remap_entry_t));
+                    remap_entry_t *entry = (remap_entry_t *)calloc(1, sizeof(remap_entry_t));
                     if(NULL == entry)
                     {
-                        perror("malloc");
+                        perror("calloc");
                         free_remap_table(&head);
                         err = 1;
                         return NULL;
                     }
-                    memset(entry, 0, sizeof(remap_entry_t));
                     sprintf(entry->before, "%s%d", prefix_bfr, strt_aft + j);
                     sprintf(entry->after, "%s%d", prefix_aft, strt_aft + j);
                     entry->direction = drct;
+                    if(proxy == HTTPS) {
+                        entry->session = NULL;
+                        pthread_mutex_init(&(entry->lock), NULL); 
+                    }
                     printf("drct=%d, before=%s,after=%s\n", entry->direction, entry->before, entry->after);
                     list_add_tail(&(entry->list), head);
                 }
                 continue;
             }
 
-            remap_entry_t *entry = (remap_entry_t *)malloc(sizeof(remap_entry_t));
+            remap_entry_t *entry = (remap_entry_t *)calloc(1, sizeof(remap_entry_t));
             if(entry == NULL)
             {
-                perror("malloc() in get remap_table");
+                perror("calloc() in get remap_table");
                 free_remap_table(&head);
                 err = 1;
                 goto cleanup;
@@ -159,10 +162,10 @@ struct list_head *get_regex_table_m(char *file)
 {
     //创建head,并初始化
     int err = 0;
-    struct list_head *head = (struct list_head *)malloc(sizeof(struct list_head));
+    struct list_head *head = (struct list_head *)calloc(1, sizeof(struct list_head));
     if(head == NULL)
     {
-        perror("malloc");
+        perror("calloc");
         err = 1;
         goto cleanup;
     }
@@ -192,10 +195,10 @@ struct list_head *get_regex_table_m(char *file)
         }
         printf("type=%s, ip=%s, port=%s, regex=%s\n", type, ip, port, regex);
         pcre2_code *re = get_compile_code((PCRE2_SPTR)regex, 0);
-        regex_entry_t *entry = (regex_entry_t *)malloc(sizeof(regex_entry_t));
+        regex_entry_t *entry = (regex_entry_t *)calloc(1, sizeof(regex_entry_t));
         if(entry == NULL)
         {
-            perror("malloc() in get regex_table");
+            perror("calloc() in get regex_table");
             free_regex_table(&head);
             err = 1;
             goto cleanup;
@@ -353,7 +356,7 @@ void free_regex_table(struct list_head **head)
     SAFE_FREE(*head);
 }
 
-pcre2_code *get_re_by_host_port(struct list_head *head, char *host, short port)
+pcre2_code *get_re_by_host_port(struct list_head *head, const char *host, short port)
 {
 #ifdef x86
     return NULL;
@@ -394,6 +397,9 @@ char *get_ip_before_remap(struct list_head *head, const char *ip)
     return NULL;
 }
 
+/*
+ * SSL_session_dup，所以用完需要释放
+ */
 SSL_SESSION *get_ssl_session(struct list_head *head, const char *ip)
 {
     if(NULL == head || ip == NULL) {
@@ -406,12 +412,14 @@ SSL_SESSION *get_ssl_session(struct list_head *head, const char *ip)
 #ifdef DEBUG
             printf("get_ssl_session for %s\n", ip);
 #endif
-            if(entry->session == NULL) {
-                return NULL;
-            }
-            SSL_SESSION *session;
+            SSL_SESSION *session = NULL;
             pthread_mutex_lock(&(entry->lock));
-            session = SSL_SESSION_dup(entry->session);
+            if(entry->session == NULL) {
+                session = NULL;
+            }
+            else {
+                session = SSL_SESSION_dup(entry->session);
+            }
             pthread_mutex_unlock(&(entry->lock));
             return session;
         }
@@ -425,34 +433,23 @@ int set_ssl_session(struct list_head *head, const char *ip, SSL_SESSION *session
     if(NULL == head || session == NULL) {
         return -1;
     }
+    int ret = -1;
     struct list_head *pos;
     list_for_each(pos, head) {
         remap_entry_t *entry = list_entry(pos, remap_entry_t, list);
         if(strcmp(ip, entry->before) == 0) {
             pthread_mutex_lock(&(entry->lock));
             if(entry->session) {
-#ifdef DEBUG
-                printf("entry->session is not NULL = %p\n", entry->session);
-#endif
                 SSL_SESSION_free(entry->session);
                 entry->session = NULL;
-#ifdef DEBUG
-                printf("after ssl_session_free, entry->session = %p\n", entry->session);
-#endif
             }
             entry->session = SSL_SESSION_dup(session);
+            ret = entry->session?0:-1;
             pthread_mutex_unlock(&(entry->lock));
-
-            if(entry->session) {
-                printf("new entry->session = %p, session = %p\n", entry->session, session);
-                return 0;
-            }
-            else {
-                printf("cannot set session %p\n", session);
-                return -1;
-            }
+            return 1;
         }
     }
+    
     return -1;
 }
 

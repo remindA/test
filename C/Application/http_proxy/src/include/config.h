@@ -86,7 +86,7 @@ int get_http_switch(char *key);
 int get_https_switch(char *key);
 void free_remap_table(struct list_head **head);
 void free_regex_table(struct list_head **head);
-pcre2_code *get_re_by_host_port(struct list_head *head, char *host, short port);
+pcre2_code *get_re_by_host_port(struct list_head *head, const char *host, short port);
 char *get_ip_before_remap(struct list_head *head, const char *ip);
 
 extern SSL_SESSION *get_ssl_session(struct list_head *head, const char *ip);

@@ -84,6 +84,7 @@ define Package/$(PKG_NAME)/install
 	$(INSTALL_BIN) $(PKG_BUILD_DIR)/$(PKG_NAME) $(1)/usr/sbin
 	#=== 开启自启动 && 配置文件 && init.d服务
 	$(INSTALL_DIR) $(1)/etc/init.d
+	$(INSTALL_BIN) ./files/http_proxy $(1)/etc/init.d/http_proxy
 	$(INSTALL_DIR) $(1)/etc/config
 	$(INSTALL_DIR) $(1)/etc/http_proxy
 	$(INSTALL_BIN) ./files/server.crt $(1)/etc/http_proxy/server.crt

@@ -26,6 +26,10 @@
 #include <signal.h>
 #include <stdlib.h>
 #include <unistd.h>
+/* ulibc: __USE_GUN
+ * glibs: _GUN_SOURCE
+ */
+#define __USE_GNU
 #include <string.h>
 #include <syslog.h>
 #include <pthread.h>
@@ -89,9 +93,36 @@ int ssl_init(void);
 int proxy_listen(void);
 void worker_thread(void *ARG);
 int read_process_forward(int fd_from,  SSL *ssl_from, int *fd_to, SSL **ssl_to, pcre2_code **regex);
-int read_all_txt_chunk_m(int fd, SSL *ssl, unsigned char **all_chunk, unsigned int *len);
-int read_forward_txt_chunk(int fd_from, SSL *ssl_from, int fd_to, SSL *ssl_to, int encd, int direction, pcre2_code *re);
-int forward_txt_none(int fd, SSL *ssl, http_header_t *header, unsigned char *body, int len, int whole, int encd, int direction, pcre2_code *re);
+int feed_dog(int fd_to, SSL *ssl_to, http_header_t *header);
+
+
+int session_timeout(SSL_SESSION *sess);
+void ssl_session_resume(SSL *ssl, const char *before_ip);
+int process_first_request(int *fd_to, SSL **ssl_to, pcre2_code **regex, const char *before_ip, short port);
+int process_none(int fd_to, SSL *ssl_to, http_header_t *header);
+int process_txt_len(int fd_from, SSL *ssl_from, int fd_to, SSL *ssl_to, http_header_t *header, int direction, pcre2_code *re, int encd, int len);
+
+int process_txt_len_flate(int fd_to, SSL *ssl_to, http_header_t *header, int direction, pcre2_code *re, unsigned char *body, int len);
+int process_txt_len_encd(int fd_to, SSL *ssl_to, http_header_t *header, int direction, pcre2_code *re, int encd, unsigned char *body, int len);
+
+int process_txt_chk(int fd_from, SSL *ssl_from, int fd_to, SSL *ssl_to, http_header_t *header, int direction, pcre2_code *re, int encd);
+int process_txt_chk_flate(int fd_from, SSL *ssl_from, int fd_to, SSL *ssl_to, http_header_t *header, int direction, pcre2_code *re);
+int process_txt_chk_encd(int fd_from, SSL *ssl_from, int fd_to, SSL *ssl_to, http_header_t *header, int direction, pcre2_code *re, int encd);
+int process_txt_chk_encd_keep(int fd_to, SSL *ssl_to, http_header_t *header, struct list_head *head);
+int process_txt_chk_encd_transfer(int fd_to, SSL *ssl_to, http_header_t *header, const char *body, int size);
+int process_txt_none(int fd_from, SSL *ssl_from, int fd_to, SSL *ssl_to, http_header_t *header, int direction, pcre2_code *re, int encd);
+int process_txt_none_encd(int fd_from, SSL *ssl_from, int fd_to, SSL *ssl_to, http_header_t *header, int direction, pcre2_code *re, int encd);
+int process_txt_none_flate(int fd_from, SSL *ssl_from, int fd_to, SSL *ssl_to, http_header_t *header, int direction, pcre2_code *re);
+int process_none_txt_len(int fd_from, SSL *ssl_from, int fd_to, SSL *ssl_to, http_header_t *header, int len);
+int process_none_txt_chk(int fd_from, SSL *ssl_from, int fd_to, SSL *ssl_to, http_header_t *header);
+int process_none_txt_none(int fd_from, SSL *ssl_from, int fd_to, SSL *ssl_to, http_header_t *header);
+
+
+int read_forward_chunk(int fd_from, SSL *ssl_from, int fd_to, SSL *ssl_to, int is_txt, int direction, pcre2_code *re);
+int http_chunk_replace(http_chunk_t *chunk, int is_txt, int direction, pcre2_code *re);
+int forward_http_chunk_list(int fd, SSL *ssl, struct list_head *head);
+int forward_http_chunk(int fd, SSL *ssl, http_chunk_t *chunk);
+int forward_txt_none(int fd, SSL *ssl, http_header_t *header, int direction, pcre2_code *re, int encd, unsigned char *body, int len, int whole);
 int read_forward_none_txt(int fd_from, SSL *ssl_from, int fd_to, SSL *ssl_to, int len_body);
 int create_proxy_server(char *host, short l_port, int listen_num);
 int create_real_server(const char *host, short port);
@@ -100,12 +131,8 @@ PCRE2_SPTR replace_content_default_m(char *old, int direction, pcre2_code *re);
 int rewrite_url(char *url, int max, pcre2_code *re, int direction);
 int replace_field(char *field_value, int direction, pcre2_code *re);
 int replace_http_header(http_header_t *header, pcre2_code *re, int direction);
-int get_gunzip(unsigned char *src, unsigned int len_s, char **dst, unsigned int *len_d);
-#if 0
+int get_gunzip(unsigned char *src, unsigned int len_s, unsigned char **dst, unsigned int *len_d);
 #ifdef OpenWRT
-int http_gunzip(unsigned char *source, unsigned int s_len, unsigned char **dest, unsigned int *d_len, int gzip);
-#endif
-#endif
 int SYSTEM(const char *format, ...);
 int find_ifaceip_by_realip(const char *realip, char *ifaceip);
 int find_remapip_by_realip(const char *realip, char *remapip);
@@ -114,36 +141,32 @@ void do_redirect(char *file);
 int SYSTEM(const char *format, ...)
 {
 #if 0
-	FILE *pf,*pft;
+    FILE *pf,*pft;
 #endif
-	static char buf[4096]="";
-	va_list arg;
+    static char buf[4096]="";
+    va_list arg;
 
-	memset(buf, 0, sizeof(buf));
+    memset(buf, 0, sizeof(buf));
 
-	va_start(arg, format);
-	vsnprintf(buf,4096, format, arg);
-	va_end(arg);
-	syslog(LOG_INFO, "%s\n",buf);   
+    va_start(arg, format);
+    vsnprintf(buf,4096, format, arg);
+    va_end(arg);
+    syslog(LOG_INFO, "%s\n",buf);   
 
     sighandler_t old_handler = signal(SIGCHLD, SIG_DFL);
     system(buf);
     signal(SIGCHLD, old_handler);
 
-	usleep(1000);
-	return 0;
+    usleep(1000);
+    return 0;
 }
 
 int find_ifaceip_by_realip(const char *realip, char *ifaceip)
 {
-    //char lanip[24];
-	//char wanip[24];
-	//hsion_get_ip(LAN_INTERFACE, lanip, sizeof(lanip));
-	//hsion_get_ip(WAN_INTERFACE, wanip, sizeof(wanip));
     struct list_head *pos;
     list_for_each(pos, remap_table) {
         remap_entry_t *entry = list_entry(pos, remap_entry_t, list);
-        printf("realip=%s, entry->direction= %d, entry->before=%s\n", realip, entry->direction, entry->before);
+        //printf("realip=%s, entry->direction= %d, entry->before=%s\n", realip, entry->direction, entry->before);
         if(strcmp(entry->before, realip) == 0) {
             if(entry->direction == 0) {
                 //lan2wan
@@ -189,10 +212,10 @@ void do_redirect(char *file)
     uci_foreach_element(&pkg->sections, e)
     {
         struct uci_section *s = uci_to_section(e);
-        char *type    = uci_lookup_option_string(ctx, s, "type");
-        char *ip    = uci_lookup_option_string(ctx, s, "ip");
-        char *port  = uci_lookup_option_string(ctx, s, "port");
-        char *regex = uci_lookup_option_string(ctx, s, "regex");
+        const char *type    = uci_lookup_option_string(ctx, s, "type");
+        const char *ip    = uci_lookup_option_string(ctx, s, "ip");
+        const char *port  = uci_lookup_option_string(ctx, s, "port");
+        //const char *regex = uci_lookup_option_string(ctx, s, "regex");
 
         if(!type || !ip || !port) {
             continue;
@@ -204,11 +227,11 @@ void do_redirect(char *file)
         find_remapip_by_realip(ip, remap_ip);
         if(strcmp(type, "http") == 0 &&  proxy == HTTP) {
             SYSTEM("iptables -t nat -I PREROUTING -p tcp -d %s --dport %s -j DNAT --to-destination %s:%d"
-            ,remap_ip, port, iface_ip, HTTP_PROXY_PORT);
+                    ,remap_ip, port, iface_ip, HTTP_PROXY_PORT);
         }
         else if(strcmp(type, "https") == 0 && proxy == HTTPS) {
             SYSTEM("iptables -t nat -I PREROUTING -p tcp -d %s --dport %s -j DNAT --to-destination %s:%d"
-            ,remap_ip, port, iface_ip, HTTP_PROXY_PORT);
+                    ,remap_ip, port, iface_ip, HTTPS_PROXY_PORT);
         }
     }
 cleanup:
@@ -216,6 +239,7 @@ cleanup:
     uci_free_context(ctx);
     ctx = NULL;
 }
+#endif
 
 /* 初始化map_tab
  * @head: remap_table
@@ -235,14 +259,16 @@ int init_map_tab(struct list_head *head)
     for(i = 0; i < __MAP_TAB_MAX; i++) {
         map_tab[i].ip_tab = (ip_t *)calloc(cnt+1, sizeof(ip_t));
         if(NULL == map_tab[i].ip_tab) {
-            safe_free(map_tab);
+            SAFE_FREE(map_tab);
             return -1;
         }
     }
 
     /* init interface */
+#ifdef OpenWRT
     hsion_get_ip(LAN_INTERFACE, lan_ip, sizeof(lan_ip));
     hsion_get_ip(WAN_INTERFACE, wan_ip, sizeof(wan_ip));
+#endif
     printf("lan_ip: %s\n", lan_ip);
     printf("wan_ip: %s\n", wan_ip);
     map_tab[_LAN].iface = _LAN;
@@ -285,20 +311,17 @@ int from_lan_or_wan(int fd)
     struct sockaddr_in sock;
     socklen_t len = sizeof(sock);
     getsockname(fd, (struct sockaddr *)&sock, &len);
-    //printf("from_lan_or_wan: lan_ip:[%s], wan_ip:[%s], from_ip:[%s]\n", lan_ip, wan_ip, inet_ntoa(sock.sin_addr));
     if(strcmp(lan_ip, inet_ntoa(sock.sin_addr)) == 0) {
-        //printf("from_ip, is lan2wan\n");
         return LAN2WAN;
-	}
+    }
     else if(strcmp(wan_ip, inet_ntoa(sock.sin_addr)) == 0) {
-       // printf("from_ip is, wan2lan\n");
-    	return WAN2LAN;
+        return WAN2LAN;
     }
     else {
-        //printf("from_ip is nothing\n");
-    	return -1;
-	}
+        return -1;
+    }
 }
+
 
 
 int main(int argc, char **argv)
@@ -359,8 +382,6 @@ int main(int argc, char **argv)
         exit(0);
     }
 
-    sleep(2);
-    do_redirect("http_proxy");
 
     /* 初始化openssl, ctx_s, ctx_c等 */
     if(proxy == HTTPS && ssl_init() < 0) {
@@ -380,6 +401,12 @@ int main(int argc, char **argv)
         return 0;
     }
     /* 监听 */
+#ifdef OpenWRT
+    sleep(2);
+    do_redirect("http_proxy");
+#endif
+    proxy_listen();
+    /*
     switch(fork()) {
         case 0:
             printf("%s在后台启动\n", argv[0]);
@@ -389,6 +416,10 @@ int main(int argc, char **argv)
             if(proxy == HTTPS) {
                 syslog(LOG_INFO, "%s程序启动: https proxy", argv[0]); 
             }
+#ifdef OpenWRT
+            sleep(2);
+            do_redirect("http_proxy");
+#endif
             proxy_listen();
             exit(0);
         case -1:
@@ -399,6 +430,7 @@ int main(int argc, char **argv)
         default:
             break;
     }
+    */
     return 0;
 }
 
@@ -432,12 +464,24 @@ void sig_handler(int signo)
             }
             break;
         case SIGPIPE:
-            if(proxy == HTTP) {
-                syslog(LOG_INFO, "http_proxy ignore SIGPIPE", signo);
-            }
-            if(proxy == HTTPS) {
-                syslog(LOG_INFO, "http_proxys ignore SIGPIPE", signo);
-            }
+            /*
+               if(proxy == HTTP) {
+               syslog(LOG_INFO, "http_proxy ignore SIGPIPE");
+               }
+               if(proxy == HTTPS) {
+               syslog(LOG_INFO, "http_proxys ignore SIGPIPE");
+               }
+               */
+            break;
+        case SIGINT:
+            /*
+               if(proxy == HTTP) {
+               syslog(LOG_INFO, "http_proxy ignore SIGINT");
+               }
+               if(proxy == HTTPS) {
+               syslog(LOG_INFO, "http_proxys ignore SIGINT");
+               }
+               */
             break;
         default:
             if(proxy == HTTP) {
@@ -534,13 +578,73 @@ int proxy_listen(void)
     }
     printf("register SIGUSR2=%d\n", SIGUSR2);
 
+    if(signal(SIGUSR2, sig_handler) == SIG_ERR) {
+        err_quit("signal()");
+    }
+
+#ifdef DEBUG_SIGNAL
+    /*************************test signal************************/
+    printf("********* debug signal ***********\n");
+    if(signal(SIGABRT, sig_handler) == SIG_ERR) {
+        err_quit("signal()");
+    }
+
+    if(signal(SIGALRM, sig_handler) == SIG_ERR) {
+        err_quit("signal()");
+    }
+
+    if(signal(SIGBUS, sig_handler) == SIG_ERR) {
+        err_quit("signal()");
+    }
+
+    if(signal(SIGFPE, sig_handler) == SIG_ERR) {
+        err_quit("signal()");
+    }
+
+    if(signal(SIGILL, sig_handler) == SIG_ERR) {
+        err_quit("signal()");
+    }
+
+    if(signal(SIGPROF, sig_handler) == SIG_ERR) {
+        err_quit("signal()");
+    }
+
+    if(signal(SIGQUIT, sig_handler) == SIG_ERR) {
+        err_quit("signal()");
+    }
+
+    if(signal(SIGSYS, sig_handler) == SIG_ERR) {
+        err_quit("signal()");
+    }
+
+    if(signal(SIGTERM, sig_handler) == SIG_ERR) {
+        err_quit("signal()");
+    }
+
+    if(signal(SIGTRAP, sig_handler) == SIG_ERR) {
+        err_quit("signal()");
+    }
+
+    if(signal(SIGVTALRM, sig_handler) == SIG_ERR) {
+        err_quit("signal()");
+    }
+
+    if(signal(SIGXCPU, sig_handler) == SIG_ERR) {
+        err_quit("signal()");
+    }
+
+    if(signal(SIGXFSZ, sig_handler) == SIG_ERR) {
+        err_quit("signal()");
+    }
+
+    /*************************test signal************************/
+#endif
+
     struct sockaddr_in client_addr;
     bzero(&client_addr, sizeof(client_addr));
     socklen_t len_client = sizeof(client_addr);
-    int c_fd;
-    int cnt = 0;
     while(1) {
-        c_fd = accept(l_fd, (struct sockaddr *)&client_addr, &len_client);
+        int c_fd = accept(l_fd, (struct sockaddr *)&client_addr, &len_client);
         if(c_fd < 0) {
             perror("cannot accept correctly, accept()");
             continue;
@@ -551,15 +655,15 @@ int proxy_listen(void)
             continue;
         }
         /*
-        struct sockaddr_in sock;
-        socklen_t sock_len = sizeof(sock);
-        if(0 == getsockname(c_fd, (struct sockaddr *)&sock, &sock_len)) {
-            printf("\nClient coming from %s :%d\n", inet_ntoa(sock.sin_addr), ntohs(sock.sin_port));
-        }
-        else {
-            perror("getsockname");
-        }
-        */
+           struct sockaddr_in sock;
+           socklen_t sock_len = sizeof(sock);
+           if(0 == getsockname(c_fd, (struct sockaddr *)&sock, &sock_len)) {
+           printf("\nClient coming from %s :%d\n", inet_ntoa(sock.sin_addr), ntohs(sock.sin_port));
+           }
+           else {
+           perror("getsockname");
+           }
+           */
         *fd = c_fd;
         pthread_t th3;
         if(pthread_create(&th3, NULL, (void *)worker_thread, (void *)fd) < 0) {
@@ -614,6 +718,7 @@ void worker_thread(void *ARG)
 #endif
     }
     while(1) {
+        /* request */
         ret = read_process_forward(c_fd, ssl_s, &s_fd, &ssl_c, &re);
         if(ret < 0) {
             break;
@@ -621,6 +726,7 @@ void worker_thread(void *ARG)
         else if(ret == 0) {
             break;
         }
+        /* response */
         ret = read_process_forward(s_fd, ssl_c, &c_fd, &ssl_s, &re);
         if(ret < 0) {
             break;
@@ -632,21 +738,25 @@ void worker_thread(void *ARG)
 worker_exit:
     if(ssl_s != NULL) {
         SSL_shutdown(ssl_s);
-        SSL_free(ssl_s);
+        //SSL_free(ssl_s);
+        //ssl_s = NULL;
     }
     if(ssl_c != NULL) {
         SSL_shutdown(ssl_c);
-        SSL_free(ssl_c);
+        //SSL_free(ssl_c);
+        //ssl_c = NULL;
     }
 
+    shutdown(c_fd, SHUT_RDWR);
     close(c_fd);
     if(s_fd > 0) {
+        shutdown(s_fd, SHUT_RDWR);
         close(s_fd);
     }
 #ifdef DEBUG
     printf("==========worker_thread() exit==========\n");
 #endif
-    pthread_exit(&ret);
+    pthread_exit(NULL);
 }
 
 
@@ -675,13 +785,10 @@ int read_process_forward(int fd_from,  SSL *ssl_from, int *fd_to, SSL **ssl_to, 
     int  direction;
     int  req_or_rsp;
     short port;
-    char *gunzip = NULL;
     char *before_ip = NULL;
     char host[LEN_HOST] = {0};
+    pcre2_code *re = NULL;
     char buff_header[LEN_HEADER] = {0};
-    unsigned int  len_gunzip = 0;
-    PCRE2_SPTR new_body = NULL;
-    pcre2_code *re;
 
     direction = from_lan_or_wan(fd_from);
 
@@ -695,531 +802,116 @@ int read_process_forward(int fd_from,  SSL *ssl_from, int *fd_to, SSL **ssl_to, 
     }
 
     /* 2. 解析http头 */
-    http_header_t *header = (http_header_t *)calloc(1, sizeof(http_header_t));
-    init_list_head(&(header->head));
+    http_header_t header;
+    memset(&header, 0, sizeof(http_header_t));
+    init_list_head(&(header.head));
 
-    if(parse_http_header(buff_header, header) < 0) {
+    if(parse_http_header(buff_header, &header) < 0) {
 #ifdef RPS
         printf("cannot parse_http_header(%s)\n", buff_header);
 #endif
+        syslog(LOG_INFO, "read_http_header cannot");
         return -1;
     }
 
+    req_or_rsp = is_http_req_rsp(&header);
     /* 3. 获取host:port和before_ip, 这里的host是映射后的地址 */
-    get_host_port(header, host, &port);
-    before_ip = get_ip_before_remap(remap_table, host);
-
     /* 第一次请求包, 创建连接, 确定regex, 获取服务器的session*/
-    req_or_rsp = is_http_req_rsp(header);
     if(req_or_rsp == IS_REQUEST && *fd_to < 0) {
-        /* 不在列表中依然可以 */
-        struct timeval strt;
-        struct timeval end;
+        get_host_port(&header, host, &port);
+        before_ip = get_ip_before_remap(remap_table, host);
         if(before_ip == NULL) {
-            before_ip = host;
-            *regex = NULL;
-        }
-        else {
-            if((*regex = get_re_by_host_port(regex_table, before_ip, port)) == NULL) {
-                *regex = ge_re;
-            }
-        }
-        gettimeofday(&strt, NULL);
-        *fd_to = create_real_server(before_ip, port);
-        if(*fd_to < 0) {
+            printf("this is no real_ip of remap ip(%s)\n", host);
+            syslog(LOG_INFO, "this is no real_ip of remap ip(%s)\n", host);
+            free_http_header(&header);
             return -1;
         }
-
-        /* https ssl connection */
-        if(proxy == HTTPS) {
-            SSL_SESSION *session;
-            session = get_ssl_session(remap_table, before_ip);
-
-            *ssl_to = SSL_new(ctx_c);
-            if(NULL == *ssl_to) {
-                printf("cannot SSL_new\n");
-                close(*fd_to);
-                return -1;
-            }
-            if(session) {
-                long tnow  = time(NULL);
-                long ctime = SSL_SESSION_get_time(session);
-                long tout  = SSL_SESSION_get_timeout(session);
-                printf("tnow = %ld, ctime = %ld, diff = %ld, timeout = %ld\n", tnow, ctime, tnow - ctime, tout);
-                /* 留3秒 */
-                /* 根据超时时间判断似乎并不标准, tout==7200,但是在300秒后就会更新, suoyi  */
-                if(time(NULL) - ctime > tout - 3) {
-                    SSL_SESSION_free(session);
-                    session = NULL;
-                }
-                else {
-                    if(SSL_set_session(*ssl_to, session) == 1) {
-                        //printf("SSL_set_session %p ok\n", session);
-                        SSL_SESSION_free(session);
-                        session = NULL;
-                    }
-                    else {
-                        //printf("cannot SSL_set_session\n");
-                    }
-                }
-            }
-            ret = SSL_set_fd(*ssl_to, *fd_to);
-            if(ret != 1) {
-                print_ssl_error(*ssl_to, ret, "SSL_set_fd ssl_c");
-                close(*fd_to);
-                SSL_free(*ssl_to);
-                return -1;
-            }
-            ret = SSL_connect(*ssl_to);
-            if(ret <= 0) {
-                print_ssl_error(*ssl_to, ret, "SSL_connect ssl_c");
-                close(*fd_to);
-                SSL_free(*ssl_to);
-                return -1;
-            }
-            gettimeofday(&end, NULL);
-            session = SSL_get_session(*ssl_to);
-            set_ssl_session(remap_table, before_ip, session);
-            printf("tcp_ssl_connect total use %ldms\n",
-                    (end.tv_sec-strt.tv_sec)*1000 + (end.tv_usec-strt.tv_usec)/1000);
+        if(process_first_request(fd_to, ssl_to, regex, before_ip, port) < 0) {
+            free_http_header(&header);
+            return -1;
         }
     }
+
+    //针对宇视
+    if(feed_dog(*fd_to, *ssl_to, &header) < 0) {
+        return -1;
+    }
+
     /* 5. 替换http头 */
     re = *regex;
-    replace_http_header(header, re, direction);
+    replace_http_header(&header, re, direction);
 
     /* 6. 解析优先级，编码，长度信息 */
-    len = get_pr_encd(&(header->head), &pr, &encd);
+    len = get_pr_encd(&(header.head), &pr, &encd);
+    /* 大于2GB的文本文件，不替换了,当作none_txt处理 */
+    if(len > 214748364) {
+        pr = PR_NONE_TXT_LEN;
+    }
+
 #ifdef RPS
     printf("len = %d, pr = %d, encd = %d\n", len, pr, encd);
 #endif
-    memset(buff_header, 0, sizeof(buff_header));
     /* 7. 根据优先级替换转发 */
-    int mywr;
     switch(pr) {
         case PR_TXT_LEN:
-            {
 #ifdef RPS
-                printf("%d case %d:\n", getpid(), PR_TXT_LEN);
+            printf("pr_txt_len\n");
 #endif
-                /* read body */
-                if(len <= 0) {
-                    /* post header */
-                    http_header_tostr(header, buff_header);
-                    mywr = my_write(*fd_to, *ssl_to, "ld", strlen(buff_header), buff_header);
-                    if(mywr < 0) {
-                        free_http_header(&header);
-                        return -1;
-                    }
-                    break;
-                }
-
-                unsigned char *buf_body = (unsigned char *)malloc(len + 1);
-                if(NULL == buf_body) {
-                    err_quit("malloc buf_body");
-                }
-                memset(buf_body, 0, len + 1);
-
-                int n = readn(fd_from, ssl_from, buf_body, len);
-#ifdef RPS
-                printf("pr_txt_len: len = %d, read = %d\n", len, n);
-#endif
-
-                if(n < 0) {
-#ifdef RPS
-                    printf("PR_CONTENT_LEN: read err\n");
-#endif
-                    free_http_header(&header);
-                    return -1;
-                }
-                if(n == 0) {
-                    free_http_header(&header);
-#ifdef RPS
-                    printf("PR_CONTENT_LEN: read 0\n");
-#endif
-                    return  0;
-                }
-                /*
-                 * 压缩
-                 *      解压成功
-                 *          替换成功：修改header(Content-length=new_body, Content-encoding)
-                 *          替换失败：修改header(Content-length=gunzip  , Content-encoding)
-                 *      解压失败
-                 *          不修改header
-                 * 未压缩
-                 *      替换成功：修改header(Content-length)
-                 *      替换失败：不修改header
-                 */
-                if(encd == ENCD_NONE) {
-                    /* 网页未压缩 */
-                    new_body = replace_content_default_m((char *)buf_body, direction, re);
-                    if(NULL == new_body) {
-                        http_header_tostr(header, buff_header);
-                        mywr = my_write(*fd_to, *ssl_to, "ldld", strlen(buff_header), buff_header, n, buf_body);
-                        if(mywr < 0) {
-                            free_http_header(&header);
-                            return -1;
-                        }
-                    }
-                    else {
-                        rewrite_clen_encd(&(header->head), strlen((char *)new_body), ENCD_KEEP);
-                        http_header_tostr(header, buff_header);
-                        mywr = my_write(*fd_to, *ssl_to, "ldld", strlen(buff_header), buff_header, strlen((char *)new_body), new_body);
-                        if(mywr < 0) {
-                            free_http_header(&header);
-                            return -1;
-                        }
-                        printf("write: new_header and new_body %d\n", mywr);
-                    }
-                }
-
-                else {
-                    /* 网页压缩,获取解压内容 */
-                    ret = -1;
-                    ret = get_gunzip(buf_body, n, &gunzip, &len_gunzip);
-                    if(ret == 0){
-                        /* 解压成功 */
-                        new_body = replace_content_default_m((char *) gunzip, direction, re);
-                        if(NULL == new_body) {
-                            /* 没有替换,发送原来的压缩数据 */
-                            http_header_tostr(header, buff_header);
-                            mywr = my_write(*fd_to, *ssl_to, "ldld", strlen(buff_header), buff_header, n, buf_body);
-                            if(mywr < 0) {
-                                free_http_header(&header);
-                                return -1;
-                            }
-                        }
-                        else {
-                            /* 替换成功，发送解压并替换后的包 */
-                            rewrite_clen_encd(&(header->head), strlen((char *)new_body), ENCD2FLATE);
-                            http_header_tostr(header, buff_header);
-                            mywr = my_write(*fd_to, *ssl_to, "ldld", strlen(buff_header), buff_header, strlen((char *)new_body), new_body);
-                            if(mywr < 0) {
-                                free_http_header(&header);
-                                return -1;
-                            }
-                        }
-                    }
-                    else if(ret != 0 && encd == ENCD_GZIP) {
-                        /* 解压失败 */
-                        http_header_tostr(header, buff_header);
-                        mywr = my_write(*fd_to, *ssl_to, "ldld", strlen(buff_header), buff_header, n, buf_body);
-                        if(mywr < 0) {
-                            free_http_header(&header);
-                            return -1;
-                        }
-                    }
-                }
-                SAFE_FREE(gunzip);
-                SAFE_FREE(new_body);
-                SAFE_FREE(buf_body);
+            ret = process_txt_len(fd_from, ssl_from, *fd_to, *ssl_to, &header, direction, re, encd, len);
+            if(ret != ERR_BODY_MEM) {
                 break;
             }
-        case PR_TXT_CHUNK:
-            {
-#ifdef RPS
-                printf("%d case %d:\n", getpid(), PR_TXT_CHUNK);
-#endif
-                /* send header to handle_client */
-                /* loop: read, replace and send to handle_server */
-                if(encd == ENCD_FLATE)
-                {
-                    /* 未压缩 */
-                    http_header_tostr(header, buff_header);
-                    mywr = my_write(*fd_to, *ssl_to, "ld", strlen(buff_header), buff_header);
-                    if(mywr < 0) {
-                        free_http_header(&header);
-                        return -1;
-                    }
-                    ret = read_forward_txt_chunk(fd_from, ssl_from, *fd_to, *ssl_to, encd, direction, re);
-                    if(ret <= 0) {
-                        free_http_header(&header);
-                        return ret;
-                    }
-                }
-                else if(encd == ENCD_GZIP)
-                {
-                    /* 压缩 */
-                    int    m = -1;
-                    char   chunk_size[64] = {0};
-                    unsigned int len_chunk  = 0;
-                    unsigned char *all_chunk = NULL;
-                    m = read_all_txt_chunk_m(fd_from, ssl_from, &all_chunk, &len_chunk);
-                    if(m != 0)
-                    {
-#ifdef RPS
-                        printf("read_all_txt_chunk failed\n");
-#endif
-                        return -1;
-                    }
-                    ret = -1;
-                    ret = get_gunzip(all_chunk, len_chunk, &gunzip, &len_gunzip);
-                    if(ret == 0)
-                    {
-                        /* 解压成功 */
-                        rewrite_encd(&(header->head), ENCD2FLATE);
-                        new_body = replace_content_default_m(gunzip, direction, re);
-                        if(new_body != NULL)
-                        {
-                            /* 替换成功 */
-                            sprintf(chunk_size, "%x\r\n", strlen((char *)new_body));
-                            http_header_tostr(header, buff_header);
-                            mywr =  my_write(*fd_to, *ssl_to, "ldldldld",
-                                    strlen(buff_header), buff_header,
-                                    strlen(chunk_size), chunk_size,
-                                    strlen((char *)new_body), new_body,
-                                    7, "\r\n0\r\n\r\n");
-                            SAFE_FREE(new_body);
-                        }
-                        else
-                        {
-                            /* 未替换 */
-                            sprintf(chunk_size, "%x\r\n", len_gunzip);
-                            http_header_tostr(header, buff_header);
-                            mywr = my_write(*fd_to, *ssl_to, "ldldldld",
-                                    strlen(buff_header), buff_header,
-                                    strlen(chunk_size), chunk_size,
-                                    len_gunzip, gunzip,
-                                    7, "\r\n0\r\n\r\n");
-                        }
-                    }
-                    else
-                    {
-                        /* 解压失败 */
-                        sprintf(chunk_size, "%x\r\n", len_chunk);
-                        http_header_tostr(header, buff_header);
-                        mywr = my_write(*fd_to, *ssl_to, "ldldldld",
-                                strlen(buff_header), buff_header,
-                                strlen(chunk_size), chunk_size,
-                                len_chunk, all_chunk,
-                                7, "\r\n0\r\n\r\n");
-                    }
-                    SAFE_FREE(gunzip);
-                    SAFE_FREE(all_chunk);
-                    if(mywr < 0) {
-                        free_http_header(&header);
-                        return -1;
-                    }
-                }
-                break;
-            }
-
         case PR_NONE_TXT_LEN:
-            {
 #ifdef RPS
-                printf("%d case %d:\n", getpid(), PR_NONE_TXT_LEN);
+            printf("pr_none_txt_len\n");
 #endif
-                http_header_tostr(header, buff_header);
-                mywr = my_write(*fd_to, *ssl_to, "ld", strlen(buff_header), buff_header);
-                if(mywr < 0) {
-                    free_http_header(&header);
-                    return -1;
-                }
-#ifdef RPS
-                printf("pr_none_txt_len: len = %d\n", len);
-#endif
-                if(len <= 0) {
-                    break;
-                }
+            ret = process_none_txt_len(fd_from, ssl_from, *fd_to, *ssl_to, &header, len);
+            break;
 
-                ret = read_forward_none_txt(fd_from, ssl_from, *fd_to, *ssl_to, len);
-                if(ret <= 0) {
-                    free_http_header(&header);
+        case PR_TXT_CHUNK:
 #ifdef RPS
-                    printf("read_forward_none_txt %d<= 0", ret);
+            printf("pr_txt_chk\n");
 #endif
-                    return ret;
-                }
-                break;
-            }
+            ret = process_txt_chk(fd_from, ssl_from, *fd_to, *ssl_to, &header, direction, re, encd);
+            break;
+
         case PR_NONE_TXT_CHK:
-            {
 #ifdef RPS
-                printf("%d case %d:\n", getpid(), PR_NONE_TXT_CHK);
+            printf("pr_none_txt_chk\n");
 #endif
-                int left;
-                int real_read;
-                unsigned int size;
-                char chunk_size[64] = {0};
-                http_header_tostr(header, buff_header);
-                mywr = my_write(*fd_to, *ssl_to, "ld", strlen(buff_header), buff_header);
-                if(mywr < 0) {
-                    free_http_header(&header);
-                    return -1;
-                }
-                /* 循环转发chunk */
-                while(1) {
-                    real_read = read_line(fd_from, ssl_from, chunk_size, sizeof(chunk_size));
-                    mywr = my_write(*fd_to, *ssl_to, "ld", strlen(chunk_size), chunk_size);
-                    if(mywr < 0) {
-                        free_http_header(&header);
-                        return -1;
-                    }
-                    erase_nhex(chunk_size);
-                    hex2dec(chunk_size, &size);
-#ifdef RPS
-                    printf("chunk_size = %d\n", size);
-#endif
-                    left = size + 2;  //2 is for "\r\n", NUM1\r\nBODY1\r\nNUM2\r\nBODY2\r\n 0\r\n\r\n
-
-                    ret = read_forward_none_txt(fd_from, ssl_from, *fd_to, *ssl_to, left);
-                    if(ret <= 0) {
-                        free_http_header(&header);
-#ifdef RPS
-                        printf("pr_none_txt_chk: read_forward_none_txt %d <= 0", ret);
-#endif
-                        return ret;
-                    }
-                    if(size == 0) {
-                        break;
-                    }
-                }
-                break;
-            }
+            ret = process_none_txt_chk(fd_from, ssl_from, *fd_to, *ssl_to, &header);
+            break;
 
         case PR_TXT_NONE:
-            {
-                /* handle: 对端发送完最后一个报文后关闭写，不管是request还是response */
-                /* 可能有body, 全部接收，替换转发 */
-                int  ava;
-                int  whole;
-                int  offset;
-                int  real_read;
-                unsigned char body[LEN_BUF] = {0};
-                whole = 1;
-                offset = 0;
-                ava = sizeof(body);
 #ifdef RPS
-                printf("case %d: pr_txt_none, will in while loop\n", PR_TXT_NONE);
+            printf("pr_txt_none\n");
 #endif
-                int cnt = 0;
-                /* 如果有body，那么此body定位结束body */
-                while(1) {
-                    real_read = (proxy==HTTPS)?SSL_read(ssl_from, body + offset, ava):read(fd_from, body + offset, ava);
-                    cnt++;
-                    if(real_read < 0) {
-                        if(proxy == HTTPS) print_ssl_error(ssl_from, real_read, "pr_txt_none");
-                        else perror("pr_txt_none: read()");
-                        free_http_header(&header);
-#ifdef RPS
-                        printf("%d case %d: pr_txt_none, will return -1\n", getpid(), PR_TXT_NONE);
-#endif
-                        return -1;
-                    }
-                    else if(real_read == 0) {
-                        /* 直接读到0，意味着没有body */
-                        if(1 == cnt) {
-                            http_header_tostr(header, buff_header);
-                            mywr = my_write(*fd_to, *ssl_to, "ld", strlen(buff_header), buff_header);
-                            if(mywr < 0) {
-                                free_http_header(&header);
-                                return -1;
-                            }
-                        }
-                        //先替换转发，然后再return.
-                        if(offset > 0) {
-                            ret = forward_txt_none(*fd_to, *ssl_to, header, body, offset, whole, encd, direction, re);
-                            if(ret < 0) {
-                                free_http_header(&header);
-                                return -1;
-                            }
-                        }
-                        free_http_header(&header);
-#ifdef RPS
-                        printf("%d case %d: pr_txt_none, will return 0, offset = %d\n", getpid(), PR_TXT_NONE, offset);
-#endif
-                        return 0;
-                    }
-                    else {
-                        cnt    += 1;
-                        ava    -= real_read;
-                        offset += real_read;
-                        if(ava == 0) {
-                            offset = 0;
-                            ava = sizeof(body);
-                            if(whole == 1) {
-                                http_header_tostr(header, buff_header);
-                                mywr = my_write(*fd_to, *ssl_to, "ld", strlen(buff_header), buff_header);
-                                if(mywr < 0) {
-                                    free_http_header(&header);
-                                    return -1;
-                                }
-                            }
-                            whole = 0;
-                            ret = forward_txt_none(*fd_to, *ssl_to, header, body, offset, whole, encd, direction, re);
-                            if(ret < 0) {
-                                free_http_header(&header);
-                                return -1;
-                            }
-                            memset(body, 0, sizeof(body));  //unnecessary
-                        }
-                    }
-                }
-#ifdef RPS
-                printf("%d case %d: pr_txt_none, will break\n", getpid(), PR_TXT_NONE);
-#endif
-                break;
-            }
+            ret = process_txt_none(fd_from, ssl_from, *fd_to, *ssl_to, &header, direction, re, encd);
+            break;
 
         case PR_NONE_TXT_NONE:
-            {
 #ifdef RPS
-                printf("%d case %d: pr_none_txt_none\n", getpid(), PR_NONE_TXT_NONE);
+            printf("pr_none_txt_none\n");
 #endif
-                /* handle: 对端发送完最后一个报文后关闭写，不管是request还是response */
-                http_header_tostr(header, buff_header);
-                mywr = my_write(*fd_to, *ssl_to, "ld", strlen(buff_header), buff_header);
-                if(mywr < 0) {
-                    free_http_header(&header);
-                    return -1;
-                }
-                if(IS_REQUEST == req_or_rsp) {
-#ifdef RPS
-                    printf("PR_NONE_TXT_NONE: is_request\n");
-#endif
-                    break;
-                }
-                else if(IS_RESPONSE == req_or_rsp) {
-#ifdef RPS
-                    printf("PR_NONE_TXT_NONE: is_response\n");
-#endif
-                    /* 长连接也可能没有http body: 403 Not Modified */
-                    break;
-                }
-                /* 可能有body,接收转发,长度未知 */
-                while((ret = read_forward_none_txt(fd_from, ssl_from, *fd_to, *ssl_to, LEN_SSL_RECORD)) == 1) ;
-                if(ret <= 0) {
-                    free_http_header(&header);
-#ifdef RPS
-                    printf("pr_none_txt_none: read_forward_none_txt ret %d <= 0\n", ret);
-#endif
-                    return ret;
-                }
-                break;
-            }
+            ret = process_none_txt_none(fd_from, ssl_from, *fd_to, *ssl_to, &header);
+            break;
 
         case PR_NONE:
         default:
-            {
 #ifdef RPS
-                printf("%d case %d: pr_none\n", getpid(), pr);
+            printf("pr_none\n");
 #endif
-                http_header_tostr(header, buff_header);
-                mywr = my_write(*fd_to, *ssl_to, "ld", strlen(buff_header), buff_header);
-                if(mywr < 0) {
-                    free_http_header(&header);
-                    return -1;
-                }
-                break;
-            }
+            ret = process_none(*fd_to, *ssl_to, &header);
+            break;
     }
-    free_http_header(&header);
 #ifdef RPS
     printf("==========finish read_process_forward()==========\n");
 #endif
-    return 1;
+    free_http_header(&header);
+    return ret;
 }
 
+<<<<<<< HEAD
 
 int read_all_txt_chunk_m(int fd, SSL *ssl, unsigned char **all_chunk, unsigned int *len)
 {
@@ -1228,321 +920,853 @@ int read_all_txt_chunk_m(int fd, SSL *ssl, unsigned char **all_chunk, unsigned i
 #endif
     /* 存入链表 */
     while(1) {
+=======
+int feed_dog(int fd_to, SSL *ssl_to, http_header_t *header)
+{
+    int ret;
+    int req_rsp = is_http_req_rsp(header);
+    if(req_rsp == IS_REQUEST) {
+        ret = my_write(fd_to, ssl_to, "ld", strlen(header->method), header->method);
+>>>>>>> 0041572f0412c9e9316fb05cb60c0bb7e2907a56
     }
-#ifdef FUNC
-    printf("==========finish read_all_txt_chunk_m()==========\n");
-#endif
-    return 0;
+    else if(req_rsp == IS_RESPONSE) {
+        ret = my_write(fd_to, ssl_to, "ld", strlen(header->ver), header->ver);
+    }
+    return ret;
 }
 
 
-/* 2018.01.29已做优化，还有隐藏bug */
-/* 此函数只用于转发未压缩的chunked文本http报文 */
-/* 如果chunk太大，要想办法做限制 */
-int read_forward_txt_chunk(int fd_from, SSL *ssl_from, int fd_to, SSL *ssl_to, int encd, int direction, pcre2_code *re)
+/*
+ * return:
+ *      timeout : 1
+ *      not     : 0
+ */ 
+int session_timeout(SSL_SESSION *session)
 {
-#ifdef FUNC
-    printf("==========start read_forward_txt_chunk()==========\n");
+    long ctime = SSL_SESSION_get_time(session);
+    long tout  = SSL_SESSION_get_timeout(session);
+    return (time(NULL) - ctime)>=60?1:0;
+}
+
+void ssl_session_resume(SSL *ssl, const char *before_ip)
+{
+    printf("ssl_session_resume_1\n");
+    SSL_SESSION *session = get_ssl_session(remap_table, before_ip);
+    printf("ssl_session_resume_2\n");
+    if(session) {
+#ifdef DEBUG_SSL
+        printf("get session\n");
 #endif
-    while(1) {
-        int   ret;
-        int   tot_len;
-        char *new_chunk;
-        http_chunk_t chunk;
-        ret = read_parse_chk_size_ext_crlf(fd_from, ssl_from, &chunk);
-        if(ret <= 0) {
-            free_http_chunk(&chunk);
-            return ret;
+        if(session_timeout(session)) {
+#ifdef DEBUG_SSL
+            printf("session is out of time\n");
+#endif
+            SSL_SESSION_free(session);
         }
-        ret = read_parse_chk_body_crlf(fd_from, ssl_from, &chunk);
-        if(ret <= 0) {
-            free_http_chunk(&chunk);
-            return ret;
+        else {
+#ifdef DEBUG_SSL
+            printf("session still in time \n");
+#endif
+            SSL_set_session(ssl, session);
         }
-        http_chunk_replace(&chunk, direction, re);
-        ret = http_chunk_to_buff(&chunk, &new_chunk, &tot_len);
-        if(ret <= 0) {
-            free_http_chunk(&chunk);
-            return ret;
-        }
-        ret = my_write(fd_to, ssl_to, "ld", tot_len, new_chunk);
-        if(ret <= 0) {
+    }
+    else {
+#ifdef DEBUG_SSL
+        printf("cannot get session\n");
+#endif
+    }
+}
+
+int process_first_request(int *fd_to, SSL **ssl_to, pcre2_code **regex, const char *before_ip, short port)
+{
+    int ret;
+    if((*regex = get_re_by_host_port(regex_table, before_ip, port)) == NULL) {
+        *regex = ge_re;
+    }
+#ifdef TIME_COST
+    struct timeval strt;
+    struct timeval end;
+    gettimeofday(&strt, NULL);
+#endif
+    *fd_to = create_real_server(before_ip, port);
+    if(*fd_to < 0) {
+        return -1;
+    }
+
+    /* https ssl connection */
+    if(proxy == HTTPS) {
+        *ssl_to = SSL_new(ctx_c);
+        if(NULL == *ssl_to) {
+            printf("cannot SSL_new\n");
+            shutdown(*fd_to, SHUT_RDWR); close(*fd_to); *fd_to = -1;
             return -1;
         }
-        int size = chunk.chk_size;
-        free_http_chunk(&chunk);
-        SAFE_FREE(new_chunk);
-        if(size <= 0) {
-            break;
+
+        ret = SSL_set_fd(*ssl_to, *fd_to);
+        if(ret != 1) {
+            print_ssl_error(*ssl_to, ret, "SSL_set_fd ssl_c");
+            shutdown(*fd_to, SHUT_RDWR); close(*fd_to); *fd_to = -1;
+            SSL_free(*ssl_to);  /* free, set NULL */
+            *ssl_to = NULL;
+            return -1;
         }
-    }
-        
-#ifdef FUNC
-    printf("==========finish read_forward_txt_chunk()==========\n");
+       
+        ssl_session_resume(*ssl_to, before_ip);
+
+        ret = SSL_connect(*ssl_to);
+        if(ret <= 0) {
+            print_ssl_error(*ssl_to, ret, "SSL_connect ssl_c");
+            shutdown(*fd_to, SHUT_RDWR); close(*fd_to); *fd_to = -1;
+            SSL_free(*ssl_to);  /* free, set NULL */
+            *ssl_to = NULL;
+            return -1;
+        }
+        //SSL_SESSION *session = SSL_get_session(*ssl_to);
+        //set_ssl_session(remap_table, before_ip, session);
+#ifdef TIME_COST
+        gettimeofday(&end, NULL);
+        printf("tcp_ssl_connect total use %ldms\n",
+                (end.tv_sec-strt.tv_sec)*1000 + (end.tv_usec-strt.tv_usec)/1000);
 #endif
-    return 0;
+    }
+    return 1;
 }
 
 
-int read_parse_chk_size_ext_crlf(int fd, SSL* ssl, http_chunk_t *chunk)
+
+/*
+ *
+ */
+int process_none(int fd_to, SSL *ssl_to, http_header_t *header)
 {
-    int ret;
-    char line[LEN_LINE] = {0};
-    ret = read_line(fd, ssl, line, sizeof(line));
-    if(ret <=0) {
-        return ret;
-    }
-    /* size ext crlf */
-    /* ext: 
-     * "ext_name":"ext_value"
-     *
-     */
-    char size[64] = {0};
-    ret = sscanf(line, "%[0-9a-zA-Z]", size);
-    if(1 != ret) {
-        printf("chk_size error\n");
-        return -1;
-    }
-    chunk->chk_size = hex2dec(size); 
-
-    char *lf = strstr(line, "\n");
-    char *crlf = strstr(line, "\r\n");
-    crlf = crlf?crlf:lf;
-    if(NULL == crlf) {
-        printf("chk_crlf error\n");
-        return -1;
-    }
-    if(strlen(crlf) > sizeof(chunk->chk_crlf)-1) {
-        printf("chk_crlf length over 2, [%s]\n", crlf);
-        return -1;
-    }
-    strcpy(chunk->chk_crlf, crlf);
-    
-    char *split = strchr(line, ';');
-    if(split) {
-        chunk->chk_ext = (char *)calloc(1, crlf-split+1);
-        strncpy(chunk->chk_ext, split, crlf-split);
-    }
-    return 0;
-}
-
-
-int read_parse_chk_body_crlf(int fd, SSL *ssl, http_chunk_t *chunk)
-{
-    /* 非trailer */
-    /* 可能是压缩过的内容:w */
-    if(chunk->chk_size > 0) {
-        int ret1, ret2;
-        chunk->trl_size = 0;
-        chunk->chk_body = (char *)calloc(1, chunk->chk_size);
-        ret1 = readn(fd, ssl, chunk->chk_body, chunk->chunk_size);
-        if(ret1 <=0) {
-            return ret1;
-        }
-        if(ret1 != chunk->chk_size) {
-            printf("chunk body: should read %d, actual read %d\n", chunk->chk_size, ret1);
-        }
-        ret2 = read_line(fd, ssl, chunk->body_crlf, sizeof(chunk->body_crlf));
-        if(ret2 <=0) {
-            return ret2;
-        }
-        return ret1;
-    }
-    /* trailer */
-    else {
-        int ret;
-        int tot = 0;
-        char line[LEN_LINE] = {0};
-        while((ret = read_line(fd, ssl, sizeof(line))) > 0){
-            if(is_empty_line(line)) {
-                chunk->trl_size = tot;
-                memcpy(chunk->body_crlf, line, ret);
-                break;
-            }
-            else{
-                chunk->trailer = realloc(chunk->trailer, tot+ret);
-                memcpy(chunk->trailer+tot, line, ret);
-                tot += ret;
-            }
-            memset(line, 0, sizeof(line));
-        }
-    }
-}
-
-int is_empty_line(const char *line)
-{
-    if(NULL == line) {
-        return 0;
-    }
-    int len = strlen(line);
-    if(1 == len && line[0] == '\n'){
-        return 1;
-    }
-    else if(2 == len && line[0] == '\r' && line[1] == '\n') {
-        return 1;
-    }
-    else {
-        return 0;
-    }
-}
-
-
-int http_chunk_replace(http_chunk_t *chunk, int direction, pcre2_code *re)
-{
-    PCRE2_SPTR new = replace_content_default_m(chunk->body, direction, re);
-    if(new) {
-        SAFE_FREE(chunk->body);
-        chunk->body = (char *)new;
-        chun->chk_size = strlen(new);
-    }
-    return 0;
-}
-
-int http_chunk_to_buff(http_chunk_t *chunk, char **buf, int *len)
-{
-    /* 32位操作系统十六进制字符串最长8 */
-    char size[64] = {0};
-    sprintf(size, "%x", chunk->chk_size);
-    *len = strlen(size) + (chunk->chk_ext?strlen(chunk->chk_ext):0) +
-        strlen(chunk->chk_crlf) + chunk->chk_size + chunk->trl_size +
-        strlen(chunk->body_crlf);
-    *buf = (char *)calloc(1, *len);
-    if(NULL == *buf) {
-        perror("calloc in http_chunk_to_buf");
-        return -1;
-    }
-    int offset = 0; 
-    memcpy(*buf + offset, size, strlen(size));
-    offset += strlen(size);
-    if(chunk->chk_ext) {
-        memcpy(*buf + offset, chunk->chk_ext, strlen(chunk->chk_ext));
-        offset += strlen(chunk->chk_ext);
-    }
-    memcpy(*buf + offset, chunk->chk_crlf, strlen(chunk->chk_crlf));
-    offset += strlen(chunk->chk_crlf);
-    if(chunk->chk_size > 0) {
-        memcpy(*buf + offset, chunk->body, chunk->chk_size);
-        offset += chunk->chk_size;
-    }
-    if(chunk->trl_size > 0) {
-        memcpy(*buf + offset, chunk->trailer, chunk->trl_size);
-        offset += chunk->trl_size;
-    }
-    memcpy(*buf + offset, chunk->body_crlf, strlen(chunk->body_crlf));
-    offset += strlen(chunk->body_crlf);
-    return 0;
-}
-
-/*出错时，不由此函数来释放header*/
-int forward_txt_none(int fd, SSL *ssl, http_header_t *header, unsigned char *body, int len, int whole, int encd, int direction, pcre2_code *re)
-{
-#ifdef FUNC
-    printf("==========start forward_txt_none()==========\n");
-#endif
-    int ret;
-    char *gunzip;
-    unsigned int len_gunzip;
+    int  ret;
     char buff_header[LEN_HEADER] = {0};
-    PCRE2_SPTR new_body = NULL;
-    int mywr;
-#ifdef DEBUG
-    printf("len = %d, whole = %d, encd = %d\n", len, whole, encd);
-#endif
+    http_header_tostr(header, buff_header);
+    ret = my_write(fd_to, ssl_to, "ld", strlen(buff_header), buff_header);
+    return ret<0?ret:1;
+}
 
-    /* 不完整的包不用转header */
-    if(whole != 1) {
-        /*  不完整的压缩包，直接转 */
-        if(encd == ENCD_GZIP) {
-#ifdef DEBUG
-            printf("not whole, direct forwrad, gunzip\n");
+/*
+ * return:
+ *      ok      : 1
+ *      failed  : <=0, ERR_BODY_MEM 
+ */ 
+int process_txt_len(int fd_from, SSL *ssl_from, int fd_to, SSL *ssl_to, http_header_t *header, int direction, pcre2_code *re, int encd, int len)
+{
+    int  ret;
+    char buff_header[LEN_HEADER] = {0};
+    if(len <= 0) {
+        http_header_tostr(header, buff_header);
+        ret = my_write(fd_to, ssl_to, "ld", strlen(buff_header), buff_header);
+        if(ret < 0) {
+            return -1;
+        }
+    }
+
+    unsigned char *body = (unsigned char *)calloc(1, len + 1);
+    if(NULL == body) {
+        /* 文本的len太大，malloc失败，那么直接当作none_txt处理 */
+        perror("malloc, in pr_txt_len, switch_to_none_txt_len");
+        return ERR_BODY_MEM;
+    }
+
+    ret = readn(fd_from, ssl_from, body, len);
+    if(ret <= 0) {
+        SAFE_FREE(body);
+        return  ret;
+    }
+    if(encd == ENCD_NONE) {
+#ifdef RPS
+        printf("pr_txt_len flate\n");
 #endif
-            mywr = my_write(fd, ssl, "ld", len, body);
+        ret = process_txt_len_flate(fd_to, ssl_to, header, direction, re, body, len);
+    }
+    else {
+#ifdef RPS
+        printf("pr_txt_len encd\n");
+#endif
+        ret = process_txt_len_encd(fd_to, ssl_to, header, direction, re, encd, body, len);
+    }
+    SAFE_FREE(body);
+    return ret;
+}
+
+/*
+ * return:
+ *  ok     : 1  
+ *  failed : -1
+ */
+int process_txt_len_flate(int fd_to, SSL *ssl_to, http_header_t *header, int direction, pcre2_code *re, unsigned char *body, int len)
+{
+    /* 网页未压缩 */
+    int mywr;
+    char buff_header[LEN_HEADER] = {0};
+    PCRE2_SPTR new_body = replace_content_default_m((char *)body, direction, re);
+    if(NULL == new_body) {
+        //syslog(LOG_INFO, "pr_txt_len flate replace");
+        http_header_tostr(header, buff_header);
+        mywr = my_write(fd_to, ssl_to, "ldld", strlen(buff_header), buff_header, len, body);
+        if(mywr < 0) {
+            return -1;
+        }
+    }
+    else {
+        //syslog(LOG_INFO, "pr_txt_len flate keep");
+        rewrite_clen_encd(&(header->head), strlen((char *)new_body), ENCD_KEEP);
+        http_header_tostr(header, buff_header);
+        mywr = my_write(fd_to, ssl_to, "ldld", strlen(buff_header), buff_header, strlen((char *)new_body), new_body);
+        SAFE_FREE(new_body);
+        if(mywr < 0) {
+            return -1;
+        }
+    }
+    return 1;
+}
+
+/*
+ * return:
+ *      ok      : 1
+ *      failed  : -1
+ */
+int process_txt_len_encd(int fd_to, SSL *ssl_to, http_header_t *header, int direction, pcre2_code *re, int encd, unsigned char *body, int len)
+{
+    /* 网页压缩,获取解压内容 */
+    int mywr;
+    int ret = -1;
+    unsigned int  len_gunzip = 0;
+    unsigned char *gunzip = NULL;
+    char buff_header[LEN_HEADER] = {0};
+    ret = get_gunzip(body, len, &gunzip, &len_gunzip);
+    if(ret != 0) {
+        /* 解压失败 */
+        http_header_tostr(header, buff_header);
+        mywr = my_write(fd_to, ssl_to, "ldld", strlen(buff_header), buff_header, len, body);
+        if(mywr < 0) {
+            return -1;
+        }
+    }
+    if(ret == 0){
+        /* 解压成功 */
+        PCRE2_SPTR new_body = replace_content_default_m((char *) gunzip, direction, re);
+        if(NULL == new_body) {
+            http_header_tostr(header, buff_header);
+            mywr = my_write(fd_to, ssl_to, "ldld", strlen(buff_header), buff_header, len, body);
+            SAFE_FREE(gunzip);
             if(mywr < 0) {
                 return -1;
             }
         }
         else {
-            new_body = replace_content_default_m((char *)body, direction, re);
-            if(new_body) {
-#ifdef DEBUG
-                printf("not whole, forward replace\n");
-#endif
-                mywr = my_write(fd, ssl, "ld", strlen((char *)new_body), new_body);
-                SAFE_FREE(new_body);
-                if(mywr < 0) {
-                    return -1;
-                }
-            }
-            else {
-#ifdef DEBUG
-                printf("not whole, direct forwrad txt no replace\n");
-#endif
-                mywr = my_write(fd, ssl, "ld", len, body);
-                if(mywr < 0) {
-                    return -1;
-                }
-            }
-        }
-    }
-
-    /* 完整的包还要转一下header */
-    else {
-        if(encd == ENCD_GZIP) {
-            /* 整包就解压 */
-            ret = get_gunzip(body, len, &gunzip, &len_gunzip);
-            if(ret < 0) {
-#ifdef DEBUG
-                printf("whole, direct forwrad, cannot gunzip\n");
-#endif
-                http_header_tostr(header, buff_header);
-                mywr = my_write(fd, ssl, "ldld", strlen(buff_header), buff_header, len, body); 
-            }
-            else {
-                /* need to rewrite_encd */
-                new_body = replace_content_default_m(gunzip, direction, re);
-                if(new_body) {
-#ifdef DEBUG
-                    printf("whole, forward new_body");
-#endif
-                    rewrite_encd(&(header->head), ENCD2FLATE);
-                    http_header_tostr(header, buff_header);
-                    mywr = my_write(fd, ssl, "ldld", strlen(buff_header), buff_header, strlen((char *)new_body), new_body);
-                    SAFE_FREE(new_body);
-                }
-                else { 
-#ifdef DEBUG
-                    printf("whole, direct forwrad, cannot replace\n");
-#endif
-                    http_header_tostr(header, buff_header);
-                    mywr = my_write(fd, ssl, "ldld", strlen(buff_header), buff_header, len, body); 
-                }
-            }
+            rewrite_clen_encd(&(header->head), strlen((char *)new_body), ENCD2FLATE);
+            http_header_tostr(header, buff_header);
+            mywr = my_write(fd_to, ssl_to, "ldld", strlen(buff_header), buff_header, strlen((char *)new_body), new_body);
             SAFE_FREE(gunzip);
             SAFE_FREE(new_body);
             if(mywr < 0) {
                 return -1;
             }
         }
+    }
+    return 1;
+}
 
-        /* 整包未压缩 */
-        else {
-            http_header_tostr(header, buff_header);
-            new_body = replace_content_default_m((char *)body, direction, re);
-            if(new_body) {
-#ifdef DEBUG
-                printf("whole, forward new_body");
+
+/*
+ * return:
+ *      ok      : 1
+ *      failed  : <=0
+ */
+int process_txt_chk(int fd_from, SSL *ssl_from, int fd_to, SSL *ssl_to, http_header_t *header, int direction, pcre2_code *re, int encd)
+{
+    return encd==ENCD_NONE?\
+                process_txt_chk_flate(fd_from, ssl_from, fd_to, ssl_to, header, direction, re):\
+                process_txt_chk_encd(fd_from, ssl_from, fd_to, ssl_to, header, direction, re, encd);
+}
+
+/*
+ * return:
+ *      ok      : 1
+ *      failed  : <=0
+ */
+int process_txt_chk_flate(int fd_from, SSL *ssl_from, int fd_to, SSL *ssl_to, http_header_t *header, int direction, pcre2_code *re)
+{
+    int  ret;
+    char buff_header[LEN_HEADER] = {0};
+    http_header_tostr(header, buff_header);
+    ret = my_write(fd_to, ssl_to, "ld", strlen(buff_header), buff_header);
+    if(ret < 0) {
+        return -1;
+    }
+    ret = read_forward_chunk(fd_from, ssl_from, fd_to, ssl_to, 1, direction, re);
+    return ret<=0?ret:1;
+}
+
+/*
+ * return:
+ *      ok      : 1
+ *      failed  : <=0
+ */
+int process_txt_chk_encd(int fd_from, SSL *ssl_from, int fd_to, SSL *ssl_to, http_header_t *header, int direction, pcre2_code *re, int encd)
+{
+    int  ret;
+    unsigned int len_chunk  = 0;
+    unsigned int len_gunzip = 0;
+    unsigned char *gunzip = NULL;
+    unsigned char *all_chunk = NULL;
+    struct list_head chunk_head;
+    init_list_head(&chunk_head);
+    ret = read_all_chunk(fd_from, ssl_from, &chunk_head);               /* calloc chunk_head*/
+    if(ret <= 0) {
+#ifdef RPS
+        printf("read_all_chunk failed\n");
 #endif
-                mywr = my_write(fd, ssl, "ldld", strlen(buff_header), buff_header, strlen((char *)new_body), new_body);
-                SAFE_FREE(new_body);
+        return ret;
+    }
+
+    ret = http_all_chunk_to_buff(&chunk_head, &all_chunk, &len_chunk);  /* calloc all_chunk*/
+    if(ret <= 0) {
+#ifdef RPS
+        printf("组装失败\n");
+#endif
+        ret = process_txt_chk_encd_keep(fd_to, ssl_to, header, &chunk_head);
+        if(ret <= 0) {
+            goto end;
+        }
+    }
+    else {
+        ret = get_gunzip(all_chunk, len_chunk, &gunzip, &len_gunzip);   /* calloc gunzip */
+        SAFE_FREE(all_chunk);                                           /* free all_chunk */
+        if(ret == 0) {
+            PCRE2_SPTR new_body = replace_content_default_m((char *)gunzip, direction, re);/* calloc new_body */
+            SAFE_FREE(gunzip);                                          /* free gunzip */
+            if(new_body != NULL) {
+#ifdef RPS
+                printf("解压&替换\n");
+#endif
+                ret = process_txt_chk_encd_transfer(fd_to, ssl_to, header, (char *)new_body, strlen((char *)new_body));
+                SAFE_FREE(new_body);                                    /* free new_body */
+                if(ret <= 0){
+                    goto end;
+                }
+            }
+            else {
+#ifdef RPS
+                printf("解压&未替换\n");
+#endif
+                ret = process_txt_chk_encd_keep(fd_to, ssl_to, header, &chunk_head);
+                if(ret <= 0) {
+                    goto end;
+                }
+            }
+        }
+        else {
+#ifdef RPS
+            printf("解压失败\n");
+#endif
+            ret = process_txt_chk_encd_keep(fd_to, ssl_to, header, &chunk_head);
+            if(ret <= 0) {
+                goto end;
+            }
+        }
+    }
+    free_chunk_list(&chunk_head);  /* ok */
+    return 1;
+end:
+    free_chunk_list(&chunk_head);  /* failed */
+    return -1;
+
+}
+
+/*
+ * return:
+ *      ok      : 1
+ *      failed  : -1
+ */
+int process_txt_chk_encd_keep(int fd_to, SSL *ssl_to, http_header_t *header, struct list_head *head)
+{
+    int ret;
+    char buff_header[LEN_HEADER] = {0};
+    http_header_tostr(header, buff_header);
+    ret = my_write(fd_to, ssl_to, "ld", strlen(buff_header), buff_header);
+    if(ret < 0) {
+        return -1;
+    }
+    ret = forward_http_chunk_list(fd_to, ssl_to, head);
+    return ret<0?-1:1;
+}
+
+
+/*
+ * return:
+ *      ok      : 1
+ *      failed  : -1
+ */
+int process_txt_chk_encd_transfer(int fd_to, SSL *ssl_to, http_header_t *header, const char *body, int size)
+{
+    int  ret;
+    char buff_header[LEN_HEADER] = {0};
+    char chunk_size[64] = {0};
+    rewrite_encd(&(header->head), ENCD2FLATE);
+    sprintf(chunk_size, "%x\r\n", size);
+    http_header_tostr(header, buff_header);
+    ret = my_write(fd_to, ssl_to, "ldldldld", strlen(buff_header), buff_header, 
+            strlen(chunk_size), chunk_size, size, body, 7, "\r\n0\r\n\r\n");
+    return ret<0?-1:1;
+}
+
+/*
+ * return:
+ *      ok      : 0
+ *      failed  : -1
+ */
+int process_txt_none(int fd_from, SSL *ssl_from, int fd_to, SSL *ssl_to, http_header_t *header, int direction, pcre2_code *re, int encd)
+{
+    /* 只可能是connection-close */
+    int ret;
+    if(encd == ENCD_NONE) {
+#ifdef RPS
+        printf("pr_txt_none flate\n");
+#endif
+        ret = process_txt_none_flate(fd_from, ssl_from, fd_to, ssl_to, header, direction, re);
+    }
+    else {
+#ifdef RPS
+        printf("pr_txt_none gzip\n");
+#endif
+        ret = process_txt_none_encd(fd_from, ssl_from, fd_to, ssl_to, header, direction, re, encd);
+    }
+    return ret;
+}
+
+int process_txt_none_encd(int fd_from, SSL *ssl_from, int fd_to, SSL *ssl_to, http_header_t *header, int direction, pcre2_code *re, int encd)
+{
+    int  ret;
+    int  mywr;
+    int  whole = 1;
+    int  offset = 0;
+    int  real_read;
+    int  no_body = 1;
+    char buff_header[LEN_HEADER] = {0};
+    unsigned char body[LEN_SSL_RECORD] = {0};
+    int ava = sizeof(body);
+    /* 如果有body，那么此body一定是结束body */
+    while(1) {
+        real_read = (proxy==HTTPS)?SSL_read(ssl_from, body + offset, ava):read(fd_from, body + offset, ava);
+        if(real_read < 0) {
+            if(proxy == HTTPS) print_ssl_error(ssl_from, real_read, "pr_txt_none");
+            else perror("pr_txt_none: read()");
+            return -1;
+        }
+        else if(real_read == 0) {
+            if(no_body) {
+                http_header_tostr(header, buff_header);
+                mywr = my_write(fd_to, ssl_to, "ld", strlen(buff_header), buff_header);
                 if(mywr < 0) {
                     return -1;
                 }
             }
+            /* 替换转发 */
+            if(offset > 0) {
+                ret = forward_txt_none(fd_to, ssl_to, header, direction, re, encd, body, offset, whole);
+                if(ret < 0) {
+                    return -1;
+                }
+            }
+            return 0;
+        }
+        else {
+            no_body = 0;
+            ava    -= real_read;
+            offset += real_read;
+            if(ava == 0) {
+                offset = 0;
+                ava = sizeof(body);
+                if(whole == 1) {
+                    http_header_tostr(header, buff_header);
+                    mywr = my_write(fd_to, ssl_to, "ld", strlen(buff_header), buff_header);
+                    if(mywr < 0) {
+                        return -1;
+                    }
+                }
+                whole = 0;
+                ret = forward_txt_none(fd_to, ssl_to, header, direction, re, encd, body, offset, whole);
+                if(ret < 0) {
+                    return -1;
+                }
+                memset(body, 0, sizeof(body));  //unnecessary
+            }
+        }
+    }
+    return 1;
+}
+
+int process_txt_none_flate(int fd_from, SSL *ssl_from, int fd_to, SSL *ssl_to, http_header_t *header, int direction, pcre2_code *re)
+{
+    int  ret;
+    char buff_header[LEN_HEADER] = {0};
+    http_header_tostr(header, buff_header);
+    ret = my_write(fd_to, ssl_to, "ld", strlen(buff_header), buff_header);
+    if(ret <= 0) {
+        return -1;
+    }
+    char body[LEN_SSL_RECORD] = {0};
+    while((ret = proxy==HTTP?read(fd_from, body, sizeof(body)-1):SSL_read(ssl_from, body, sizeof(body)-1)) > 0) {
+        PCRE2_SPTR new = replace_content_default_m(body, direction, re);
+        if(new) {
+            int wr = my_write(fd_to, ssl_to, "ld", strlen((char *)new), (char *)new);
+            SAFE_FREE(new);
+            if(wr <= 0) {
+                return -1; 
+            }
+        }
+        else {
+            if(my_write(fd_to, ssl_to, "ld", ret, body) < 0){
+                return -1;
+            }
+        }
+        memset(body, 0, sizeof(body));
+    }
+    return ret;
+}
+
+/*
+ * return:
+ *      ok      : 1
+ *      failed  : <=0 
+ */
+int process_none_txt_len(int fd_from, SSL *ssl_from, int fd_to, SSL *ssl_to, http_header_t *header, int len)
+{
+    int  ret;
+    char buff_header[LEN_HEADER] = {0};
+    http_header_tostr(header, buff_header);
+    ret = my_write(fd_to, ssl_to, "ld", strlen(buff_header), buff_header);
+    if(ret < 0) {
+        return -1;
+    }
+
+    ret = read_forward_none_txt(fd_from, ssl_from, fd_to, ssl_to, len);
+    return ret<=0?ret:1;
+}
+
+/*
+ * return:
+ *      ok      : 1
+ *      failed  : <=0
+ */
+int process_none_txt_chk(int fd_from, SSL *ssl_from, int fd_to, SSL *ssl_to, http_header_t *header)
+{
+    int  ret;
+    char buff_header[LEN_HEADER] = {0};
+    http_header_tostr(header, buff_header);
+    ret = my_write(fd_to, ssl_to, "ld", strlen(buff_header), buff_header);
+    if(ret < 0) {
+        return -1;
+    }
+    ret = read_forward_chunk(fd_from, ssl_from, fd_to, ssl_to, 0, 0, NULL);
+    return ret<=0?ret:1;
+}
+
+int process_none_txt_none(int fd_from, SSL *ssl_from, int fd_to, SSL *ssl_to, http_header_t *header)
+{
+    /* 肯定是connection-close */
+    int  ret;
+    char buff_header[LEN_HEADER] = {0};
+    http_header_tostr(header, buff_header);
+    ret = my_write(fd_to, ssl_to, "ld", strlen(buff_header), buff_header);
+    if(ret < 0) {
+        return -1;
+    }
+    /* 可能有body,接收转发,长度未知 */
+    while((ret = read_forward_none_txt(fd_from, ssl_from, fd_to, ssl_to, LEN_SSL_RECORD)) == 1) ;
+    return ret;
+}
+
+
+
+/*
+ * chunk快如果过大，malloc可能分配内存失败
+ * chunk过大需要换一种方式处理
+ * read_forward_none_txt 
+ * if(!is_txt)
+ *      readline-->get_size-->forward_line-->  loop:[read_body-->forward->body]
+ * else
+ *      readline-->get_size
+ *              size_ok 
+ *                      readbody-->replace-->rewrite_line-->forward_line-->forward_body
+ *              size_not_ok
+ *                      forward_line--> loop:[read_body-->forward_body]
+ *                      
+ */
+#if 0
+int read_forward_chunk_v2(int fd_from, SSL *ssl_from, int fd_to, SSL *ssl_to, int is_txt, int direction, pcre2_code *re)
+{
+#ifdef FUNC
+    printf("==========start read_forward_chunk()==========\n");
+#endif
+    while(1) {
+        int   ret;
+        http_chunk_t chunk;
+        ret = read_parse_chk_size_ext_crlf(fd_from, ssl_from, &chunk);
+        if(ret <= 0) {
+            free_http_chunk(&chunk);
+            return ret;
+        }
+        if(!is_txt) {
+            char size[64] = {0};
+            char line[LEN_LINE] = {0};
+            sprintf(size, "%x", chunk->chk_size);
+            strcat(size, chunk->chk_ext?chunk->chk_ext:"");
+            strcat(size, chunk->chk_crlf);
+            ret = my_write(fd_to, ssl_to, "ld", strlen(size), size);
+            if(ret <= 0) return ret;
+            if(chunk->chk_size > 0) {
+                ret = read_forward_none_txt(fd_from, ssl_from, fd_to, ssl_to, chunk->chk_size);
+                free_http_chunk(&chunk);
+                if(ret <= 0) return ret;
+
+                ret = readline(fd_from, ssl_from, line, sizeof(line));
+                if(ret <= 0) return ret;
+                if(!is_empty_line(line)) {
+                    printf("in read_forward_chunk, not_empty_line\n");
+                }
+
+                ret = my_write(fd_to, ssl_to, "ld", strlen(line), line);
+                if(ret <= 0) return ret;
+            }
+            /* trailer */
             else {
+                while((ret = readline(fd_from, ssl_from, line, sizeof(line))) > 0) {
+                    ret = my_write(fd_to, ssl_to, "ld", ret, line);
+                    if(ret <= 0) return ret;
+
+                    if(is_empty_line(line)) {
+                        break
+                    }
+                    else {
+                        memset(line, 0, sizeof(line));
+                    }
+                }
+                return 1;
+            }
+        }
+        else {
+            ret = read_parse_chk_body_crlf(fd_from, ssl_from, &chunk);
+            if(ret == ERR_CHK_MEM) {
+                /* 读取chunk body时malloc出错,当作none_txt处理 */
+                char size[64] = {0};
+                char line[LEN_LINE] = {0};
+                sprintf(size, "%x", chunk->chk_size);
+                strcat(size, chunk->chk_ext?chunk->chk_ext:"");
+                strcat(size, chunk->chk_crlf);
+                ret = my_write(fd_to, ssl_to, "ld", strlen(size), size);
+                if(ret <= 0) return ret;
+                if(chunk->chk_size > 0) {
+                    ret = read_forward_none_txt(fd_from, ssl_from, fd_to, ssl_to, chunk->chk_size);
+                    free_http_chunk(&chunk);
+                    if(ret <= 0) return ret;
+
+                    ret = readline(fd_from, ssl_from, line, sizeof(line));
+                    if(ret <= 0) return ret;
+                    if(!is_empty_line(line)) {
+                        printf("in read_forward_chunk, not_empty_line\n");
+                    }
+
+                    ret = my_write(fd_to, ssl_to, "ld", strlen(line), line);
+                    if(ret <= 0) return ret;
+                }
+                /* trailer */
+                else {
+                    while((ret = readline(fd_from, ssl_from, line, sizeof(line))) > 0) {
+                        ret = my_write(fd_to, ssl_to, "ld", ret, line);
+                        if(ret <= 0) return ret;
+
+                        if(is_empty_line(line)) {
+                            break
+                        }
+                        else {
+                            memset(line, 0, sizeof(line));
+                        }
+                    }
+                    return 1;
+                }
+            }
+            if(ret <= 0) {
+                return ret;
+            }
+            http_chunk_replace(&chunk, is_txt, direction, re);
+            ret = forward_http_chunk(fd_to, ssl_to, &chunk);
+            if(ret <= 0) {
+                return ret;
+            }
+            int size = chunk.chk_size;
+            free_http_chunk(&chunk);
+            SAFE_FREE(new_chunk);
+            if(size <= 0) {
+                break;
+            }
+        }
+    }
+
+#ifdef FUNC
+    printf("==========finish read_forward_chunk()==========\n");
+#endif
+    return 1;
+}
+#endif
+
+int read_forward_chunk(int fd_from, SSL *ssl_from, int fd_to, SSL *ssl_to, int is_txt, int direction, pcre2_code *re)
+{
+#ifdef FUNC
+    printf("==========start read_forward_chunk()==========\n");
+#endif
+    while(1) {
+        int   ret;
+        http_chunk_t chunk;
+        memset(&chunk, 0, sizeof(chunk));
+        ret = read_parse_chunk(fd_from, ssl_from, &chunk);
+        if(ret <= 0) {
+            free_http_chunk(&chunk);
+            return ret;
+        }
+        http_chunk_replace(&chunk, is_txt, direction, re);
+        ret = forward_http_chunk(fd_to, ssl_to, &chunk);
+        if(ret <= 0) {
+            return ret;
+        }
+        int size = chunk.chk_size;
+        free_http_chunk(&chunk);
+        if(size <= 0) {
+            break;
+        }
+    }
+
+#ifdef FUNC
+    printf("==========finish read_forward_chunk()==========\n");
+#endif
+    return 1;
+}
+
+
+
+int http_chunk_replace(http_chunk_t *chunk, int is_txt, int direction, pcre2_code *re)
+{
+    if(!is_txt) {
+        return 0;
+    }
+    PCRE2_SPTR new = NULL;
+    if(chunk->chk_size > 0) {
+        new = replace_content_default_m(chunk->body, direction, re);
+        if(new) {
+            SAFE_FREE(chunk->body);
+            chunk->body = (char *)new;
+            chunk->chk_size = strlen((char *)new);
+        }
+    }
+    else if(chunk->trl_size > 0){
+        new = replace_content_default_m(chunk->trailer, direction, re);
+        if(new) {
+            SAFE_FREE(chunk->trailer);
+            chunk->trailer = (char *)new;
+            chunk->trl_size = strlen((char *)new);
+        }
+    }
+    return 0;
+}
+
+
+int forward_http_chunk_list(int fd, SSL *ssl, struct list_head *head)
+{
+    int ret;
+    struct list_head *pos;
+    list_for_each(pos, head){
+        http_chunk_t *chunk = list_entry(pos, http_chunk_t, list);
+        ret = forward_http_chunk(fd, ssl, chunk);
+        if(ret <= 0) {
+            return ret;
+        }
+    }
+    return ret;
+}
+
+int forward_http_chunk(int fd, SSL *ssl, http_chunk_t *chunk)
+{
+    int  ret;
+    unsigned int  len;
+    unsigned char *buff = NULL;
+    http_chunk_to_buff(chunk, &buff, &len);
+    ret = my_write(fd, ssl, "ld", len, buff); 
+    SAFE_FREE(buff);
+    return ret;
+}
+
+
+int forward_txt_none(int fd, SSL *ssl, http_header_t *header, int direction, pcre2_code *re, int encd, unsigned char *body, int len, int whole)
+{
+    int ret;
+    char buff_header[LEN_HEADER] = {0};
+    int mywr;
+
+    /* 不完整的包不用转header */
+    if(whole != 1) {
+        PCRE2_SPTR new_body = replace_content_default_m((char *)body, direction, re);
+        if(new_body) {
 #ifdef DEBUG
+            printf("not whole, forward replace\n");
+#endif
+            mywr = my_write(fd, ssl, "ld", strlen((char *)new_body), new_body);
+            SAFE_FREE(new_body);
+            if(mywr < 0) {
+                return -1;
+            }
+        }
+        else {
+#ifdef DEBUG
+            printf("not whole, direct forwrad txt no replace\n");
+#endif
+            mywr = my_write(fd, ssl, "ld", len, body);
+            if(mywr < 0) {
+                return -1;
+            }
+        }
+    }
+    else {
+        /* 整包解压 */
+        unsigned int  len_gunzip;
+        unsigned char *gunzip = NULL;
+        ret = get_gunzip(body, len, &gunzip, &len_gunzip);
+        if(ret < 0) {
+#ifdef RPS
+            printf("whole, direct forwrad, cannot gunzip\n");
+#endif
+            http_header_tostr(header, buff_header);
+            mywr = my_write(fd, ssl, "ldld", strlen(buff_header), buff_header, len, body); 
+            if(mywr < 0) {
+                return -1;
+            }
+        }
+        else {
+            /* need to rewrite_encd */
+            PCRE2_SPTR new_body = replace_content_default_m(gunzip, direction, re);
+            if(new_body) {
+#ifdef RPS
+                printf("whole, forward new_body");
+#endif
+                rewrite_encd(&(header->head), ENCD2FLATE);
+                http_header_tostr(header, buff_header);
+                mywr = my_write(fd, ssl, "ldld", strlen(buff_header), buff_header, strlen((char *)new_body), new_body);
+                SAFE_FREE(gunzip);
+                SAFE_FREE(new_body);
+                if(mywr <0) {
+                    return -1;
+                }
+            }
+            else { 
+#ifdef RPS
                 printf("whole, direct forwrad, cannot replace\n");
 #endif
-                mywr = my_write(fd, ssl, "ldld", strlen(buff_header), buff_header, len, body);
+                http_header_tostr(header, buff_header);
+                mywr = my_write(fd, ssl, "ldld", strlen(buff_header), buff_header, len, body); 
+                SAFE_FREE(gunzip);
                 if(mywr < 0) {
                     return -1;
                 }
@@ -1558,19 +1782,18 @@ int forward_txt_none(int fd, SSL *ssl, http_header_t *header, unsigned char *bod
 
 /* 
  * return :
- *      1 : 读并转发完成
- *      0 : 读到结束,(非信号打断错误) 
- *      -1: 读到错误 
+ *      ok      : 1
+ *      failed  : <=0
  */
 int read_forward_none_txt(int fd_from, SSL *ssl_from, int fd_to, SSL *ssl_to, int len_body)
 {
 #ifdef FUNC
     printf("==========start read_forward_none_txt==========\n");
 #endif
-    int left;
     int rd;
     int mywr;
     int real_read;
+    int left;
     int tot = 0;
     left = len_body;
     char body[LEN_SSL_RECORD] = {0};
@@ -1644,9 +1867,9 @@ int create_real_server(const char *host, short port)
 #ifdef FUNC
     printf("==========start create_real_server()==========\n");
 #endif
-//#ifdef DEBUG
+#ifdef DEBUG
     printf("create_real_server host=%s, port=%d\n", host, port);
-//#endif
+#endif
     int s_fd = socket(AF_INET, SOCK_STREAM, 0);
     if(s_fd < 0) {
         perror("socket()");
@@ -1660,12 +1883,13 @@ int create_real_server(const char *host, short port)
 
     if(connect(s_fd, (struct sockaddr *) &server_addr, sizeof(server_addr)) < 0) {
         perror("connect");
-        syslog(LOG_INFO, "cannot create connect with %s:%d", host, port);
+        //syslog(LOG_INFO, "cannot create connect with %s:%d", host, port);
         return -1;
     }
-//#ifdef DEBUG
+#ifdef DEBUG
     printf("connected to %s:%d\n", host, port);
-//#endif
+    //syslog(LOG_INFO, "connect to %s:%d", host, port);
+#endif
 #ifdef FUNC
     printf("==========finish create_real_server()==========\n");
 #endif
@@ -1711,17 +1935,18 @@ int create_real_server_nonblock(const char *host, short port, int sec)
     server_addr.sin_port = htons(port);
     /* inet_pton(AF_INET, host, &(server_addr.sin_addr.s_addr)); */
     memcpy(&(server_addr.sin_addr.s_addr), server->h_addr, server->h_length);
-//#ifdef DEBUG
+#ifdef DEBUG
     char ip[16] = {0};
     printf("%s <--> %s port=%d\n", host, inet_ntop(AF_INET, server->h_addr, ip, sizeof(ip)), port);
-//#endif
+#endif
     if(connect(s_fd, (struct sockaddr *) &server_addr, sizeof(server_addr)) < 0)
     {
         if(errno != EINPROGRESS)
         {
-//#ifdef DEBUG
+#ifdef DEBUG
+            syslog(LOG_INFO, "cannot connect to %s:%d", inet_ntop(AF_INET, server->h_addr, ip, sizeof(ip)), port);
             printf("connect err\n");
-//#endif
+#endif
             goto end;
         }
     }
@@ -1781,12 +2006,18 @@ PCRE2_SPTR replace_content_default_m(char *old, int direction, pcre2_code *re)
 #ifdef FUNC
     printf("==========start replace_content_default_m()==========\n");
 #endif
+    if(old == NULL || re == NULL) {
+#ifdef DEBUG
+        if(re == NULL)  printf("replace_content_default_m: re is null\n");
+        if(old == NULL) printf("replace_content_default_m: old is null\n");
+#endif
+        return NULL;
+    }
 #ifdef TIME_COST
     struct timeval strt;
     struct timeval end;
     gettimeofday(&strt, NULL);
 #endif
-    //printf("old = [%s]\n", old);
     PCRE2_SPTR new = NULL;
     struct list_head *head = get_list_substring_compiled_code((PCRE2_SPTR) old, re);
     if(head == NULL) {
@@ -1804,6 +2035,7 @@ PCRE2_SPTR replace_content_default_m(char *old, int direction, pcre2_code *re)
         pad_list_rplstr_malloc(head, pad_list_rplstr_wan2lan, remap_table);
 
     new = replace_all_default_malloc((PCRE2_SPTR) old, head);
+    printf("after replace_all_default_malloc\n");
     free_list_substring(&head);
 #ifdef FUNC
     printf("==========finish replace_content_default_m（）==========\n");
@@ -1968,20 +2200,19 @@ int replace_http_header(http_header_t *header, pcre2_code *re, int direction)
     return 0;
 }
 
-int get_gunzip(unsigned char *src, unsigned int len_s, char **dst, unsigned int *len_d)
+int get_gunzip(unsigned char *src, unsigned int len_s, unsigned char **dst, unsigned int *len_d)
 {
 #ifdef FUNC
     printf("==========start get_gunzip==========\n");
 #endif
-    int ret;
     srandom(time(NULL));
     char tmp[64] = {0};
     char tmp_gz[64] = {0};
     char cmd[256] = {0};
     long r1 = random();
     long r2 = random();
-    ret = sprintf(tmp, "/tmp/%ld%ld", r1, r2);
-    ret = sprintf(tmp_gz, "%s.gz", tmp);
+    sprintf(tmp, "/tmp/%ld%ld", r1, r2);
+    sprintf(tmp_gz, "%s.gz", tmp);
     int fd_s = open(tmp_gz, O_WRONLY | O_CREAT | O_TRUNC, 0666);
     if(fd_s < 0)
         return -1;
@@ -1995,7 +2226,7 @@ int get_gunzip(unsigned char *src, unsigned int len_s, char **dst, unsigned int 
     close(fd_s);
     sprintf(cmd, "gunzip %s", tmp_gz);                       
     sighandler_t old_handler = signal(SIGCHLD, SIG_DFL);
-    ret = system(cmd);
+    system(cmd);
     signal(SIGCHLD, old_handler);
     unlink(tmp_gz);                                          /* not necessary */
 
@@ -2007,7 +2238,7 @@ int get_gunzip(unsigned char *src, unsigned int len_s, char **dst, unsigned int 
     *dst = (char *)calloc(1, *len_d);
     if(NULL == *dst)
     {
-        perror("malloc");
+        perror("calloc");
         close(fd_d);
         unlink(tmp); 
         return -1;
