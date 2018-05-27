@@ -493,15 +493,14 @@ int process_first_request(int *fd_to, SSL **ssl_to, const char *host, unsigned s
         return -1;
     }
 
-    /* https ssl connection */
     if(proxy == HTTPS) {
-
         *ssl_to = SSL_new(ctx_c);
         if(NULL == *ssl_to) {
             printf("cannot SSL_new\n");
             close(*fd_to);
             return -1;
         }
+        printf("SSL_new ok!\n");
         ret = SSL_set_fd(*ssl_to, *fd_to);
         if(ret != 1) {
             print_ssl_error(*ssl_to, ret, "SSL_set_fd ssl_c");
@@ -509,6 +508,7 @@ int process_first_request(int *fd_to, SSL **ssl_to, const char *host, unsigned s
             SSL_free(*ssl_to);
             return -1;
         }
+        printf("SSL_set_fd ok!\n");
         ret = SSL_connect(*ssl_to);
         if(ret <= 0) {
             print_ssl_error(*ssl_to, ret, "SSL_connect ssl_c");
@@ -516,6 +516,7 @@ int process_first_request(int *fd_to, SSL **ssl_to, const char *host, unsigned s
             SSL_free(*ssl_to);
             return -1;
         }
+        printf("SSL_connect ok!\n");
 #ifdef TIME_COST
         gettimeofday(&end, NULL);
         printf("tcp_ssl_connect total use %ldms\n",

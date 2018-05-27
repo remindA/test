@@ -52,10 +52,10 @@
 #define ENCD_KEEP      0
 #define ENCD2FLATE     1
 
-#define LEN_METHOD    16  
+#define LEN_METHOD    32  
 #define LEN_URL       1024
-#define LEN_VER       10
-#define LEN_STAT_CODE 4
+#define LEN_VER       64
+#define LEN_STAT_CODE 32
 #define LEN_STAT_INFO 64
 
 #define LEN_HOST         128

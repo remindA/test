@@ -3,7 +3,7 @@ CFLAGS = -Wall -Os -s
 CFLAGS += -D VERSION=\"1.0\"
 CFLAGS += -D _GNU_SOURCE
 INCLUDES = -I. -I./include
-LIBS = -lssl -lcrypto -lpthread -lm
+LIBS = -L/usr/lib -lssl -lcrypto -lpthread -lm
 OBJS =  http_proxy.o http.o socket_tools.o
 BIN = http_proxy
 

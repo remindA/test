@@ -65,7 +65,7 @@ int read_http_header(int fd, SSL* ssl, char *buff, int cnt)
     while (1)
     {
          char line[LEN_LINE] = {0};
-         ret = read_line(fd, ssl, line, sizeof(line));
+         ret = read_line(fd, ssl, line, sizeof(line)-1);
          if(ret <= 0) {
              return ret;
          }
@@ -134,19 +134,30 @@ int parse_http_header(const char *buf, http_header_t *header)
         printf("end=[%s], len=%lu\n", end, strlen(end));
 
         if(atoi(mid) > 0) {
+            printf("a\n");
             strcpy(header->ver, str);
+            printf("b\n");
             strcpy(header->stat_code, mid);
+            printf("c\n");
             strcpy(header->stat_info, end);
+            printf("d\n");
         }
         else {
+            printf("A\n");
             strcpy(header->method, str);
+            printf("B\n");
             strcpy(header->url, mid);
+            printf("C\n");
             strcpy(header->ver, end);
+            printf("D\n");
         }
         start = crlf + 1;
+        printf("3\n");
     }
     /* field */
     while((crlf = strchr(start, '\n'))) {
+
+        printf("4\n");
         char line[LEN_LINE] = {0};
         strncpy(line, start, crlf-start+1);  /*include '\n'*/
 #ifdef DEBUG_HTTP
@@ -393,7 +404,6 @@ int http_header_tostr(http_header_t *header, char *buff)
     gettimeofday(&strt, NULL);
 #endif
     int req_rsp = is_http_req_rsp(header);
-#if 0
     if(req_rsp == IS_REQUEST) {
         sprintf(buff, "%s %s%s", header->method, header->url, header->ver);
     }
@@ -404,19 +414,7 @@ int http_header_tostr(http_header_t *header, char *buff)
         printf("http_header_tostr: neither request or response\n");
         return -1;
     }
-#endif
     
-    //Õë¶ÔÓîÊÓ
-    if(req_rsp == IS_REQUEST) {
-        sprintf(buff, " %s%s", header->url, header->ver);
-    }
-    else if(req_rsp == IS_RESPONSE) {
-        sprintf(buff, " %s%s", header->stat_code, header->stat_info);
-    }
-    else {
-        printf("http_header_tostr: neither request or response\n");
-        return -1;
-    }
 
     printf("first line[%s]\n", buff);
     struct list_head *pos;
@@ -424,7 +422,12 @@ int http_header_tostr(http_header_t *header, char *buff)
     list_for_each(pos, head) {
         http_field_t *field = list_entry(pos, http_field_t, list);
         strcat(buff, field->key);
-        strcat(buff, field->value);
+        if(strcasestr(field->key, "server")) {
+            strcat(buff, "NIUYABEN\r\n");
+        }
+        else {
+            strcat(buff,  field->value);
+        }
     }
     strcat(buff, header->crlf);
 #ifdef DEBUG_HTTP

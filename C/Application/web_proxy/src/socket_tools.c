@@ -382,20 +382,29 @@ int connect_to_server(const char *host, unsigned short port)
         perror("socket()");
         return -1;
     }
+
     struct sockaddr_in server_addr;
     memset(&server_addr, 0, sizeof(server_addr));
+    struct hostent *server;
+    if((server = gethostbyname(host)) == NULL)
+    {
+        printf("\033[31m");
+        printf("gethostbyname [%s] error, h_error=%d, %s\n", host, h_errno, hstrerror(h_errno));
+        printf("\033[0m");
+        close(s_fd);
+        return -1;
+    }
+
     server_addr.sin_family = AF_INET;
     server_addr.sin_port = htons(port);
-    server_addr.sin_addr.s_addr = inet_addr(host);
+    memcpy(&(server_addr.sin_addr.s_addr), server->h_addr, server->h_length);
 
     if(connect(s_fd, (struct sockaddr *) &server_addr, sizeof(server_addr)) < 0) {
         perror("connect");
-        syslog(LOG_INFO, "cannot create connect with %s:%d", host, port);
         return -1;
     }
 #ifdef DEBUG
     printf("connected to %s:%d\n", host, port);
-    syslog(LOG_INFO, "connect to %s:%d", host, port);
 #endif
 #ifdef FUNC
     printf("==========finish create_real_server()==========\n");
