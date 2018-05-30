@@ -25,6 +25,23 @@
  * 表达式求值
  */
 
+enum OPERAND{
+    _ADD,
+    _MINUS,
+    _TIMES,
+    _DEVIDE,
+    _OPERAND_MAX,
+};
+
+operand_t operand_tabs[] = {
+    {_ADD, "+"},
+    {_MINUS, "-"},
+    {_TIMES, "*"},
+    {_DEVIDE, "/"},
+    {_OPERAND_MAX, NULL}
+};
+
+
 express_t * express_create()
 {
     express_t *express = (express_t *)calloc(LEN_EXPRESS_MAX, sizeof(char));

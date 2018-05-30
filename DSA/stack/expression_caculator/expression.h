@@ -28,6 +28,18 @@
 #define SUF2PRE  5
 #define SUF2IN   6
 
+
+typedef struct {
+    char flag;
+    float operator;
+    unsigned char operand;
+}opera_t;
+
+typedef struct{
+    unsigned char operand;
+    char *symbol;
+}operand_t;
+
 /*
  * 使用char没法表示π等特殊操作数和操作符
  */
