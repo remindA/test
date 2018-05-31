@@ -39,12 +39,12 @@ int main(int argc, char **argv)
         usage(argv[0]);
         return 0;
     }
+    int i;
     int ret;
     int fd_src;
     int fd_dst;
     char *dst;
     char *src;
-    off_t offset;
     struct stat st;
     src = argv[1];
     fd_src = open(src, O_RDONLY, 0444);
@@ -53,15 +53,15 @@ int main(int argc, char **argv)
         return -1;
     }
     fstat(fd_src, &st);
-    for(dst = argv[2]; dst; dst++) {
-        fd_dst = open(dst, O_WRONLY | O_CREAT | O_TRUNC, 0222);
+    for(i = 2, dst = argv[i]; i < argc; i++, dst = argv[i]) {
+        fd_dst = open(dst, O_WRONLY | O_CREAT | O_TRUNC, 0666);
         if(fd_dst < 0) {
             perror("open");
             continue;
         }
         /*make offset = 0 */
-        memset(&offset, 0, sizeof(offset));
-        ret = sendfile(fd_dst, fd_src, &offset, st.st_size);
+        lseek(fd_src, 0, SEEK_SET);
+        ret = sendfile(fd_dst, fd_src, NULL, st.st_size);
         if(ret < 0) {
             perror("sendfile");
         }
