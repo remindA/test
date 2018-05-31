@@ -267,6 +267,14 @@ int my_write(int fd, SSL *ssl, const char *fmt, ...)
     return wr_tot;
 }
 
+/*
+ * 使用writev()写这个版本
+ */
+int mywrite(int fd, const char *fmt, ...)
+{
+    return 1;
+}
+
 int print_ssl_error(SSL *ssl, int ret, const char *remark)
 {
     switch(SSL_get_error(ssl, ret)) {
