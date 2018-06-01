@@ -118,7 +118,7 @@ extern c_type_t text_table[];
 
 extern int read_http_header(int fd, char *buff, int cnt);
 extern int parse_http_header(const char *buf, http_header_t *header);
-extern int parse_http_field(const char *line, http_field_t *field);
+extern int parse_http_field(char *line, int len, http_field_t *field);
 extern void free_http_header(http_header_t *header);
 extern int get_pr_encd(http_header_t *header, int *pr);
 extern int get_host_port(http_header_t *header, char *host, unsigned short *port);

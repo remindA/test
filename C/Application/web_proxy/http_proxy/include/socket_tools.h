@@ -50,7 +50,7 @@ int create_server_socket(const char *host, unsigned short port, int max);
 int connect_to_server(const char *host, unsigned short port);
 int connect_to_server_nonblock(const char *host, short port, int timeout);
 
-int is_empty_line(const char *line);
+int is_empty_line(const char *line, int len);
 int hex2dec(const char *hex, unsigned int *dec);
 #endif
 

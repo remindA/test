@@ -174,6 +174,7 @@ int mywrite(int fd, const char *fmt, ...)
 {
     int ret;
     int len = 0;
+    int wr_tot = 0;
     unsigned char *buff;
     va_list ap;
     va_start(ap, fmt);
@@ -393,20 +394,17 @@ end:
     return -1;
 }
 
-int is_empty_line(const char *line)
+int is_empty_line(const char *line, int len)
 {
     if(NULL == line) {
         return 0;
     }
-    int len = strlen(line);
-    if(1 == len && line[0] == '\n'){
-        return 1;
-    }
-    else if(2 == len && line[0] == '\r' && line[1] == '\n') {
-        return 1;
+
+    if(len > 2 || len == 0) {
+        return 0;
     }
     else {
-        return 0;
+        return len==1?(line[0]=='\n'):((line[0]=='\r')&&(line[1]=='\n'));
     }
 }
 

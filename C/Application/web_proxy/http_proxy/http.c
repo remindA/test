@@ -69,7 +69,7 @@ int read_http_header(int fd, char *buff, int cnt)
          }
          strcat(buff, line);
          tot += ret;
-         if(is_empty_line(line)) {
+         if(is_empty_line(line, ret)) {
              break;
          }
     }
@@ -127,51 +127,30 @@ int parse_http_header(const char *buf, http_header_t *header)
             return -1;
         }
         strcpy(end, m+strlen(mid)); /*end°üº¬¿Õ¸ñ*/ 
-        printf("str=[%s], len=%lu\n", str, strlen(str));
-        printf("mid=[%s], len=%lu\n", mid, strlen(mid));
-        printf("end=[%s], len=%lu\n", end, strlen(end));
 
         if(atoi(mid) > 0) {
-            printf("a\n");
             strcpy(header->ver, str);
-            printf("b\n");
             strcpy(header->stat_code, mid);
-            printf("c\n");
             strcpy(header->stat_info, end);
-            printf("d\n");
         }
         else {
-            printf("A\n");
             strcpy(header->method, str);
-            printf("B\n");
             strcpy(header->url, mid);
-            printf("C\n");
             strcpy(header->ver, end);
-            printf("D\n");
         }
         start = crlf + 1;
-        printf("3\n");
     }
     /* field */
     while((crlf = strchr(start, '\n'))) {
 
-        printf("4\n");
-        char line[LEN_LINE] = {0};
-        strncpy(line, start, crlf-start+1);  /*include '\n'*/
-#ifdef DEBUG_HTTP
-        printf("[%s]\n", line);
-#endif
-        if(is_empty_line(line)) {
-            strcpy(header->crlf, line);
+        int line_len = crlf-start+1;
+        if(is_empty_line(start, line_len)) {
+            strncpy(header->crlf, start, line_len);
             break;
         }
 
         http_field_t *field = (http_field_t *)calloc(1, sizeof(http_field_t));
-        if(parse_http_field(line, field) < 0) {
-#ifdef DEBUG_HTTP
-            printf("cannot parse_http_line[%s]\n", line);
-#endif
-            syslog(LOG_INFO, "cannot parse_http_line[%s]\n", line);
+        if(parse_http_field(start, line_len, field) < 0) {
             free_http_header(header);
             return -1;
         }
@@ -191,19 +170,26 @@ int parse_http_header(const char *buf, http_header_t *header)
  *     0 : ok
  *     -1: failed
  */
-int parse_http_field(const char *line, http_field_t *field)
+int parse_http_field(char *line, int len, http_field_t *field)
 {
     /* Host: 192.168.1.33 */
     /* Date: 2017.09.20 11:33:33 */
 #ifdef FUNC
     printf("==========start parse_http_field()==========\n");
 #endif
+    printf("line=[%.*s]\n", len, line);
+    char end = line[len-1];
+    line[len-1] = '\0';
     char *p = strchr(line, ':');
+    line[len-1] = end;
     if(NULL == p) {
+        printf("cannot parse line[%.*s]\n", len, line);
+        syslog(LOG_INFO, "cannot parse line[%.*s]", len, line);
         return -1;
     }
-    strncpy(field->key, line, p-line+1);  /* include ':' */
-    strcpy(field->value, p + 1);
+    int off = p-line+1;
+    strncpy(field->key, line, off);  /* include ':' */
+    strncpy(field->value, line+off, len-off);
 #ifdef FUNC
     printf("==========finish parse_http_field()==========\n");
 #endif
@@ -639,7 +625,7 @@ int read_parse_chk_body_crlf(int fd, http_chunk_t *chunk)
             printf("read_line in read_parse_chk_body_crlf return %d\n", ret2);
             return ret2;
         }
-        printf("read_body: is_empty_line=%d, [%s]\n", is_empty_line(chunk->body_crlf), chunk->body_crlf);
+        printf("read_body: is_empty_line=%d, [%s]\n", is_empty_line(chunk->body_crlf, ret2), chunk->body_crlf);
         return ret1;
     }
     /* trailer */
@@ -648,7 +634,7 @@ int read_parse_chk_body_crlf(int fd, http_chunk_t *chunk)
         int tot = 0;
         char line[LEN_LINE] = {0};
         while((ret = read_line(fd, line, sizeof(line))) > 0){
-            if(is_empty_line(line)) {
+            if(is_empty_line(line, ret)) {
                 chunk->trl_size = tot;
                 memcpy(chunk->body_crlf, line, ret);
                 break;
