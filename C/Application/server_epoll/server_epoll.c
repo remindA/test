@@ -157,53 +157,6 @@ int epoll_del_fd(int fd_epoll, int fd)
 
 
 /*
- * 默认:电平触发
- * epoll事件可以推迟处理
- */
-void level_trigger(struct epoll_event *events, int ret, int epoll_fd, int l_fd)
-{
-    int i;
-    for(i = 0; i < ret; i++)
-    {
-        int fd = events[i].data.fd;
-        if(fd == l_fd) {
-            struct sockaddr_in client;
-            socklen_t len_client = sizeof(client);
-            int c_fd = accept(l_fd, (struct sockaddr *)&client, &len_client);
-            if(c_fd < 0) {
-                perror("accept");
-            }
-            set_nonblock(c_fd);
-            epoll_add_fd(epoll_fd, c_fd, EPOLLIN);
-            continue;
-        }
-        if(events[i].events & EPOLLIN) {
-            printf("level trigger once.\n");
-            char buff[5] = {0};
-            int ret = recv(fd, buff, sizeof(buff)-1, 0);
-            if(ret < 0) {
-                if(errno == EINTR || errno == EAGAIN) {
-                    ;
-                }
-                else {
-                    perror("recv");
-                    epoll_del_fd(epoll_fd, fd);
-                    close(fd);
-                }
-            }
-            else if(ret == 0) {
-                printf("peer close socket\n");
-                epoll_del_fd(epoll_fd, fd);
-                close(fd);
-            }
-            else {
-                ;
-            }
-        }
-    }
-}
-
-/*
  * 边沿触发
  * epoll事件须立即处理
  */
@@ -222,56 +175,129 @@ void edge_trigger(struct epoll_event *events, int ret, int epoll_fd, int l_fd)
             }
             set_nonblock(c_fd);
             epoll_add_fd(epoll_fd, c_fd, EPOLLIN | EPOLLET);
+
             continue;
         }
         if(events[i].events & EPOLLIN) {
             printf("edge trigger once.\n");
-            while(1) {
-                char buff[5] = {0};
-                int ret = recv(fd, buff, sizeof(buff)-1, 0);
-                if(ret < 0) {
-                    if(errno == EINTR) {
-                        continue;
-                    }
-                    else if(errno == EAGAIN) {
-                        break;
-                    }
-                    else {
-                        perror("recv");
-                        epoll_del_fd(epoll_fd, fd);
-                        close(fd);
-                        break;
-                    }
-                }
-                else if(ret == 0) {
-                    printf("peer close socket\n");
-                    epoll_del_fd(epoll_fd, fd);
-                    close(fd);
-                    break;
-                }
-                else {
-                    ;
-                }
-
-            }
+            process_http_obj(fd);
         }
     }
 
 }
 
-
-void worker(void *ARG)
+int process_http_obj(int fd)
 {
-    arg_t arg;
-    memcpy(&arg, ARG, sizeof(arg));
-    SAFE_FREE(ARG);
+    int ret;
+    int end_loop = 0;
+    http_obj_t *obj = http_obj_get(fd);
+    while(!end_loop) {
+        switch(obj->state) {
+            case _STATE_HEADER_AGAIN:
+                /* switch state to recv and end loop */
+                end_loop = 1;
+                obj->state = _STATE_HEADER_RECV;
+                break;
+            case _STATE_HEADER_RECV:
+                ret = read(obj->fd, obj->buff_hdr.buff+obj->tot, len-tot);
+                if(ret < 0) {
+                    if(errno == EINTR) {
+                        continue;
+                    }
+                    else if(errno == EAGAIN) {
+                        obj->state = _STATE_HEADER_AGAIN:
+                    }
+                    else {
+                        perror("read()");
+                        end_loop = 1;
+                        obj->state = _STATE_HEADER_ERR;
+                    }
+                }
+                else if(ret == 0) {
+                    end_loop = 1;
+                    printf("peer close socket\n");
+                    obj->state = _STATE_HEADER_CLOSE;
+                }
+                else {
+                    /* switch to _STATE_HEADER_PARSE */
+                    obj->state = _STATE_HEADER_PARSE;
+                }
+                break;
+            case _STATE_HEADER_PARSE:
+                /* parse之后会做状态切换 */
+                /*
+                 * _STATE_HEADER_PARSE
+                 * _STATE_HEADER_RECV
+                 * _STATE_HEADER_PRCSS
+                 * _STATE_HEADER_BAD
+                 */
+                http_parse_header(obj);
+                break;
+            case _STATE_HEADER_PRCSS:
+                /* prcss: 进行处理,内容检测,内容替换 */
+            case _STATE_HEADER_BAD:
+                end_loop = 1;
+                break;
+            case _STATE_HEADER_ERR:
+                end_loop = 1;
+                break;
+            case _STATE_HEADER_END:
 
-    int epoll_fd = arg.epoll_fd;
-    int fd = arg.fd;
+                break;
+        }
 
+    }
+}
+
+/*
+ * 调用一次只做一件事
+ * 调用此函数现态一定是_STATE_HEADER_PARSE
+ */
+void http_parse_obj(http_obj_t *obj)
+{
+    int ret;
+    size_t tot = obj->tot;
+    size_t off = obj->off;
+    size_t start = obj->off;
+    const char *buff = obj->buff_hdr.buff;
+    switch(locate_line(buff, tot, &off)) {
+        case _LINE_HALF:
+            obj->state = _STATE_HEADER_RECV; 
+            break;
+        case _LINE_FULL:
+            if(_STATE_REQLINE == obj->line_st) {
+                //解析请求行
+                ret = http_parse_reqline(header, buff+start, off-start)
+                    if(ret == IS_BAD_REQLINE) {
+                        obj->state = _STATE_HEADER_BAD;
+                    }
+                obj->line_st = _STATE_FIELDLINE;
+            }
+            else if(_STATE_FIELDLINE == obj->line_st){
+                //解析域行
+                ret = http_parse_field(header, buff+start, off-start);
+                if(ret == IS_BAD_FIELD) {
+                    obj->state = _STATE_HEADER_BAD;
+                }
+                else if(ret == IS_EMPTY_LINE) {
+                    /* crlf, switch to process */
+                    obj->state = _STATE_HEADER_PRCSS;
+                }
+            }
+            /* 一个完整的行，偏移量一定要改变 */
+            obj->off = off;
+            break;
+    }
+}
+
+int http_parse_reqline(http_header_t *header, const char *buff, size_t len)
+{
 
 }
 
+int http_parse_field(http_header_t *header, const char *buff, size_t len)
+{
 
+}
 
 
