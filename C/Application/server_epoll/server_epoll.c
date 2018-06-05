@@ -40,6 +40,8 @@ void worker_thread(void *ARG);
 int set_nonblock(int fd);
 int epoll_add_fd(int fd_epoll, int fd, int mode);
 int epoll_del_fd(int fd_epoll, int fd);
+void edge_trigger(struct epoll_event *event, int ret, int epoll_fd, int l_fd);
+void level_trigger(struct epoll_event *events, int ret, int epoll_fd, int l_fd);
 
 #define MAX_EVENTS 100
 int main(int argc, char **argv)
@@ -117,60 +119,7 @@ int proxy_listen(void)
         if(ret < 0) {
             perror("epoll_wait()");
         }
-        for(i = 0; i < ret; i++) {
-            int fd = events[i].data.fd;
-            if(fd == l_fd) {
-                struct sockaddr_in client_addr;
-                bzero(&client_addr, sizeof(client_addr));
-                socklen_t len_client = sizeof(client_addr);
-                int c_fd = accept(l_fd, (struct sockaddr*)&client_addr, &len_client);
-                if(c_fd < 0) {
-                    perror("accept()");
-                    continue;
-                }
-                printf("client %d on\n", c_fd);
-                set_nonblock(c_fd);
-                epoll_add_fd(fd_epoll, c_fd, EPOLLIN);
-                printf("add client %d in events\n", c_fd);
-            }
-            else {
-                int sd, rv;
-                char buff[1024] = {0};
-                while(1) {
-                    rv = recv(fd, buff, sizeof(buff), 0);
-                    if(rv < 0) {
-                        if(errno == EINTR) {
-                            continue;
-                        }
-                        else if(errno == EAGAIN) {
-                            break;
-                        }
-                        else {
-                            epoll_del_fd(fd_epoll, fd);
-                            printf("delete %d from events\n", fd);
-                            close(fd);
-                            printf("close %d\n", fd);
-                            break;
-                        }
-                    }
-                    else if(rv == 0) {
-                        epoll_del_fd(fd_epoll, fd);
-                        printf("delete %d from events\n", fd);
-                        close(fd);
-                        printf("close %d\n", fd);
-                    }
-                    else {
-                        sd = send(fd, buff, rv, 0);
-                        if(sd < 0) {
-                            epoll_del_fd(fd_epoll, fd);
-                            printf("delete %d from events\n", fd);
-                            close(fd);
-                            printf("close %d\n", fd);
-                        }
-                    }
-                }
-            } 
-        }
+        edge_trigger(events, ret, fd_epoll, l_fd);
     }
     //隐式回收
     printf("==========finish proxy_listen()==========\n");
@@ -205,6 +154,111 @@ int epoll_del_fd(int fd_epoll, int fd)
 {
     epoll_ctl(fd_epoll, EPOLL_CTL_DEL, fd, NULL);
 }
+
+
+/*
+ * 默认:电平触发
+ * epoll事件可以推迟处理
+ */
+void level_trigger(struct epoll_event *events, int ret, int epoll_fd, int l_fd)
+{
+    int i;
+    for(i = 0; i < ret; i++)
+    {
+        int fd = events[i].data.fd;
+        if(fd == l_fd) {
+            struct sockaddr_in client;
+            socklen_t len_client = sizeof(client);
+            int c_fd = accept(l_fd, (struct sockaddr *)&client, &len_client);
+            if(c_fd < 0) {
+                perror("accept");
+            }
+            set_nonblock(c_fd);
+            epoll_add_fd(epoll_fd, c_fd, EPOLLIN);
+            continue;
+        }
+        if(events[i].events & EPOLLIN) {
+            printf("level trigger once.\n");
+            char buff[5] = {0};
+            int ret = recv(fd, buff, sizeof(buff)-1, 0);
+            if(ret < 0) {
+                if(errno == EINTR || errno == EAGAIN) {
+                    ;
+                }
+                else {
+                    perror("recv");
+                    epoll_del_fd(epoll_fd, fd);
+                    close(fd);
+                }
+            }
+            else if(ret == 0) {
+                printf("peer close socket\n");
+                epoll_del_fd(epoll_fd, fd);
+                close(fd);
+            }
+            else {
+                ;
+            }
+        }
+    }
+}
+
+/*
+ * 边沿触发
+ * epoll事件须立即处理
+ */
+void edge_trigger(struct epoll_event *events, int ret, int epoll_fd, int l_fd)
+{
+    int i;
+    for(i = 0; i < ret; i++)
+    {
+        int fd = events[i].data.fd;
+        if(fd == l_fd) {
+            struct sockaddr_in client;
+            socklen_t len_client = sizeof(client);
+            int c_fd = accept(l_fd, (struct sockaddr *)&client, &len_client);
+            if(c_fd < 0) {
+                perror("accept");
+            }
+            set_nonblock(c_fd);
+            epoll_add_fd(epoll_fd, c_fd, EPOLLIN | EPOLLET);
+            continue;
+        }
+        if(events[i].events & EPOLLIN) {
+            printf("edge trigger once.\n");
+            while(1) {
+                char buff[5] = {0};
+                int ret = recv(fd, buff, sizeof(buff)-1, 0);
+                if(ret < 0) {
+                    if(errno == EINTR) {
+                        continue;
+                    }
+                    else if(errno == EAGAIN) {
+                        break;
+                    }
+                    else {
+                        perror("recv");
+                        epoll_del_fd(epoll_fd, fd);
+                        close(fd);
+                        break;
+                    }
+                }
+                else if(ret == 0) {
+                    printf("peer close socket\n");
+                    epoll_del_fd(epoll_fd, fd);
+                    close(fd);
+                    break;
+                }
+                else {
+                    ;
+                }
+
+            }
+        }
+    }
+
+}
+
 
 
 
