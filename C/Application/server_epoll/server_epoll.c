@@ -260,6 +260,18 @@ void edge_trigger(struct epoll_event *events, int ret, int epoll_fd, int l_fd)
 }
 
 
+void worker(void *ARG)
+{
+    arg_t arg;
+    memcpy(&arg, ARG, sizeof(arg));
+    SAFE_FREE(ARG);
+
+    int epoll_fd = arg.epoll_fd;
+    int fd = arg.fd;
+
+
+}
+
 
 
 
