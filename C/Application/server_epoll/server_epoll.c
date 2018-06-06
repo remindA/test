@@ -27,6 +27,7 @@
 
 int l_fd;
 int fd_epoll;
+struct list_head obj_tab;
 extern int h_errno;    /* for get hostbyname #include <netdb.h> */
 
 /* system may failed somtimes, wo need to change signal behavior of SIG_CHLD */
@@ -42,6 +43,9 @@ int epoll_add_fd(int fd_epoll, int fd, int mode);
 int epoll_del_fd(int fd_epoll, int fd);
 void edge_trigger(struct epoll_event *event, int ret, int epoll_fd, int l_fd);
 void level_trigger(struct epoll_event *events, int ret, int epoll_fd, int l_fd);
+int process_http_obj(http_obj_t *obj); 
+int process_http_header(http_obj_t *obj);
+int http_header_parseline(http_header_t *header);
 
 #define MAX_EVENTS 100
 int main(int argc, char **argv)
@@ -72,9 +76,11 @@ void sig_handler(int signo)
 {
     switch(signo) {
         case SIGPIPE:
+            printf("ignore SIGPIPE\n");
             syslog(LOG_INFO, " ignore SIGPIPE");
             break;
         default:
+            printf("exit cause of sig_%d\n", signo);
             syslog(LOG_INFO, " exit because of sig_%d", signo);
             exit(1);
     }
@@ -109,19 +115,21 @@ int proxy_listen(void)
     }
     printf("register SIGUSR2=%d\n", SIGUSR2);
 
-    int i, ret;
+    int ret;
     set_nonblock(l_fd);
     epoll_add_fd(fd_epoll, l_fd, EPOLLIN);
     struct epoll_event events[MAX_EVENTS];
+    init_list_head(&obj_tab);
 
+    /* 可创建线程做额外的工作 */
     while(1) {
         ret = epoll_wait(fd_epoll, events, MAX_EVENTS, -1);
         if(ret < 0) {
             perror("epoll_wait()");
+            continue;
         }
         edge_trigger(events, ret, fd_epoll, l_fd);
     }
-    //隐式回收
     printf("==========finish proxy_listen()==========\n");
     return 0;
 }
@@ -167,137 +175,192 @@ void edge_trigger(struct epoll_event *events, int ret, int epoll_fd, int l_fd)
     {
         int fd = events[i].data.fd;
         if(fd == l_fd) {
+            printf("listen edge trigger once.\n");
             struct sockaddr_in client;
             socklen_t len_client = sizeof(client);
             int c_fd = accept(l_fd, (struct sockaddr *)&client, &len_client);
             if(c_fd < 0) {
                 perror("accept");
             }
-            set_nonblock(c_fd);
-            epoll_add_fd(epoll_fd, c_fd, EPOLLIN | EPOLLET);
-
+            http_obj_t *obj = http_obj_create();
+            if(obj && (http_obj_init(obj, c_fd) > 0)) {
+                set_nonblock(c_fd);
+                epoll_add_fd(epoll_fd, c_fd, EPOLLIN | EPOLLET);
+                list_add_tail(&(obj->list), &obj_tab);
+            }
+            else {
+                close(c_fd);
+            }
+            printf("finish listen edge trigger\n");
             continue;
         }
         if(events[i].events & EPOLLIN) {
-            printf("edge trigger once.\n");
-            process_http_obj(fd);
+            printf("client edge trigger once.\n");
+            http_obj_t *obj = http_obj_get(&obj_tab, fd);
+            printf("obj = %p\n", obj);
+            if(NULL == obj) {
+                printf("can not happend, and it happend\n");
+                continue;
+            }
+            int ret = process_http_obj(obj);
+            switch(ret) {
+                case _OBJ_AGN:
+                    break;
+                case _OBJ_ERR:
+                case _OBJ_CLS:
+                case _OBJ_BAD:
+                    list_del(&(obj->list));
+                    http_obj_free(obj);
+                    SAFE_FREE(obj);
+                    epoll_del_fd(epoll_fd, fd);
+                    close(fd);
+                    break;
+            }
         }
     }
 
 }
 
-int process_http_obj(int fd)
-{
-    int ret;
-    int end_loop = 0;
-    http_obj_t *obj = http_obj_get(fd);
-    while(!end_loop) {
-        switch(obj->state) {
-            case _STATE_HEADER_AGAIN:
-                /* switch state to recv and end loop */
-                end_loop = 1;
-                obj->state = _STATE_HEADER_RECV;
-                break;
-            case _STATE_HEADER_RECV:
-                ret = read(obj->fd, obj->buff_hdr.buff+obj->tot, len-tot);
-                if(ret < 0) {
-                    if(errno == EINTR) {
-                        continue;
-                    }
-                    else if(errno == EAGAIN) {
-                        obj->state = _STATE_HEADER_AGAIN:
-                    }
-                    else {
-                        perror("read()");
-                        end_loop = 1;
-                        obj->state = _STATE_HEADER_ERR;
-                    }
-                }
-                else if(ret == 0) {
-                    end_loop = 1;
-                    printf("peer close socket\n");
-                    obj->state = _STATE_HEADER_CLOSE;
-                }
-                else {
-                    /* switch to _STATE_HEADER_PARSE */
-                    obj->state = _STATE_HEADER_PARSE;
-                }
-                break;
-            case _STATE_HEADER_PARSE:
-                /* parse之后会做状态切换 */
-                /*
-                 * _STATE_HEADER_PARSE
-                 * _STATE_HEADER_RECV
-                 * _STATE_HEADER_PRCSS
-                 * _STATE_HEADER_BAD
-                 */
-                http_parse_header(obj);
-                break;
-            case _STATE_HEADER_PRCSS:
-                /* prcss: 进行处理,内容检测,内容替换 */
-            case _STATE_HEADER_BAD:
-                end_loop = 1;
-                break;
-            case _STATE_HEADER_ERR:
-                end_loop = 1;
-                break;
-            case _STATE_HEADER_END:
-
-                break;
-        }
-
-    }
-}
 
 /*
- * 调用一次只做一件事
- * 调用此函数现态一定是_STATE_HEADER_PARSE
+ * obj状态
+ *      header
+ *      body
+ *      error
+ *      close
+ *      bad
  */
-void http_parse_obj(http_obj_t *obj)
+int process_http_obj(http_obj_t *obj) 
 {
+    /*
+     * 根据obj->state来走流程
+     */
     int ret;
-    size_t tot = obj->tot;
-    size_t off = obj->off;
-    size_t start = obj->off;
-    const char *buff = obj->buff_hdr.buff;
-    switch(locate_line(buff, tot, &off)) {
-        case _LINE_HALF:
-            obj->state = _STATE_HEADER_RECV; 
-            break;
-        case _LINE_FULL:
-            if(_STATE_REQLINE == obj->line_st) {
-                //解析请求行
-                ret = http_parse_reqline(header, buff+start, off-start)
-                    if(ret == IS_BAD_REQLINE) {
-                        obj->state = _STATE_HEADER_BAD;
-                    }
-                obj->line_st = _STATE_FIELDLINE;
-            }
-            else if(_STATE_FIELDLINE == obj->line_st){
-                //解析域行
-                ret = http_parse_field(header, buff+start, off-start);
-                if(ret == IS_BAD_FIELD) {
-                    obj->state = _STATE_HEADER_BAD;
+    while(1) {
+        switch(obj->state) {
+            case STATE_OBJ_HDR:
+                printf("STATE_OBJ_HDR\n");
+                ret = process_http_header(obj);
+                if(ret == _HEADER_ERR) {
+                    obj->state = STATE_OBJ_ERR;
                 }
-                else if(ret == IS_EMPTY_LINE) {
-                    /* crlf, switch to process */
-                    obj->state = _STATE_HEADER_PRCSS;
+                else if(ret == _HEADER_CLS) {
+                    obj->state = STATE_OBJ_CLS;
                 }
-            }
-            /* 一个完整的行，偏移量一定要改变 */
-            obj->off = off;
-            break;
+                else if(ret == _HEADER_AGN) {
+                    obj->state = STATE_OBJ_HDR;  /* not necessary */
+                    return _OBJ_AGN;
+                }
+                else if(ret == _HEADER_CON){
+                    obj->state = STATE_OBJ_HDR; /* not necessary */
+                }
+                else if(ret == _HEADER_END) {
+                    obj->state = STATE_OBJ_BDY;
+                }
+                break;
+            case STATE_OBJ_BDY:
+                {
+                    ret = process_http_body(obj);
+                    
+                }
+
+                /* err, close, bad都意味着本次请求将会被终止 */
+            case STATE_OBJ_ERR:
+                printf("STATE_OBJ_ERR\n");
+                return _OBJ_ERR;
+            case STATE_OBJ_CLS:
+                printf("STATE_OBJ_CLS\n");
+                return _OBJ_CLS;
+            case STATE_OBJ_BAD:
+                printf("STATE_OBJ_BAD\n");
+                return _OBJ_BAD;
+        }
     }
 }
 
-int http_parse_reqline(http_header_t *header, const char *buff, size_t len)
-{
 
+/*
+ * 此函数只用于读取并解析header
+ * header状态
+ *      recv
+ *      parse
+ */
+int process_http_header(http_obj_t *obj)
+{
+    int fd = obj->fd;
+    http_header_t *header = &(obj->header);
+    int ret;
+    switch(header->state) {
+        case STATE_HEADER_RECV: 
+            printf("STATE_HEADER_RECV\n");
+            ret = readline_nonblock(fd, &(header->line));
+            if(ret == _READLINE_ERR) {
+                header->state = STATE_HEADER_RECV; /* not necessary */ 
+                return _HEADER_ERR;
+            }
+            else if(ret == _READLINE_CLS) {
+                header->state = STATE_HEADER_RECV; /* not necessary */ 
+                return _HEADER_CLS;
+            }
+            else if(ret == _READLINE_AGN) {
+                header->state = STATE_HEADER_RECV; /* not necessary */ 
+                return _HEADER_AGN;
+            }
+            /* full line */ 
+            else if(ret == _READLINE_END){
+                header->state = STATE_HEADER_PARSE; 
+                return _HEADER_CON;
+            }
+            break;
+        case STATE_HEADER_PARSE:
+            printf("STATE_HEADER_PARSE\n");
+            ret = http_header_parseline(header);
+            if((ret == _PARSELINE_BAD_FIRST) || (ret == _PARSELINE_BAD_FIELD)) {
+                printf("_parseline_bad\n");
+                header->state = STATE_HEADER_RECV;  /* not necessary */
+                return _HEADER_BAD;
+            }
+            else if(ret == _PARSELINE_CON) {
+                printf("_parseline_con\n");
+                header->state = STATE_HEADER_RECV;
+                return _HEADER_CON;
+            }
+            else if(ret == _PARSELINE_ERR) {
+                printf("_parseline_err\n");
+                header->state = STATE_HEADER_RECV;  /* not necessary */
+                return _HEADER_ERR;
+            }
+            else if(ret == _PARSELINE_EPT){
+                printf("_parseline_ept\n");
+                header->state = STATE_HEADER_END;
+                return __HEADER_MAX;
+            }
+            break;
+        case STATE_HEADER_END:
+            printf("STATE_HEADER_END\n");
+            return _HEADER_END;
+    }
 }
 
-int http_parse_field(http_header_t *header, const char *buff, size_t len)
+int http_header_parseline(http_header_t *header)
 {
-
+    int ret;
+    switch(header->state_line) {
+        case STATE_LINE_FIRST:
+            printf("STATE_LINE_FIRST\n");
+            header->state_line = STATE_LINE_FIELD;
+            ret = http_parse_firstline(header);
+            line_reset(&(header->line));
+            return ret;
+        case STATE_LINE_FIELD:
+            printf("STATE_LINE_FIELD\n");
+            header->state_line = STATE_LINE_FIELD; /* not necessary */
+            ret = http_parse_field(header);
+            line_reset(&(header->line));
+            return ret;
+    }
 }
+
+
 
 

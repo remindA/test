@@ -20,180 +20,6 @@
  */
 #include "socket_tools.h"
 
-int readn(int fd, void *buff, int n)
-{
-#ifdef FUNC
-    printf("==========start _readn()==========\n");
-#endif
-    ssize_t nread;
-    size_t nleft = n;
-    char *ptr = buff;
-
-    while (nleft > 0)
-    {
-        nread = read(fd, ptr, nleft);
-        if (nread < 0)
-        {
-            if (errno == EINTR)
-            {
-                perror("readn read");
-                continue;
-            }
-            else
-            {
-                perror("readn read");
-                return -1;
-            }
-        }
-        else if (nread == 0)
-        {
-            perror("readn 0");
-            break;
-        }
-        nleft -= nread;
-        ptr += nread;
-    }
-#ifdef FUNC
-    printf("==========finish _readn()==========\n");
-#endif
-    return n - nleft;
-}
-
-/* 行长度不能超过cnt */
-int read_line(int fd, char *buff, int cnt)
-{
-#ifdef FUNC
-    printf("==========start _read_line()==========\n");
-#endif
-    int tot_read = 0;
-    int n = 0;
-    char c = 0;
-
-    while (1)
-    {
-        n = read(fd, &c, 1);
-        if (n < 0)
-        {
-            perror("read()");
-            if (errno == EINTR)
-                continue;
-            else
-                return n;
-        }
-        else if (n == 0)
-        {
-            break;
-        }
-        else
-        {
-            if (tot_read < cnt - 1)
-            {
-                tot_read++;
-                *buff++ = c;
-            }
-            //一行超过最大缓存长度的部分就被截断了
-            //需要修改
-        }
-        if (c == '\n')
-            break;
-    }
-#ifdef FUNC
-    printf("==========finish _read_line()==========\n");
-#endif
-    return tot_read;
-}
-
-
-/*
- * return:
- *      ok      : >0
- *      failed  : -1
- */ 
-int my_write(int fd, const char *fmt, ...)
-{
-#ifdef FUNC
-    printf("========start my_write()=======\n");
-#endif
-    int wr = 0;
-    int left;
-    int offset;
-    int len = 0;
-    int wr_tot = 0;
-    unsigned char *buff;
-
-#ifdef TIME_COST
-    struct timeval strt;
-    struct timeval end;
-    gettimeofday(&strt, NULL);
-#endif
-    va_list ap;
-    va_start(ap, fmt);
-    while(*fmt) {
-        switch(*fmt++) {
-            case 'l':
-                {
-                    len = va_arg(ap, int);
-                    break;
-                }
-            case 'd':
-                {
-                    buff = va_arg(ap, unsigned char *);
-                    left = len;
-                    offset = 0;
-                    while(left > 0) {
-                        wr = write(fd, buff + offset, left);
-                        if(wr < 0) {
-                            perror("write()");
-                            return -1;
-                        }
-                        left   -= wr;
-                        wr_tot += wr;
-                        offset += wr;
-                    }
-                    break;
-                }
-            default: 
-                break;
-        }
-    }
-    va_end(ap);
-#ifdef TIME_COST
-    gettimeofday(&end, NULL);
-    printf("execute my_write use time: start=%lds %ldms, end in %lds %ldms\n", strt.tv_sec, strt.tv_usec, end.tv_sec, end.tv_usec);
-#endif
-#ifdef FUNC
-    printf("========finish my_write()=======\n");
-#endif
-    return wr_tot;
-}
-
-/*
- * 使用writev()写这个版本
- */
-int mywrite(int fd, const char *fmt, ...)
-{
-    int ret;
-    int len = 0;
-    int wr_tot = 0;
-    unsigned char *buff;
-    va_list ap;
-    va_start(ap, fmt);
-    while(*fmt) {
-        switch(*fmt++) {
-            case 'l':
-                len = va_arg(ap, int);
-                break;
-            case 'd':
-                buff = va_arg(ap, unsigned char *);
-                break;
-            default: 
-                break;
-        }
-    }
-    va_end(ap);
-    return wr_tot;
-}
-
 int get_peer_addr(int fd, char *ip, unsigned short *port)
 {
     struct sockaddr_in sock;
@@ -443,3 +269,145 @@ int hex2dec(const char *hex, unsigned int *dec)
     return 0;
 }
 
+/*********************************
+ 
+  非阻塞io接口封装
+
+ **********************************/
+
+int line_calloc(line_t *line, size_t max)
+{
+    line->buff = (char *)calloc(1, max);
+    if(NULL == line->buff) {
+        perror("calloc()");
+        return -1;
+    }
+    line->max = max;
+    line_reset(line);
+    return 1;
+}
+
+int line_realloc(line_t *line, size_t step)
+{
+    line->buff = (char *)realloc(line->buff, line->max+step);
+    if(NULL == line->buff) {
+        return -1;
+    }
+    line->max += step;
+    return 1;
+}
+
+void line_reset(line_t *line)
+{
+    memset(line->buff, 0, line->max);
+    line->tot = 0;
+    line->state = LINE_HALF;
+}
+
+int readline_nonblock(int fd, line_t *line)
+{
+#ifdef FUNC
+    printf("==========start _read_line_nonblock()==========\n");
+#endif
+    int n = 0;
+    char c = 0;
+
+    while (LINE_HALF == line->state) {
+        n = read(fd, &c, 1);
+        if (n < 0) {
+            if (errno == EINTR)
+                continue;
+            else if(errno == EAGAIN) {
+                return _READLINE_AGN;
+            }
+            else {
+                return _READLINE_ERR;
+            }
+        }
+        else if (n == 0) {
+            return _READLINE_CLS;
+        }
+        else {
+            if(line->tot < (line->max-1)) {
+                line->buff[line->tot] = c;
+                line->tot += 1;
+            }
+            else {
+                /* 扩容 */
+                line->buff = realloc(line->buff, line->max+LINE_EXT_STEP);
+                if(NULL == line->buff) {
+                    perror("realloc()");
+                    line->max = 0;
+                    line->tot = 0;
+                    return _READLINE_ERR;
+                }
+                line->max += LINE_EXT_STEP;
+                line->buff[line->tot] = c;
+                line->tot += 1;
+            }
+        }
+        if (c == '\n')
+            line->state = LINE_FULL;
+    }
+#ifdef FUNC
+    printf("==========finish _read_line()==========\n");
+#endif
+    printf("line = [%s]\n", line->buff);
+    return _READLINE_END;
+}
+
+/*
+关于line解析
+    switch(line->state) {
+        case LINE_HALF:
+            ret = readline_nonblock(fd, line);
+            break;
+        case LINE_FULL:
+            break;
+        }
+    }
+    if(ret == READLINE_ERR || ret == READLINE_CLS) {
+        return ret;
+    }
+    
+ */
+
+
+
+/*
+ * return: 
+ *  -1:  ERR
+ *   0:  CLS
+ *   1:  AGN
+ *   2:  END
+ */
+int readn_nonblock(int fd, buffer_t *buffer)
+{
+#ifdef FUNC
+    printf("==========start _readn()==========\n");
+#endif
+    int n;
+    while (buffer->tot < buffer->max) {
+        n = read(fd, buffer->buff+buffer->tot, buffer->max-buffer->tot);
+        if (n < 0) {
+            if (errno == EINTR) {
+                continue;
+            }
+            else if(errno == EAGAIN)
+            {
+                return _READN_AGN;
+            }
+            else {
+                return _READN_ERR;
+            }
+        }
+        else if (n == 0) {
+            return _READN_CLS;
+        }
+        buffer->tot += n;
+    }
+#ifdef FUNC
+    printf("==========finish _readn()==========\n");
+#endif
+    return _READN_END;
+}
