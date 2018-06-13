@@ -108,6 +108,7 @@ enum {
 enum {
     STATE_OBJ_HDR = 0,
     STATE_OBJ_BDY,
+    STATE_OBJ_SND,
     STATE_OBJ_ERR,
     STATE_OBJ_CLS,
     STATE_OBJ_BAD,
@@ -169,10 +170,25 @@ typedef struct _http_header{
 }http_header_t;
 
 //查找后期用哈希链表优化
+
+/*
+ * obj
+ *      fd: 连接
+ *      state: 当前的执行状态
+ *      header: 请求header
+ *      body: 请求body
+ *
+ *      rsphdr: 响应header
+ *      srpbdy: 响应body
+ */
 typedef struct {
     int fd;
     int state;
-    http_header_t header;
+    http_header_t reqhdr;
+    http_body_t reqbdy;
+
+    http_header_t rsphdr;
+    http_body_t rspbdy;
     struct list_head list;
 }http_obj_t;
 

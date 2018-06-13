@@ -43,9 +43,10 @@ int epoll_add_fd(int fd_epoll, int fd, int mode);
 int epoll_del_fd(int fd_epoll, int fd);
 void edge_trigger(struct epoll_event *event, int ret, int epoll_fd, int l_fd);
 void level_trigger(struct epoll_event *events, int ret, int epoll_fd, int l_fd);
-int process_http_obj(http_obj_t *obj); 
+int http_recv_handler(http_obj_t *obj); 
 int process_http_header(http_obj_t *obj);
 int http_header_parseline(http_header_t *header);
+int http_send_handler(http_obj_t *obj);
 
 #define MAX_EVENTS 100
 int main(int argc, char **argv)
@@ -171,6 +172,7 @@ int epoll_del_fd(int fd_epoll, int fd)
 void edge_trigger(struct epoll_event *events, int ret, int epoll_fd, int l_fd)
 {
     int i;
+    int rt;
     for(i = 0; i < ret; i++)
     {
         int fd = events[i].data.fd;
@@ -194,21 +196,35 @@ void edge_trigger(struct epoll_event *events, int ret, int epoll_fd, int l_fd)
             printf("finish listen edge trigger\n");
             continue;
         }
+
+        printf("client edge trigger once.\n");
+        http_obj_t *obj = http_obj_get(&obj_tab, fd);
+        if(NULL == obj) {
+            printf("can not happen, and it happend\n");
+            continue;
+        }
         if(events[i].events & EPOLLIN) {
-            printf("client edge trigger once.\n");
-            http_obj_t *obj = http_obj_get(&obj_tab, fd);
-            printf("obj = %p\n", obj);
-            if(NULL == obj) {
-                printf("can not happend, and it happend\n");
-                continue;
-            }
-            int ret = process_http_obj(obj);
-            switch(ret) {
+            rt = http_recv_handler(obj);
+            switch(rt) {
                 case _OBJ_AGN:
                     break;
                 case _OBJ_ERR:
                 case _OBJ_CLS:
                 case _OBJ_BAD:
+                    list_del(&(obj->list));
+                    http_obj_free(obj);
+                    SAFE_FREE(obj);
+                    epoll_del_fd(epoll_fd, fd);
+                    close(fd);
+                    break;
+            }
+        }
+        if(events[i].events &EPOLLOUT) {
+            rt = http_send_handler(obj);
+            switch(rt) {
+                case _OBJ_AGN:
+                    break;
+                case _OBJ_ERR:
                     list_del(&(obj->list));
                     http_obj_free(obj);
                     SAFE_FREE(obj);
@@ -230,7 +246,7 @@ void edge_trigger(struct epoll_event *events, int ret, int epoll_fd, int l_fd)
  *      close
  *      bad
  */
-int process_http_obj(http_obj_t *obj) 
+int http_recv_handler(http_obj_t *obj) 
 {
     /*
      * 根据obj->state来走流程
@@ -260,8 +276,9 @@ int process_http_obj(http_obj_t *obj)
                 break;
             case STATE_OBJ_BDY:
                 {
+                    /* 支持请求的content-length, chunked, gzip*/
                     ret = process_http_body(obj);
-                    
+                     
                 }
 
                 /* err, close, bad都意味着本次请求将会被终止 */
@@ -280,59 +297,59 @@ int process_http_obj(http_obj_t *obj)
 
 
 /*
- * 此函数只用于读取并解析header
- * header状态
+ * 此函数只用于读取并解析reqhdr
+ * reqhdr状态
  *      recv
  *      parse
  */
 int process_http_header(http_obj_t *obj)
 {
     int fd = obj->fd;
-    http_header_t *header = &(obj->header);
+    http_header_t *reqhdr = &(obj->reqhdr);
     int ret;
-    switch(header->state) {
+    switch(reqhdr->state) {
         case STATE_HEADER_RECV: 
             printf("STATE_HEADER_RECV\n");
-            ret = readline_nonblock(fd, &(header->line));
+            ret = readline_nonblock(fd, &(reqhdr->line));
             if(ret == _READLINE_ERR) {
-                header->state = STATE_HEADER_RECV; /* not necessary */ 
+                reqhdr->state = STATE_HEADER_RECV; /* not necessary */ 
                 return _HEADER_ERR;
             }
             else if(ret == _READLINE_CLS) {
-                header->state = STATE_HEADER_RECV; /* not necessary */ 
+                reqhdr->state = STATE_HEADER_RECV; /* not necessary */ 
                 return _HEADER_CLS;
             }
             else if(ret == _READLINE_AGN) {
-                header->state = STATE_HEADER_RECV; /* not necessary */ 
+                reqhdr->state = STATE_HEADER_RECV; /* not necessary */ 
                 return _HEADER_AGN;
             }
             /* full line */ 
             else if(ret == _READLINE_END){
-                header->state = STATE_HEADER_PARSE; 
+                reqhdr->state = STATE_HEADER_PARSE; 
                 return _HEADER_CON;
             }
             break;
         case STATE_HEADER_PARSE:
             printf("STATE_HEADER_PARSE\n");
-            ret = http_header_parseline(header);
+            ret = http_header_parseline(reqhdr);
             if((ret == _PARSELINE_BAD_FIRST) || (ret == _PARSELINE_BAD_FIELD)) {
                 printf("_parseline_bad\n");
-                header->state = STATE_HEADER_RECV;  /* not necessary */
+                reqhdr->state = STATE_HEADER_RECV;  /* not necessary */
                 return _HEADER_BAD;
             }
             else if(ret == _PARSELINE_CON) {
                 printf("_parseline_con\n");
-                header->state = STATE_HEADER_RECV;
+                reqhdr->state = STATE_HEADER_RECV;
                 return _HEADER_CON;
             }
             else if(ret == _PARSELINE_ERR) {
                 printf("_parseline_err\n");
-                header->state = STATE_HEADER_RECV;  /* not necessary */
+                reqhdr->state = STATE_HEADER_RECV;  /* not necessary */
                 return _HEADER_ERR;
             }
             else if(ret == _PARSELINE_EPT){
                 printf("_parseline_ept\n");
-                header->state = STATE_HEADER_END;
+                redhdr->state = STATE_HEADER_END;
                 return __HEADER_MAX;
             }
             break;
