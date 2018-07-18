@@ -1,4 +1,4 @@
-#include <stdio.h>
+
 
 
 int main(int argc, char **argv)
@@ -62,6 +62,12 @@ int main(int argc, char **argv)
     char n2[256] = {0};
     sscanf(n1, "%[^.].%*s", n2);
     printf("n2=%s\n", n2);
+    char *url = "32040000000@192.168.1.1:5069\n";
+    char username[128] = {0};
+    char ip[40] = {0};
+    char ports[12] = {0};
+    sscanf(url, "%[^@]@%[^:]:%[0-9]", username, ip, ports);
+    printf("username=%s, ip=%s, ports=%s", username, ip, ports);
 
 	return 0;
 }
