@@ -8,12 +8,12 @@ int main(int argc, char argv)
 {
     printf("parent is %d\n", getpid());
     /*
-    if(signal(SIGCHLD, sig_handle) == SIG_ERR)
-    {
-        perror("signal");
-        exit(0);
-    }
-    */
+       if(signal(SIGCHLD, sig_handle) == SIG_ERR)
+       {
+       perror("signal");
+       exit(0);
+       }
+       */
     pid_t pid;
     int i = 0;
     for(i = 0; i < 3; i++)
@@ -45,18 +45,22 @@ int main(int argc, char argv)
     }
     else
     {
-        long int n = sleep(3); //设置了signal handle，sleep失效。
         int status;
         pid_t pid;
-        while((pid = waitpid(0, &status, WNOHANG)) > 0)
-        {
-            if(WIFEXITED(status))
-                printf("child_%d exit(%d)\n", pid, WEXITSTATUS(status));
-            if(WIFSIGNALED(status))
-                printf("child_%d dead signal:%d\n", pid, WTERMSIG(status));
+        while(1) {
+            pid = waitpid(-1, &status, 0);
+            if(pid > 0)
+            {
+                if(WIFEXITED(status))
+                    printf("child_%d exit(%d)\n", pid, WEXITSTATUS(status));
+                if(WIFSIGNALED(status))
+                    printf("child_%d dead signal:%d\n", pid, WTERMSIG(status));
 
+            }
+            else {
+                printf("wait_pid, return nothing\n");
+            }
         }
-        printf("i == %d, pid=%d, n == %ld\n", i, getpid(), n);
     }
     return 0;
 }
