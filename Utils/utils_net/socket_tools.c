@@ -199,8 +199,12 @@ int get_peer_addr(int fd, char *ip, unsigned short *port)
     struct sockaddr_in sock;
     socklen_t len = sizeof(sock);
     getpeername(fd, (struct sockaddr *)&sock, &len);
-    strcpy(ip, inet_ntoa(sock.sin_addr));
-    *port = ntohs(sock.sin_port);
+    if(ip) {
+        strcpy(ip, inet_ntoa(sock.sin_addr));
+    }
+    if(port) {
+        *port = ntohs(sock.sin_port);
+    }
     return 0;
 }
 
@@ -209,8 +213,12 @@ int get_local_addr(int fd, char *ip, unsigned short *port)
     struct sockaddr_in sock;
     socklen_t len = sizeof(sock);
     getsockname(fd, (struct sockaddr *)&sock, &len);
-    strcpy(ip, inet_ntoa(sock.sin_addr));
-    *port = ntohs(sock.sin_port);
+    if(ip) {
+        strcpy(ip, inet_ntoa(sock.sin_addr));
+    }
+    if(port) {
+        *port = ntohs(sock.sin_port);
+    }
     return 0;
 }
 
@@ -519,6 +527,34 @@ int create_udpsock(const char *_ip, unsigned short _port)
         perror("create_tcpsock: bind()");
         return -1;
     }
+    return _fd;
+}
+
+int create_udpsock_rand_port(const char *_ip, unsigned short *_port)
+{
+    int _fd = socket(AF_INET, SOCK_DGRAM, 0);
+    if(_fd < 0) {
+        perror("create_udpsock: socket()");
+        return -1;
+    }
+    if(_port <=0 || _port > 65535) {
+        printf("create_udpsock: won't bind socket on port %d\n", _port);
+        return _fd;
+    }
+    struct sockaddr_in _addr;
+    memset(&_addr, 0, sizeof(_addr));
+    _addr.sin_family = AF_INET;
+    _addr.sin_port = htons(0);
+    if(NULL == _ip) {
+        _addr.sin_addr.s_addr = htonl(INADDR_ANY);
+    } 
+    inet_pton(AF_INET, _ip, &_addr.sin_addr.s_addr);
+    if(bind(_fd, (struct sockaddr *) &_addr, sizeof(_addr)) < 0) {
+        perror("create_tcpsock: bind()");
+        return -1;
+    }
+    
+    get_local_addr(_fd, NULL, _port);
     return _fd;
 }
 
