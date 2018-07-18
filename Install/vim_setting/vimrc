@@ -79,6 +79,9 @@ set termencoding=utf-8
 set fileencodings=utf-8,gbk
 let &termencoding=&encoding
 
+"设置switch和case对其
+set cino+=:0
+
 "Tlist自动开启，在窗口左侧
 let Tlist_Auto_Open=1
 let Tlist_Use_Right_Window=0
