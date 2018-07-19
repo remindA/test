@@ -21,5 +21,10 @@ int main()
     sprintf(buff, "%s %s", buff, "/");
     sprintf(buff, "%s %s\r\n", buff, "HTTP/1.1");
     printf("[%s]\n", buff);
+
+    char *com = "this is my city";
+    char comm[123] = {0};
+    sprintf(comm, "%.*s", 5, com);
+    printf("%s\n", comm);
 	return 0;
 }
