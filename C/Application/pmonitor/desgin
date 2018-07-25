@@ -1,0 +1,31 @@
+basic:
+    1. monitor作为父进程繁衍处所有要监控的子进程
+    2. 子进程挂掉重启
+
+more:
+    1. 保存子进程的命令行参数
+    2. 记录子进程的挂掉次数，以及每次挂掉的comment(pid,timestamp,why...)
+    3. 提供命令行支持
+        start(支持提供参数)
+        stop(支持name和pid)
+        restart
+        log
+        show
+    4. 可以干掉自己(干掉/不干掉所有被监控进程)
+    5. 定时检查进程是否存在(sigchld是不可靠信号), 清理僵尸进程
+
+howto:
+    关键: sigchld来的时候一定要即使处理，不能遗漏
+    1. software architecture: event driven
+        1) signal
+        2) io: use unix socket as interface
+        3) timer: 定时检查
+
+
+    程序特点:
+        1. 一个fd监听
+        2. 一个定时器函数
+        3. 一个回收函数
+    分析:不要使用事件驱动模型,不追求并发，也不追求吞吐量
+    就用简单的轮训即可
+    
