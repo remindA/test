@@ -15,19 +15,25 @@
  *
  * =====================================================================================
  */
-
+#include "utils_net.h"
 /*
+ * 创建的套接字已经设置了reuseaddr属性
  * return :
  *  failed: -1
  *  ok    : fd
  */
-int sock_create_tcp(const char *ip, unsigned short port)
+int sock_create_tcp(const char *ip, unsigned short port, int backlog)
 {
     int fd = socket(AF_INET, SOCK_STREAM, 0);
     if(fd < 0) {
         perror("socket()");
         return -1;
     }
+    if(sock_set_reuseaddr(fd) < 0) {
+        close(fd);
+        return -1;
+    }
+
     struct sockaddr_in local_addr;
     memset(&local_addr, 0, sizeof(local_addr));
 
@@ -52,7 +58,7 @@ int sock_create_tcp(const char *ip, unsigned short port)
         perror("bind()");
         goto err;
     }
-    if(listen(fd, max) < 0) {
+    if(listen(fd, backlog) < 0) {
         perror("listen()");
     }
     return fd;
@@ -63,6 +69,7 @@ err:
 
 
 /*
+ * 阻塞连接到ip:port
  * return :
  *  failed: -1
  *  ok    : fd
@@ -80,7 +87,7 @@ int sock_connect(const char *ip, unsigned short port)
     server_addr.sin_family = AF_INET;
     server_addr.sin_port = htons(port);
 
-    switch(inet_pton(AF_INET, ip, &local_addr.sin_addr.s_addr)) {
+    switch(inet_pton(AF_INET, ip, &server_addr.sin_addr.s_addr)) {
     case -1:
         perror("inet_pton()");
         goto err;
@@ -125,7 +132,7 @@ int sock_connect_timeout(const char *ip, unsigned short port, int timeout)
     memset(&server_addr, 0, sizeof(server_addr));
     server_addr.sin_family = AF_INET;
     server_addr.sin_port = htons(port);
-    switch(inet_pton(AF_INET, host, &(server_addr.sin_addr.s_addr))) {
+    switch(inet_pton(AF_INET, ip, &(server_addr.sin_addr.s_addr))) {
     case -1:
         perror("inet_pton()");
         goto err;
@@ -137,7 +144,7 @@ int sock_connect_timeout(const char *ip, unsigned short port, int timeout)
     }
 
     if(0 == connect(fd, (struct sockaddr *) &server_addr, sizeof(server_addr))) {
-        if(fcntl(s_fd, F_SETFL, flags) < 0) {
+        if(fcntl(fd, F_SETFL, flags) < 0) {
             perror("fcntl(F_SETFL)");
             goto err;
         }
@@ -176,7 +183,7 @@ int sock_connect_timeout(const char *ip, unsigned short port, int timeout)
                 goto err;
             }
             else {
-                if(fcntl(s_fd, F_SETFL, flags) < 0) {
+                if(fcntl(fd, F_SETFL, flags) < 0) {
                     perror("fcntl(F_SETFL)");
                     goto err;
                 }
@@ -198,12 +205,12 @@ err:
  */
 int sock_set_nonblock(int fd)
 {
-    int flags = fcntl(s_fd, F_GETFL, 0);
+    int flags = fcntl(fd, F_GETFL, 0);
     if(flags < 0) {
         perror("fcntl(F_GETFL)");
         return -1;
     }
-    if(fcntl(s_fd, F_SETFL, flags | O_NONBLOCK) < 0) {
+    if(fcntl(fd, F_SETFL, flags | O_NONBLOCK) < 0) {
         perror("fcntl(F_SETFL)");
         return -1;
     }
@@ -215,7 +222,7 @@ int sock_set_nonblock(int fd)
  *   0  : ok
  *   -1 : failed
  */
-int sock_set_reuseraddr(int _fd)
+int sock_set_reuseaddr(int _fd)
 {
     int opt = 1;
     if(setsockopt(_fd, SOL_SOCKET, SO_REUSEADDR, &opt, sizeof(opt)) < 0) {
@@ -260,7 +267,7 @@ int sock_get_peeraddr(int fd, char *ip, unsigned short *port)
  * only get port, if ip == NULL
  * get both ip and port
  */
-int get_local_addr(int fd, char *ip, unsigned short *port)
+int sock_get_localaddr(int fd, char *ip, unsigned short *port)
 {
     struct sockaddr_in sock;
     socklen_t len = sizeof(sock);
@@ -275,5 +282,9 @@ int get_local_addr(int fd, char *ip, unsigned short *port)
     }
     return 0;
 }
+
+
+
+
 
 
