@@ -1,0 +1,17 @@
+2018.07.21
+    1. 完成命令行参数的解析
+    2. 测试
+    3. 
+     start/stop/restart比较要比较command and arguments
+
+2018.07.23
+    1. 测试pmonitor, ok
+    2. 在创建子进程时, 
+        close(STDIN_FILENO);
+        close(STDOUT_FILENO);
+        close(STDERR_FILENO);
+    如果子进程是cgi程序,可能会有问题。need to think more
+
+    3. 如被监管的进程拥有子进程,不轨我管
+        如果被监管的进程就是守护进程(调用了fork,且主进程退出,那也不归我监管)
+    

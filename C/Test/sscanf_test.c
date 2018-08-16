@@ -67,7 +67,15 @@ int main(int argc, char **argv)
     char ip[40] = {0};
     char ports[12] = {0};
     sscanf(url, "%[^@]@%[^:]:%[0-9]", username, ip, ports);
-    printf("username=%s, ip=%s, ports=%s", username, ip, ports);
+    printf("username=%s, ip=%s, ports=%s\n", username, ip, ports);
+
+    char *kk  = "niu#ya#";
+    char *f = "%[^#]#%[^#]#";
+    int num;
+    char aa[12] = {0};
+    char bb[12] = {0};
+    sscanf(kk, f, aa, bb);
+    printf("%d, %s, %s\n", num, aa, bb);
 
 	return 0;
 }
