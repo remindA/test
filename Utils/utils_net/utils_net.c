@@ -17,7 +17,6 @@
  */
 #include "utils_net.h"
 /*
- * 创建的套接字已经设置了reuseaddr属性
  * return :
  *  failed: -1
  *  ok    : fd
@@ -69,7 +68,6 @@ err:
 
 
 /*
- * 阻塞连接到ip:port
  * return :
  *  failed: -1
  *  ok    : fd
@@ -282,9 +280,5 @@ int sock_get_localaddr(int fd, char *ip, unsigned short *port)
     }
     return 0;
 }
-
-
-
-
 
 
