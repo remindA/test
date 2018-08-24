@@ -282,3 +282,85 @@ int sock_get_localaddr(int fd, char *ip, unsigned short *port)
 }
 
 
+int create_udpsock(const char *_ip, unsigned short _port)
+{
+    int _fd = socket(AF_INET, SOCK_DGRAM, 0);
+    if(_fd < 0) {
+        perror("create_udpsock: socket()");
+        return -1;
+    }
+    struct sockaddr_in _addr;
+    memset(&_addr, 0, sizeof(_addr));
+    _addr.sin_family = AF_INET;
+    _addr.sin_port = htons(_port);
+    if(NULL == _ip) {
+        _addr.sin_addr.s_addr = htonl(INADDR_ANY);
+    } 
+    inet_pton(AF_INET, _ip, &_addr.sin_addr.s_addr);
+    if(bind(_fd, (struct sockaddr *) &_addr, sizeof(_addr)) < 0) {
+        perror("create_tcpsock: bind()");
+        return -1;
+    }
+
+    return _fd;
+}
+
+int create_udpsock_rand_port(const char *_ip, unsigned short *_port)
+{
+    int _fd = socket(AF_INET, SOCK_DGRAM, 0);
+    if(_fd < 0) {
+        perror("create_udpsock: socket()");
+        return -1;
+    }
+    struct sockaddr_in _addr;
+    memset(&_addr, 0, sizeof(_addr));
+    _addr.sin_family = AF_INET;
+    _addr.sin_port = htons(0);
+    if(NULL == _ip) {
+        _addr.sin_addr.s_addr = htonl(INADDR_ANY);
+    } 
+    inet_pton(AF_INET, _ip, &_addr.sin_addr.s_addr);
+    if(bind(_fd, (struct sockaddr *) &_addr, sizeof(_addr)) < 0) {
+        perror("create_tcpsock: bind()");
+        return -1;
+    }
+    printf("create_udpsock_rand_port: %d\n", htons(_addr.sin_port));
+
+    sock_get_localaddr(_fd, NULL, _port);
+    return _fd;
+}
+
+int create_udpsock_rand_port_couple(const char *ip, unsigned short *_port_rtp, int *fd_rtp, int *fd_rtcp, int try)
+{
+    *fd_rtp = -1;
+    *fd_rtcp = -1;
+    while(try) {
+        try--;
+        printf("create_udpsock_rand_port_couple: try = %d\n", try);
+        *fd_rtp = create_udpsock_rand_port(ip, _port_rtp);
+        if(*fd_rtp < 0) {
+            printf("create_udpsock_couple: create random\n");
+            continue;
+        }
+        if(*_port_rtp %2) {
+            close(*fd_rtp);
+            printf("create_udpsock_couple: port =%d, is not even\n", *_port_rtp);
+            continue;
+        }
+        *fd_rtcp = create_udpsock(ip, (*_port_rtp) + 1);
+        if(*fd_rtcp < 0) {
+            close(*fd_rtp);
+            printf("create_udpsock_couple: Can not crate in port odd %d\n", *_port_rtp + 1);
+            continue;
+        }
+        else {
+            break;
+        }
+    }
+    if((*_port_rtp %2 == 0) && (fd_rtp > 0) && (fd_rtcp > 0)) {
+        return 0;
+    }
+    return -1;
+}
+
+
