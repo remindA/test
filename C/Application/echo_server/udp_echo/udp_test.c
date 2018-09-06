@@ -48,7 +48,7 @@ int main(int argc, char **argv)
     int ret;
     char *content = "This is a udp test program.\n";
     while(1) {
-        char buff[2048] = {0};
+        char buff[65535] = {0};
         sendto(fd, content, strlen(content), 0, (struct sockaddr *)&peer, peer_len);
         ret = recvfrom(fd, buff, sizeof(buff)-1, 0, (struct sockaddr *)&peer, &peer_len);
         if(ret < 0) {

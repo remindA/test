@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="GB2312"?>
+<PPVSPMessage>
+    <Version>2.0</Version>
+    <Sequence>555</Sequence>
+    <CommandType>REQUEST</CommandType>
+    <Command>REGISTER</Command>
+    <Params>
+        <NetUnitType>PU</NetUnitType>
+        <DeviceID>666223403</DeviceID>
+        <FirmwareVersion>V5.4.20 build 160726</FirmwareVersion>
+        <LocalIP>10.10.10.119</LocalIP>
+        <LocalPort>9615</LocalPort>
+        <DevType>31</DevType>
+        <Manufacture>0</Manufacture>
+    </Params>
+</PPVSPMessage>

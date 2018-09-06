@@ -38,7 +38,7 @@ int main(int argc, char **argv)
     sock_set_nonblock(fd);
 
     struct sockaddr_in peer;
-    socklen_t peer_len = sizeof(peer_len);
+    socklen_t peer_len = sizeof(peer);
     fd_set rset;
     FD_ZERO(&rset);
     int ret;
@@ -54,12 +54,13 @@ int main(int argc, char **argv)
             continue;
         }
         else {
-            char buff[2048] = {0};
+            char buff[65535] = {0};
             ret = recvfrom(fd, buff, sizeof(buff)-1, 0, (struct sockaddr *)&peer, &peer_len);
             if(ret < 0) {
                 perror("recvfrom()");
             }
             else {
+                printf("len = %d, buff = [%s]\n", ret, buff);
                 sendto(fd, buff, ret, 0, (struct sockaddr *)&peer, peer_len);
             }
         }
