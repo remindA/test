@@ -1,0 +1,9 @@
+基于内核版本linux-3.10.49
+
+2018.10.16
+    1. 实现tcp改包，应用层要用到libnetfilter-queue-1.0.3中的校验函数
+    2. tcp该报维护确认号和序列号需要修改移除内核文件
+            net/netfilter/nfnetlink_queue_core.c
+    3. 改包后的长度可能大于MTU，也要修改内核文件
+            net/netfilter/nfnetlink_queue_core.c
+
