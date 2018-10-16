@@ -1,0 +1,22 @@
+2018.10.11
+    1. 添加自己的conntrack_helper模块
+    2. openwrt太麻烦了，所以选择SR04I平台，可以直接在内核中增加代码
+    3. 文件
+        net/netfilter/nf_conntrack_dtp.c
+        net/ipv4/netfilter/nf_nat_dtp.c
+        include/linux/netfilter/nf_conntrack_dtp.h
+    4. exp暂时没有顾及，先试试模块编译和执行
+
+2018.10.12
+    1. 完成expect相关代码，还未编译通过
+    2. 变异通过，未通过测试
+
+2018.10.15
+    1. 修复mangle_packet()函数的一个bug.
+ 
+2018.10.16
+    1. 期望连接的LAN测的原地址不是192.168.1.100而是10.10.10.37，这个绝对是错误的
+    2. 尝试初始化期望连接时原地址设置为NULL:NULL
+    3. expect函数的中的range.flag必须置位，否则不会SNAT/DNAT成功
+    4. PS: dtp只是测试用基于UDP简单的应用层协议
+            但是这和helper的模板是可以通用的
