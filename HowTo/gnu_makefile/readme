@@ -1,0 +1,10 @@
+2018.10.28
+    1. 如何使用Makefile管理工程
+    2. 这里做简单的Makefile用来管理ARM工程。
+        准备的目录有
+            apps    : 应用目录
+            libs    : 应用库
+            kernel  : 内核源码目录
+            target  : 生成的目标文件
+            drivers : 设备驱动
+            ui      : cgi和www静态资源
