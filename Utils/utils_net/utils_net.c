@@ -21,7 +21,7 @@
  *  failed: -1
  *  ok    : fd
  */
-int sock_create_tcp(const char *ip, unsigned short port, int backlog)
+int tcpsock_create(const char *ip, unsigned short port, int backlog)
 {
     int fd = socket(AF_INET, SOCK_STREAM, 0);
     if(fd < 0) {
@@ -72,7 +72,7 @@ err:
  *  failed: -1
  *  ok    : fd
  */
-int sock_connect(const char *ip, unsigned short port)
+int tcpsock_connect(const char *ip, unsigned short port)
 {
     int fd = socket(AF_INET, SOCK_STREAM, 0);
     if(fd < 0) {
@@ -114,7 +114,7 @@ err:
  *  failed: -1
  *  ok    : 0
  */
-int sock_connect_timeout(const char *ip, unsigned short port, int timeout)
+int tcpsock_connect_timeout(const char *ip, unsigned short port, int timeout)
 {
     int fd = socket(AF_INET, SOCK_STREAM, 0);
     if(fd < 0) {
@@ -282,7 +282,7 @@ int sock_get_localaddr(int fd, char *ip, unsigned short *port)
 }
 
 
-int create_udpsock(const char *_ip, unsigned short _port)
+int udpsock_create(const char *_ip, unsigned short _port)
 {
     int _fd = socket(AF_INET, SOCK_DGRAM, 0);
     if(_fd < 0) {
@@ -305,7 +305,7 @@ int create_udpsock(const char *_ip, unsigned short _port)
     return _fd;
 }
 
-int create_udpsock_rand_port(const char *_ip, unsigned short *_port)
+int udpsock_create_rand_port(const char *_ip, unsigned short *_port)
 {
     int _fd = socket(AF_INET, SOCK_DGRAM, 0);
     if(_fd < 0) {
@@ -330,7 +330,7 @@ int create_udpsock_rand_port(const char *_ip, unsigned short *_port)
     return _fd;
 }
 
-int create_udpsock_rand_port_couple(const char *ip, unsigned short *_port_rtp, int *fd_rtp, int *fd_rtcp, int try)
+int udpsock_create_rand_port_couple(const char *ip, unsigned short *_port_rtp, int *fd_rtp, int *fd_rtcp, int try)
 {
     *fd_rtp = -1;
     *fd_rtcp = -1;
